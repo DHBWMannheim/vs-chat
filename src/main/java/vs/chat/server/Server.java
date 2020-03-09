@@ -33,23 +33,24 @@ public class Server implements Runnable {
 
 	private final ServerContext context = new ServerContext();
 	
+
 	public ServerContext getContext() {
 		return context;
 	}
 
+
 	public void run() {
 		try (var socket = new ServerSocket(PORT)) {
-			while (!context.isCloseRequested()) {
+			while (!this.context.isCloseRequested()) {
 				try (var clientSocket = socket.accept()) {
-					var outer = new PrintWriter(clientSocket.getOutputStream());
-					outer.println("WOOOP");
-					outer.flush();
-					context.setCloseRequested(true);
+					this.context.getQueue().offer(clientSocket);
 				} catch (IOException e) {
+					context.setCloseRequested(true);
 					e.printStackTrace();
 				}
 			}
 		} catch (IOException e1) {
+			context.setCloseRequested(true);
 			e1.printStackTrace();
 		}
 	}
