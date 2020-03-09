@@ -1,29 +1,23 @@
 package vs.chat.server;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.Socket;
 
 public class Worker implements Runnable {
 
 	private final ServerContext context;
+	private final Integer clientId;
+	private final Socket socket;
 
-	public Worker(final ServerContext context) {
+	public Worker(final ServerContext context, final Integer clientId, final Socket socket) {
 		this.context = context;
+		this.clientId = clientId;
+		this.socket = socket;
 	}
 
 	@Override
 	public void run() {
 		while (!this.context.isCloseRequested()) {
-			var socket = this.context.getQueue().poll();
-			if(null != socket) {
-				try {
-					var outer = new PrintWriter(socket.getOutputStream());
-					outer.write("TEST");
-					outer.flush();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			
 		}
 	}
 

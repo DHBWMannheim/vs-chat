@@ -21,16 +21,14 @@ public class Client {
                 socket = new Socket(hostname, PORT);
                 networkOut = new PrintWriter(socket.getOutputStream());
                 networkIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
-
-                System.out.print("Login (username:passwort): ");
-
-                String userInput = userIn.readLine();
-                if (userInput.equals("/exit")) {
-                    System.out.println("Exiting...");
-                    break;
-                }
-                networkOut.println(userInput);
+//                BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
+//                String userInput = userIn.readLine();
+//                if (userInput.equals("/exit")) {
+//                    System.out.println("Exiting...");
+//                    break;
+//                }
+                networkOut.println("LOGIN");
+                networkOut.println("username:passwort");
                 networkOut.flush();
 
                 String response = networkIn.readLine();
