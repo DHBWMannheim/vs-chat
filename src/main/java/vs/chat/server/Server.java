@@ -12,10 +12,11 @@ public class Server implements Runnable {
 
 	public static void main(String[] args) {
 		var server = new Server();
+		
 
 		for (int i = 0; i < WORKER_COUNT; i++) {
-			WORKERS[i] = new Thread(new Worker());
-//			WORKERS[i].start();
+			WORKERS[i] = new Thread(new Worker(server.getContext()));
+			WORKERS[i].start();
 		}
 
 		var listener = new Thread(server);
@@ -30,13 +31,20 @@ public class Server implements Runnable {
 		}
 	}
 
+	private final ServerContext context = new ServerContext();
+	
+	public ServerContext getContext() {
+		return context;
+	}
+
 	public void run() {
 		try (var socket = new ServerSocket(PORT)) {
-			while (true) {
+			while (!context.isCloseRequested()) {
 				try (var clientSocket = socket.accept()) {
 					var outer = new PrintWriter(clientSocket.getOutputStream());
 					outer.println("WOOOP");
 					outer.flush();
+					context.setCloseRequested(true);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
