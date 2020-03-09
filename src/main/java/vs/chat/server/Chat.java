@@ -1,8 +1,24 @@
 package vs.chat.server;
 
-public class Chat {
+import java.io.Serializable;
 
-	private int id;
-	private int[] clients;
+public class Chat implements Serializable {
+
+	private static final long serialVersionUID = -8485304096241606696L;
+	private Integer id;
+	private Integer[] clients;
 	private Message[] messages;
+
+	public Integer getId() {
+		return id;
+	}
+
+	public Integer[] getClients() {
+		return clients;
+	}
+
+	public Message[] getMessages() {
+		return messages;
+	}
+
 }

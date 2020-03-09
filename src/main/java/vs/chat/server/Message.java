@@ -1,7 +1,10 @@
 package vs.chat.server;
 
-public class Message {
+import java.io.Serializable;
 
+public class Message implements Serializable {
+
+	private static final long serialVersionUID = -6508790562250087309L;
 	private int chatId;
 	private int clientId;
 	private int timestamp;
