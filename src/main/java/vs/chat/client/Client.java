@@ -6,12 +6,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class Client extends Thread {
+public class Client {
 
-    public static int PORT = 9876;
+    private static int PORT = 9876;
 
-    @Override
-    public void run() {
+    public static void main(String[] args) {
         String hostname = "localhost";
         PrintWriter networkOut;
         BufferedReader networkIn;
@@ -24,8 +23,11 @@ public class Client extends Thread {
                 networkIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
 
+                System.out.print("Login (username:passwort): ");
+
                 String userInput = userIn.readLine();
-                if (userInput.equals("q")) {
+                if (userInput.equals("/exit")) {
+                    System.out.println("Exiting...");
                     break;
                 }
                 networkOut.println(userInput);
