@@ -17,7 +17,7 @@ public class Client {
         Socket socket = null;
 
         try {
-            while (true) {
+//            while (true) {
                 socket = new Socket(hostname, PORT);
                 networkOut = new PrintWriter(socket.getOutputStream());
                 networkIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -28,12 +28,21 @@ public class Client {
 //                    break;
 //                }
                 networkOut.println("LOGIN");
-                networkOut.println("username:passwort");
+                networkOut.println("woop:woopToo");
                 networkOut.flush();
-
                 String response = networkIn.readLine();
                 System.out.println(response);
-            }
+                
+                networkOut.println("SEND");
+                networkOut.println("woop:woopToo");
+                networkOut.flush();
+
+                
+                
+//                networkOut.println("SEND");
+//                networkOut.println("username:passwort");
+                networkOut.flush();
+//            }
 
         } catch (IOException e) {
             e.printStackTrace();

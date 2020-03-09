@@ -2,7 +2,7 @@ package vs.chat.server;
 
 import java.io.Serializable;
 
-public class Chat implements Serializable {
+public class Chat implements Serializable, IIdentifiable {
 
 	private static final long serialVersionUID = -8485304096241606696L;
 	private Integer id;
