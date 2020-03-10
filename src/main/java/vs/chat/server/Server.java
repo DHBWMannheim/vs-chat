@@ -34,6 +34,7 @@ public class Server implements Runnable {
 					var inputStream = new ObjectInputStream(clientSocket.getInputStream());
 					List<Packet> receivedPackets = new ArrayList<>();
 					Object object = null;
+					
 					while ((object = inputStream.readObject()) != null) { // TODO check if connection still open -> EOF
 						System.out.println("Received: " + object.getClass().getSimpleName());
 						var packet = (Packet) object;

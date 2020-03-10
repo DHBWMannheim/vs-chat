@@ -17,15 +17,15 @@ public class Client {
 
 	public static void main(String[] args) {
 		String hostname = "localhost";
-		PrintWriter networkOut;
-		ObjectInputStream networkIn;
+		ObjectOutputStream objectOut;
+		ObjectInputStream networkIn = null;
 		Socket socket = null;
 
 		try {
 //            while (true) {
 			socket = new Socket(hostname, PORT);
 //                networkOut = new PrintWriter(socket.getOutputStream());
-			var objectOut = new ObjectOutputStream(socket.getOutputStream());
+			objectOut = new ObjectOutputStream(socket.getOutputStream());
 			networkIn = new ObjectInputStream(socket.getInputStream());
 //                BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
 //                String userInput = userIn.readLine();
@@ -69,6 +69,8 @@ public class Client {
 		} finally {
 			try {
 				if (socket != null) {
+					networkIn.close();
+					
 					socket.close();
 				}
 			} catch (IOException e) {
