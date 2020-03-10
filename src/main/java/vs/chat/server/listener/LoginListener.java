@@ -1,16 +1,15 @@
 package vs.chat.server.listener;
 
-import java.io.ObjectOutputStream;
-import java.util.List;
+import packets.LoginPacket;
+import packets.LoginSuccessPacket;
 
-import packets.Packet;
-
-public class LoginListener implements Listener {
+@Listener(LoginPacket.class)
+public class LoginListener implements PacketListener<LoginPacket, LoginSuccessPacket>{
 
 	@Override
-	public void next(List<Packet> in, ObjectOutputStream out) {
-		// TODO Auto-generated method stub
-
+	public LoginSuccessPacket next(LoginPacket packets) {
+		//TODO Password / User prüfen
+		return new LoginSuccessPacket();
 	}
 
 }

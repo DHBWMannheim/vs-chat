@@ -1,11 +1,14 @@
 package vs.chat.server.listener;
 
-import java.io.ObjectOutputStream;
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import packets.Packet;
 
-public interface Listener {
-
-	public void next(final List<Packet> in, final ObjectOutputStream out);
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Listener {
+    public Class<? extends Packet> value();
 }
