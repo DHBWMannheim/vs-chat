@@ -1,4 +1,4 @@
-package vs.chat.server;
+package vs.chat.server.persistance;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -6,19 +6,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class PersistanceHandler<T extends IIdentifiable> {
+public class PersistanceHandler<T extends Identifiable> {
 
-	//TODO Sowas wie chat.getClass().getSimpleName() + "-" + ?
-	public void store(final T chat) throws IOException {
-		var stream = new FileOutputStream(chat.getId().toString() + ".dat");
+	public void store(final String type, final T chat) throws IOException {
+		var stream = new FileOutputStream(type + "_" + chat.getId().toString() + ".dat");
 		var outputStream = new ObjectOutputStream(stream);
 		outputStream.writeObject(chat);
 		stream.close();
 	}
 
 	@SuppressWarnings("unchecked")
-	public T load(final Integer id) throws IOException, ClassNotFoundException {
-		var stream = new FileInputStream(id.toString() + ".dat");
+	public T load(final String type, final Integer id) throws IOException, ClassNotFoundException {
+		var stream = new FileInputStream(type + "_" + id.toString() + ".dat");
 		var inputStream = new ObjectInputStream(stream);
 		var chat = inputStream.readObject();
 		stream.close();

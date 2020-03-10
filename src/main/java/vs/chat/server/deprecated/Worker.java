@@ -1,10 +1,12 @@
-package vs.chat.server;
+package vs.chat.server.deprecated;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import vs.chat.server.ServerContext;
 
 public class Worker implements Runnable {
 
