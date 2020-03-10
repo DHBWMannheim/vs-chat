@@ -2,10 +2,10 @@ package packets;
 
 import java.io.Serializable;
 
-public class MessagePacket implements Serializable {
+public class MessagePacket implements Serializable, Packet {
 
-	int chatId;
-	int clientId;
-	int timestamp;
-	String content;
+	public int chatId;
+	public int clientId;
+	public int timestamp;
+	public String content;
 }

@@ -3,8 +3,11 @@ package vs.chat.client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import packets.LoginPacket;
 
 public class Client {
 
@@ -19,7 +22,7 @@ public class Client {
         try {
 //            while (true) {
                 socket = new Socket(hostname, PORT);
-                networkOut = new PrintWriter(socket.getOutputStream());
+//                networkOut = new PrintWriter(socket.getOutputStream());
                 networkIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 //                BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
 //                String userInput = userIn.readLine();
@@ -27,21 +30,28 @@ public class Client {
 //                    System.out.println("Exiting...");
 //                    break;
 //                }
-                networkOut.println("LOGIN");
-                networkOut.println("woop:woopToo");
-                networkOut.flush();
+//                networkOut.println("LOGIN");
+//                networkOut.println("woop:woopToo");
+//                networkOut.flush();
+//                String response = networkIn.readLine();
+//                System.out.println(response);
+//                
+//                networkOut.println("SEND");
+//                networkOut.println("woop:woopToo");
+//                networkOut.flush();
+                var objectOut = new ObjectOutputStream(socket.getOutputStream());
+                	var l = new LoginPacket();
+                	l.username = "test";
+                	l.password = "password";
+                	objectOut.writeObject(l);
+                objectOut.flush();
+                
                 String response = networkIn.readLine();
                 System.out.println(response);
                 
-                networkOut.println("SEND");
-                networkOut.println("woop:woopToo");
-                networkOut.flush();
-
-                
-                
 //                networkOut.println("SEND");
 //                networkOut.println("username:passwort");
-                networkOut.flush();
+//                networkOut.flush();
 //            }
 
         } catch (IOException e) {

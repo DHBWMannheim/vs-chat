@@ -2,8 +2,8 @@ package packets;
 
 import java.io.Serializable;
 
-public class LoginPacket implements Serializable {
+public class LoginPacket implements Serializable, Packet {
 
-	String username;
-	String password;
+	public String username;
+	public String password;
 }
