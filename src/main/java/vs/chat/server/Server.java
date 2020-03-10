@@ -17,7 +17,7 @@ public class Server implements Runnable {
 	// TODO connect nodes
 
 	private final ServerContext context = new ServerContext();
-	private final List<Listener<?, ?>> listeners = new ArrayList<>();
+	private final List<Listener<? extends Packet, ? extends Packet>> listeners = new ArrayList<>();
 
 	public Server() {
 
@@ -40,7 +40,43 @@ public class Server implements Runnable {
 					System.out.println("Starting to receive");
 					while ((object = inputStream.readObject()) != null) {
 						System.out.println("Received: " + object.getClass().getSimpleName());
-						receivedPackets.add((Packet) object);
+						var packet = (Packet) object;
+						receivedPackets.add(packet);
+
+						for (var listener : listeners) {
+
+							try {
+
+								var methods = listener.getClass().getMethods();
+								for(var method : methods) {
+									
+									if(method.getName().equals("next")) {//TODO lookup in interface
+										var packetType = method.getParameters()[0];
+										
+										if(packet.getClass().equals(packetType.getType())) {
+											var casted = packetType.getType().cast(packet);
+											System.out.println("Fitts");
+											method.invoke(listener, packet);										
+										}
+									}
+									
+								}
+
+							} catch (SecurityException  e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (IllegalAccessException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (IllegalArgumentException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (InvocationTargetException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+
 					}
 					// TODO filter packets
 					System.out.println("continue");
