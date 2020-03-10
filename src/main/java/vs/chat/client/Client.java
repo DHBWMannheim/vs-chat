@@ -15,7 +15,7 @@ public class Client {
 
 	private static int PORT = 9876;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		String hostname = "localhost";
 		ObjectOutputStream objectOut;
 		ObjectInputStream networkIn = null;
@@ -51,13 +51,16 @@ public class Client {
 
 			System.out.println(networkIn.readObject());
 
-			var m = new MessagePacket();
-			m.content = "Super Awesome Message with super long text";
-			m.target = 1;
-			objectOut.writeObject(m);
-			objectOut.flush();
+			while(true) {
+				var m = new MessagePacket();
+				m.content = "Super Awesome Message with super long text";
+				m.target = 1;
+				objectOut.writeObject(m);
+				objectOut.flush();
+				System.out.println(networkIn.readObject());
+				Thread.sleep(100);
+			}
 
-			System.out.println(networkIn.readObject());
 
 //                networkOut.println("SEND");
 //                networkOut.println("username:passwort");

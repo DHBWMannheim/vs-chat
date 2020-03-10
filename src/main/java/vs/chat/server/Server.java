@@ -16,11 +16,12 @@ public class Server implements Runnable {
 	private static final int PORT = 9876;
 	// TODO connect nodes
 
-	private final ServerContext context = new ServerContext();
-	private final List<Listener<? extends Packet, ? extends Packet>> listeners;
+	private final ServerContext context;
+	
 
 	public Server() {
-		listeners = createListener();
+		var listeners = createListener();
+		this.context = new ServerContext(listeners);
 	}
 
 	@Override
@@ -32,43 +33,12 @@ public class Server implements Runnable {
 					var clientSocket = socket.accept();
 					var outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
 					var inputStream = new ObjectInputStream(clientSocket.getInputStream());
-					List<Packet> receivedPackets = new ArrayList<>();
-					Object object = null;
 					
-					while ((object = inputStream.readObject()) != null) { // TODO check if connection still open -> EOF
-						System.out.println("Received: " + object.getClass().getSimpleName());
-						var packet = (Packet) object;
-						receivedPackets.add(packet);
-
-						for (var listener : listeners) {
-							try {
-								var methods = listener.getClass().getMethods();
-								for (var method : methods) {
-									if (method.getName().equals("next")) {// TODO lookup in interface
-										var packetType = method.getParameters()[0];
-										if (packet.getClass().equals(packetType.getType())) {
-											var retu = method.invoke(listener, packet); // TODO clone Packet
-											outputStream.writeObject(retu);
-											outputStream.flush();
-										}
-									}
-								}
-
-							} catch (SecurityException | IllegalAccessException | IllegalArgumentException
-									| InvocationTargetException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-
-					}
-					// TODO filter packets
-					System.out.println("continue");
-					// Call all listeners (login listener, message listener, broadcaster)
-
-					// TEMP
-					clientSocket.close();
-				} catch (IOException | ClassNotFoundException e) {
+					var connectionHandler = new ConnectionHandler(clientSocket, this.context, outputStream, inputStream);
+					connectionHandler.start();
+					
+					
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -82,7 +52,7 @@ public class Server implements Runnable {
 	private List<Listener<? extends Packet, ? extends Packet>> createListener() {
 		List<Listener<? extends Packet, ? extends Packet>> listeners = new ArrayList<>();
 		try {
-			Class<?>[] classes = Reflector.getClasses("vs.chat");
+			Class<?>[] classes = Reflector.getClasses("vs.chat.server");
 			for (Class<?> c : classes) {
 				for (Class<?> cc : c.getInterfaces()) {
 					if (Listener.class.equals(cc)) {
