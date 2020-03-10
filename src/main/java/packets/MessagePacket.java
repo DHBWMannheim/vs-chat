@@ -2,7 +2,7 @@ package packets;
 
 import java.io.Serializable;
 
-public class MessagePacket implements Serializable, Packet {
+public class MessagePacket implements Packet {
 
 	public int chatId;
 	public int clientId;

@@ -33,8 +33,8 @@ public class Server implements Runnable {
 			while (!this.context.isCloseRequested()) {
 				try {
 					var clientSocket = socket.accept();
-					var inputStream = new ObjectInputStream(clientSocket.getInputStream());
 					var outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+					var inputStream = new ObjectInputStream(clientSocket.getInputStream());
 					List<Packet> receivedPackets = new ArrayList<>();
 					Object object = null;
 					System.out.println("Starting to receive");
@@ -54,9 +54,10 @@ public class Server implements Runnable {
 										var packetType = method.getParameters()[0];
 										
 										if(packet.getClass().equals(packetType.getType())) {
-											var casted = packetType.getType().cast(packet);
 											System.out.println("Fitts");
-											method.invoke(listener, packet);										
+											var retu = method.invoke(listener, packet);	//TODO clone Packet					
+											System.out.println(retu);
+											outputStream.writeObject(retu);
 										}
 									}
 									
