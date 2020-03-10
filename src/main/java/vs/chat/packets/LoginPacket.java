@@ -1,6 +1,4 @@
-package packets;
-
-import java.io.Serializable;
+package vs.chat.packets;
 
 public class LoginPacket implements Packet {
 

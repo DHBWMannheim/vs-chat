@@ -8,7 +8,7 @@ import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 
-import packets.Packet;
+import vs.chat.packets.Packet;
 import vs.chat.server.listener.Listener;
 
 public class Server implements Runnable {
@@ -17,19 +17,16 @@ public class Server implements Runnable {
 	// TODO connect nodes
 
 	private final ServerContext context = new ServerContext();
-	private final List<Listener<? extends Packet, ? extends Packet>> listeners = new ArrayList<>();
+	private final List<Listener<? extends Packet, ? extends Packet>> listeners;
 
 	public Server() {
-
+		listeners = createListener();
 	}
 
 	@Override
 	public void run() {
 		System.out.println("Starting Server on Port: " + PORT);
 		try (var socket = new ServerSocket(PORT)) {
-
-			createListener();
-
 			while (!this.context.isCloseRequested()) {
 				try {
 					var clientSocket = socket.accept();
@@ -37,43 +34,27 @@ public class Server implements Runnable {
 					var inputStream = new ObjectInputStream(clientSocket.getInputStream());
 					List<Packet> receivedPackets = new ArrayList<>();
 					Object object = null;
-					System.out.println("Starting to receive");
-					while ((object = inputStream.readObject()) != null) { //TODO check if connection still open -> EOF
+					while ((object = inputStream.readObject()) != null) { // TODO check if connection still open -> EOF
 						System.out.println("Received: " + object.getClass().getSimpleName());
 						var packet = (Packet) object;
 						receivedPackets.add(packet);
 
 						for (var listener : listeners) {
-
 							try {
-
 								var methods = listener.getClass().getMethods();
-								for(var method : methods) {
-									
-									if(method.getName().equals("next")) {//TODO lookup in interface
+								for (var method : methods) {
+									if (method.getName().equals("next")) {// TODO lookup in interface
 										var packetType = method.getParameters()[0];
-										
-										if(packet.getClass().equals(packetType.getType())) {
-											System.out.println("Fitts");
-											var retu = method.invoke(listener, packet);	//TODO clone Packet					
-											System.out.println(retu);
+										if (packet.getClass().equals(packetType.getType())) {
+											var retu = method.invoke(listener, packet); // TODO clone Packet
 											outputStream.writeObject(retu);
 											outputStream.flush();
 										}
 									}
-									
 								}
 
-							} catch (SecurityException  e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (IllegalAccessException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (IllegalArgumentException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (InvocationTargetException e) {
+							} catch (SecurityException | IllegalAccessException | IllegalArgumentException
+									| InvocationTargetException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
@@ -97,7 +78,8 @@ public class Server implements Runnable {
 		System.out.println("Starting Server...");
 	}
 
-	private void createListener() {
+	private List<Listener<? extends Packet, ? extends Packet>> createListener() {
+		List<Listener<? extends Packet, ? extends Packet>> listeners = new ArrayList<>();
 		try {
 			Class<?>[] classes = Reflector.getClasses("vs.chat");
 			for (Class<?> c : classes) {
@@ -120,6 +102,6 @@ public class Server implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		return listeners;
 	}
 }

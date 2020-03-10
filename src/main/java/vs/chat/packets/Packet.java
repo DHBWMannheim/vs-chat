@@ -1,4 +1,4 @@
-package packets;
+package vs.chat.packets;
 
 import java.io.Serializable;
 

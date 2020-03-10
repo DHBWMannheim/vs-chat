@@ -9,25 +9,25 @@ import java.util.List;
 
 public class Reflector {
 
-	public static Class[] getClasses(String packageName) throws ClassNotFoundException, IOException {
+	public static Class<?>[] getClasses(String packageName) throws ClassNotFoundException, IOException {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		assert classLoader != null;
 		String path = packageName.replace('.', '/');
 		Enumeration<URL> resources = classLoader.getResources(path);
-		List<File> dirs = new ArrayList();
+		List<File> dirs = new ArrayList<>();
 		while (resources.hasMoreElements()) {
 			URL resource = resources.nextElement();
 			dirs.add(new File(resource.getFile()));
 		}
-		List<Class> classes = new ArrayList();
+		List<Class<?>> classes = new ArrayList<>();
 		for (File directory : dirs) {
 			classes.addAll(findClasses(directory, packageName));
 		}
 		return classes.toArray(new Class[classes.size()]);
 	}
 
-	private static List findClasses(File directory, String packageName) throws ClassNotFoundException {
-		List classes = new ArrayList();
+	private static List<Class<?>> findClasses(File directory, String packageName) throws ClassNotFoundException {
+		List<Class<?>> classes = new ArrayList<>();
 		if (!directory.exists()) {
 			return classes;
 		}

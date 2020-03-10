@@ -8,27 +8,25 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import packets.LoginPacket;
+import vs.chat.packets.LoginPacket;
+import vs.chat.packets.MessagePacket;
 
 public class Client {
 
-    private static int PORT = 9876;
+	private static int PORT = 9876;
 
-    public static void main(String[] args) {
-        String hostname = "localhost";
-        PrintWriter networkOut;
-        ObjectInputStream networkIn;
-        Socket socket = null;
+	public static void main(String[] args) {
+		String hostname = "localhost";
+		PrintWriter networkOut;
+		ObjectInputStream networkIn;
+		Socket socket = null;
 
-        try {
+		try {
 //            while (true) {
-        	System.out.println("start");
-                socket = new Socket(hostname, PORT);
-                System.out.println("b");
+			socket = new Socket(hostname, PORT);
 //                networkOut = new PrintWriter(socket.getOutputStream());
-                var objectOut = new ObjectOutputStream(socket.getOutputStream());
-                System.out.println("sett");
-                networkIn = new ObjectInputStream(socket.getInputStream());
+			var objectOut = new ObjectOutputStream(socket.getOutputStream());
+			networkIn = new ObjectInputStream(socket.getInputStream());
 //                BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
 //                String userInput = userIn.readLine();
 //                if (userInput.equals("/exit")) {
@@ -44,35 +42,39 @@ public class Client {
 //                networkOut.println("SEND");
 //                networkOut.println("woop:woopToo");
 //                networkOut.flush();
-               
-                
-                System.out.println("start");
-                	var l = new LoginPacket();
-                	l.username = "test";
-                	l.password = "password";
-                	objectOut.writeObject(l);
-                	System.out.println("b");
-                objectOut.flush();
-                
-                System.out.println("reading");
-                System.out.println(networkIn.readObject());
-                System.out.println("read");
+
+			var l = new LoginPacket();
+			l.username = "test";
+			l.password = "password";
+			objectOut.writeObject(l);
+			objectOut.flush();
+
+			System.out.println(networkIn.readObject());
+
+			var m = new MessagePacket();
+			m.content = "Super Awesome Message with super long text";
+			m.target = 1;
+			objectOut.writeObject(m);
+			objectOut.flush();
+
+			System.out.println(networkIn.readObject());
+
 //                networkOut.println("SEND");
 //                networkOut.println("username:passwort");
 //                networkOut.flush();
 //            }
 
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
 		} finally {
-            try {
-                if (socket != null) {
-                    socket.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+			try {
+				if (socket != null) {
+					socket.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 }

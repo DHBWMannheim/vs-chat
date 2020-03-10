@@ -1,8 +1,8 @@
 package vs.chat.server.listener;
 
-import packets.Packet;
+import vs.chat.packets.Packet;
 
 public interface Listener<T extends Packet, R extends Packet> {
 
-	public R next(final T packets);
+	public R next(final T packet);
 }
