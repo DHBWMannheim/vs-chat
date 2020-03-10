@@ -38,7 +38,7 @@ public class Server implements Runnable {
 					List<Packet> receivedPackets = new ArrayList<>();
 					Object object = null;
 					System.out.println("Starting to receive");
-					while ((object = inputStream.readObject()) != null) {
+					while ((object = inputStream.readObject()) != null) { //TODO check if connection still open -> EOF
 						System.out.println("Received: " + object.getClass().getSimpleName());
 						var packet = (Packet) object;
 						receivedPackets.add(packet);
@@ -58,6 +58,7 @@ public class Server implements Runnable {
 											var retu = method.invoke(listener, packet);	//TODO clone Packet					
 											System.out.println(retu);
 											outputStream.writeObject(retu);
+											outputStream.flush();
 										}
 									}
 									
