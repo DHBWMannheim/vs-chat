@@ -3,8 +3,7 @@ package vs.chat.server.listener;
 import packets.LoginPacket;
 import packets.LoginSuccessPacket;
 
-@Listener(LoginPacket.class)
-public class LoginListener implements PacketListener<LoginPacket, LoginSuccessPacket>{
+public class LoginListener implements Listener<LoginPacket, LoginSuccessPacket>{
 
 	@Override
 	public LoginSuccessPacket next(LoginPacket packets) {
