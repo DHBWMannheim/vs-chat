@@ -35,7 +35,7 @@ public class BrotherNodeConnection extends Thread {
 			while (!this.context.isCloseRequested()) {
 				runSemaphore.acquire();
 				try {
-					if (this.currentSocket != null && out != null) {//TODO sleep this thread
+					if (this.currentSocket != null && out != null) {
 						var packet = this.sendQueue.peek();
 						if (packet != null) {
 							out.writeObject(packet);
@@ -45,15 +45,16 @@ public class BrotherNodeConnection extends Thread {
 					}
 				} catch (IOException e) {
 					this.reconnect();
+					this.runSemaphore.release();
 				}
 			}
-			this.currentSocket.close();
+			this.close();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void close() throws IOException {// TODO syncornize to have out flushed
+	private void close() throws IOException {// TODO syncornize to have out flushed
 		if (null != this.currentSocket) {
 			this.currentSocket.close();
 		}
