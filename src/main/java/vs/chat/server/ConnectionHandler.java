@@ -42,8 +42,8 @@ public class ConnectionHandler extends Thread {
 			e.printStackTrace();
 		}
 	}
-	
-	private void handlePacket(Packet packet) throws IOException {
+
+	private void handlePacket(final Packet packet) throws IOException {
 		for (var listener : this.context.getListeners()) {
 			try {
 				var methods = listener.getClass().getMethods();
@@ -51,9 +51,8 @@ public class ConnectionHandler extends Thread {
 					if (method.getName().equals("next")) {// TODO lookup in interface
 						var packetType = method.getParameters()[0];
 						if (packet.getClass().equals(packetType.getType())) {
-							var retu = method.invoke(listener, packet); // TODO clone Packet
-							outputStream.writeObject(retu);
-							outputStream.flush();
+							var retu = (Packet) method.invoke(listener, packet); // TODO clone Packet
+							this.pushTo(retu);
 						}
 					}
 				}
@@ -67,8 +66,17 @@ public class ConnectionHandler extends Thread {
 	}
 
 	public void pushTo(final Packet packet) {
-		// TODO pushes something to the client of this ConnectionHandler
 		// TODO synconize this
+		try {
+			if (null == packet)
+				return;
+			outputStream.writeObject(packet);
+			outputStream.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 }
