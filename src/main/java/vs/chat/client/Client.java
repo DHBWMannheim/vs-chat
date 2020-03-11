@@ -50,15 +50,16 @@ public class Client {
 			objectOut.flush();
 
 			System.out.println(networkIn.readObject());
-
+int i=0;
 			while(true) {
 				var m = new MessagePacket();
-				m.content = "Super Awesome Message with super long text";
+				m.content = "Super Awesome Message with super long text "+i;
 				m.target = 1;
 				objectOut.writeObject(m);
 				objectOut.flush();
 				System.out.println(networkIn.readObject());
-				Thread.sleep(100);
+				Thread.sleep(10000);
+				i++;
 			}
 
 
