@@ -11,10 +11,13 @@ public class ServerContext {
 
 //	private final Set<ConnectionHandler> connections = new TreeSet<>();// TODO synchronize
 	private final List<Listener<? extends Packet, ? extends Packet>> listeners;
+	private final BrotherNodeBroadcaster broadcaster;
 	private boolean isCloseRequested = false;
 
-	public ServerContext(final List<Listener<? extends Packet, ? extends Packet>> listeners) {
+	public ServerContext(final List<Listener<? extends Packet, ? extends Packet>> listeners, String tempBrotherAdress,
+			int tempBrotherPort) {
 		this.listeners = listeners;
+		this.broadcaster = new BrotherNodeBroadcaster(tempBrotherAdress, tempBrotherPort, this);
 	}
 
 	public boolean isCloseRequested() {
@@ -27,6 +30,10 @@ public class ServerContext {
 
 	public List<Listener<? extends Packet, ? extends Packet>> getListeners() {
 		return listeners;
+	}
+
+	public BrotherNodeBroadcaster getBroadcaster() {
+		return broadcaster;
 	}
 
 }

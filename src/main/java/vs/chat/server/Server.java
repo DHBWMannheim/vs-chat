@@ -7,21 +7,24 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import vs.chat.packets.Packet;
 import vs.chat.server.listener.Listener;
 
 public class Server implements Runnable {
 
-	private static final int PORT = 9876;
-	// TODO connect nodes
-
-	private final ServerContext context;
+	private final int PORT;
 	
+	private final ServerContext context;
 
-	public Server() {
+	private final List<ConnectionHandler> connections = new ArrayList<>();
+
+	public Server(int port, int brotherport) {
+		this.PORT = port;
 		var listeners = createListener();
-		this.context = new ServerContext(listeners);
+		this.context = new ServerContext(listeners, "localhost", brotherport);
 	}
 
 	@Override
@@ -33,16 +36,23 @@ public class Server implements Runnable {
 					var clientSocket = socket.accept();
 					var outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
 					var inputStream = new ObjectInputStream(clientSocket.getInputStream());
-					
-					var connectionHandler = new ConnectionHandler(clientSocket, this.context, outputStream, inputStream);
+
+					var connectionHandler = new ConnectionHandler(clientSocket, this.context, outputStream,
+							inputStream);
+					this.connections.add(connectionHandler);
 					connectionHandler.start();
-					
-					
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-		} catch (IOException e) {
+			for (var connection : connections) {
+				connection.join();
+			}
+			for (var listener : this.context.getListeners()) {
+				listener.close();
+			}
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 
