@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 
 import vs.chat.packets.Packet;
 
@@ -19,6 +20,7 @@ public class BrotherNodeConnection extends Thread {
 	private ObjectInputStream in;
 
 	private final ConcurrentLinkedQueue<Packet> sendQueue = new ConcurrentLinkedQueue<>();
+	private final Semaphore runSemaphore = new Semaphore(0);
 
 	public BrotherNodeConnection(final String hostname, final int port, final ServerContext context) {
 		this.hostname = hostname;
@@ -31,6 +33,7 @@ public class BrotherNodeConnection extends Thread {
 		try {
 			this.reconnect();
 			while (!this.context.isCloseRequested()) {
+				runSemaphore.acquire();
 				try {
 					if (this.currentSocket != null && out != null) {//TODO sleep this thread
 						var packet = this.sendQueue.peek();
@@ -45,7 +48,7 @@ public class BrotherNodeConnection extends Thread {
 				}
 			}
 			this.currentSocket.close();
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
@@ -58,6 +61,7 @@ public class BrotherNodeConnection extends Thread {
 
 	public void send(final Packet packet) {
 		this.sendQueue.add(packet);
+		this.runSemaphore.release();
 	}
 
 	private void reconnect() {
