@@ -15,6 +15,16 @@ public class ConnectionHandler extends Thread {
 	private final ObjectOutputStream outputStream;
 	private final ObjectInputStream inputStream;
 
+	private Integer connectedToUserId;
+
+	public Integer getConnectedToUserId() {
+		return connectedToUserId;
+	}
+
+	public void setConnectedToUserId(Integer connectedToUserId) {
+		this.connectedToUserId = connectedToUserId;
+	}
+
 	public ConnectionHandler(final Socket client, final ServerContext context, final ObjectOutputStream outputStream,
 			final ObjectInputStream inputStream) {
 		this.client = client;
@@ -51,7 +61,7 @@ public class ConnectionHandler extends Thread {
 					if (method.getName().equals("next")) {// TODO lookup in interface
 						var packetType = method.getParameters()[0];
 						if (packet.getClass().equals(packetType.getType())) {
-							var retu = (Packet) method.invoke(listener, packet, this.context); // TODO clone Packet
+							var retu = (Packet) method.invoke(listener, packet, this.context, this); // TODO clone Packet
 							this.pushTo(retu);
 						}
 					}

@@ -54,7 +54,7 @@ int i=0;
 			while(true) {
 				var m = new MessagePacket();
 				m.content = "Super Awesome Message with super long text "+i;
-				m.target = 1;
+				m.target = 0;
 				objectOut.writeObject(m);
 				objectOut.flush();
 				System.out.println(networkIn.readObject());

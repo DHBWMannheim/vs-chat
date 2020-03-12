@@ -1,17 +1,17 @@
 package vs.chat.server;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Optional;
 
 import vs.chat.packets.Packet;
 import vs.chat.server.listener.Listener;
 
 public class ServerContext {
-
-//	private final Set<ConnectionHandler> connections = new TreeSet<>();// TODO synchronize
 	private final List<Listener<? extends Packet, ? extends Packet>> listeners;
 	private final BrotherNodeBroadcaster broadcaster;
+	private final List<ConnectionHandler> connections = Collections.synchronizedList(new ArrayList<>());
 	private boolean isCloseRequested = false;
 
 	public ServerContext(final List<Listener<? extends Packet, ? extends Packet>> listeners, String tempBrotherAdress,
@@ -34,6 +34,16 @@ public class ServerContext {
 
 	public BrotherNodeBroadcaster getBroadcaster() {
 		return broadcaster;
+	}
+
+	public List<ConnectionHandler> getConnections() {// TODO syncronize
+		return connections;
+	}
+
+	public Optional<ConnectionHandler> getConnectionForUserId(final Integer id) {
+		return this.connections.stream().filter(
+				connection -> connection.getConnectedToUserId() != null && connection.getConnectedToUserId().equals(id))
+				.findFirst();
 	}
 
 }

@@ -19,12 +19,12 @@ public class Server implements Runnable {
 	
 	private final ServerContext context;
 
-	private final List<ConnectionHandler> connections = new ArrayList<>();
+	
 
 	public Server(int port, int brotherport) {
 		this.PORT = port;
 		var listeners = createListener();
-		this.context = new ServerContext(listeners, "localhost", brotherport);
+		this.context = new ServerContext(listeners, "localhost", brotherport);//TODO
 	}
 
 	@Override
@@ -39,14 +39,14 @@ public class Server implements Runnable {
 
 					var connectionHandler = new ConnectionHandler(clientSocket, this.context, outputStream,
 							inputStream);
-					this.connections.add(connectionHandler);
+					this.context.getConnections().add(connectionHandler);//TODO fix access
 					connectionHandler.start();
 
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-			for (var connection : connections) {
+			for (var connection : this.context.getConnections()) {
 				connection.join();
 			}
 			for (var listener : this.context.getListeners()) {
