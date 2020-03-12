@@ -1,5 +1,6 @@
 package vs.chat.server.listener;
 
+import vs.chat.entities.Message;
 import vs.chat.packets.MessagePacket;
 import vs.chat.packets.MessageSuccessPacket;
 import vs.chat.server.ConnectionHandler;
@@ -10,16 +11,27 @@ public class MessageListener implements Listener<MessagePacket, MessageSuccessPa
 	@Override
 	public MessageSuccessPacket next(final MessagePacket packet, final ServerContext context,
 			final ConnectionHandler handler) {
-		System.out.println("_____received message start_____");
-		System.out.println(packet.content);
-		System.out.println("_____received message end_____");
-		context.getBroadcaster().send(packet);
+		
+
+		var newMessage = new Message();
+		newMessage.setTarget(packet.target);
+		newMessage.setOrigin(handler.getConnectedToUserId());
+		newMessage.setContent(packet.content);
+//		newMessage.setId(context.getWarehouse().getMessages().size());// TODO
+
+		var storedMessage = context.getWarehouse().getMessages().stream().filter(m -> m.equals(newMessage)).findFirst();
+		if (storedMessage.isPresent())
+			return null;
 
 		var localConnection = context.getConnectionForUserId(packet.target);
 		if (localConnection.isPresent()) {
 			localConnection.get().pushTo(packet);
 		}
-
+		System.out.println("_____received message start_____");
+		System.out.println(newMessage.getContent());
+		System.out.println("_____received message end_____");
+		context.getWarehouse().getMessages().add(newMessage);
+		context.getBroadcaster().send(packet);
 		return new MessageSuccessPacket();
 	}
 

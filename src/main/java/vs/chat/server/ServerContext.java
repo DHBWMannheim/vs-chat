@@ -12,6 +12,7 @@ public class ServerContext {
 	private final List<Listener<? extends Packet, ? extends Packet>> listeners;
 	private final BrotherNodeBroadcaster broadcaster;
 	private final List<ConnectionHandler> connections = Collections.synchronizedList(new ArrayList<>());
+	private final Warehouse warehouse = new Warehouse();
 	private boolean isCloseRequested = false;
 
 	public ServerContext(final List<Listener<? extends Packet, ? extends Packet>> listeners, String tempBrotherAdress,
@@ -44,6 +45,10 @@ public class ServerContext {
 		return this.connections.stream().filter(
 				connection -> connection.getConnectedToUserId() != null && connection.getConnectedToUserId().equals(id))
 				.findFirst();
+	}
+
+	public Warehouse getWarehouse() {
+		return warehouse;
 	}
 
 }

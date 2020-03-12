@@ -2,7 +2,7 @@ package vs.chat.entities;
 
 import java.io.Serializable;
 
-public class User implements Serializable{
+public class User implements Serializable {
 
 	private Integer id;
 	private String username;
@@ -31,7 +31,5 @@ public class User implements Serializable{
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	
-	
 
 }
