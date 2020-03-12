@@ -54,7 +54,7 @@ public class BrotherNodeConnection extends Thread {
 		}
 	}
 
-	private void close() throws IOException {// TODO syncornize to have out flushed
+	void close() throws IOException {// TODO syncornize to have out flushed
 		if (null != this.currentSocket) {
 			this.currentSocket.close();
 		}
