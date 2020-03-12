@@ -1,6 +1,8 @@
 package vs.chat.server.persistance;
 
-public interface Identifiable {
+import java.io.Serializable;
 
-	public Integer getId();
+public interface Identifiable extends Serializable {
+
+	public String getIdentifier();
 }

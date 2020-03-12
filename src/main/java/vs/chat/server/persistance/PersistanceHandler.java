@@ -5,22 +5,29 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
-public class PersistanceHandler<T extends Identifiable> {
+public class PersistanceHandler<T> {//TODO
 
-	public void store(final String type, final T chat) throws IOException {
-		var stream = new FileOutputStream(type + "_" + chat.getId().toString() + ".dat");
+	private final String type;
+
+	public PersistanceHandler(final String type) {
+		this.type = type;
+	}
+
+	public void store(final T object) throws IOException {
+		var stream = new FileOutputStream(type + ".dat");
 		var outputStream = new ObjectOutputStream(stream);
-		outputStream.writeObject(chat);
+		outputStream.writeObject(object);
 		stream.close();
 	}
 
 	@SuppressWarnings("unchecked")
-	public T load(final String type, final Integer id) throws IOException, ClassNotFoundException {
-		var stream = new FileInputStream(type + "_" + id.toString() + ".dat");
+	public T load() throws IOException, ClassNotFoundException {
+		var stream = new FileInputStream(type + ".dat");
 		var inputStream = new ObjectInputStream(stream);
-		var chat = inputStream.readObject();
+		var object = inputStream.readObject();
 		stream.close();
-		return (T) chat;
+		return (T) object;
 	}
 }

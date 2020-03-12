@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import vs.chat.packets.BroadcastPacket;
 import vs.chat.packets.Packet;
 
 public class BrotherNodeBroadcaster {
@@ -17,8 +18,10 @@ public class BrotherNodeBroadcaster {
 	}
 
 	public void send(final Packet packet) {
+		var broadcastPacket = new BroadcastPacket();
+		broadcastPacket.packet = packet;
 		for (var node : nodes) {
-			node.send(packet);
+			node.send(broadcastPacket);
 		}
 	}
 
