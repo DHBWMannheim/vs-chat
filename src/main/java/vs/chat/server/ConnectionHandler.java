@@ -70,7 +70,7 @@ public class ConnectionHandler extends Thread {
 			} catch (SecurityException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				e.printStackTrace();//TODO remove connection for context when connection was lost
 			}
 		}
 	}
@@ -80,6 +80,7 @@ public class ConnectionHandler extends Thread {
 		try {
 			if (null == packet)
 				return;
+			System.out.println("pushing"+packet);
 			outputStream.writeObject(packet);
 			outputStream.flush();
 		} catch (IOException e) {

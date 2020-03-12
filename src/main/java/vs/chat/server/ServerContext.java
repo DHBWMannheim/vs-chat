@@ -43,7 +43,12 @@ public class ServerContext {
 
 	public Optional<ConnectionHandler> getConnectionForUserId(final Integer id) {
 		return this.connections.stream().filter(
-				connection -> connection.getConnectedToUserId() != null && connection.getConnectedToUserId().equals(id))
+				connection -> {
+					System.out.println(connection.getConnectedToUserId());
+					System.out.println(id);
+					System.out.println(connection.getConnectedToUserId().equals(id));
+					return connection.getConnectedToUserId() != null && connection.getConnectedToUserId().equals(id);
+				})
 				.findFirst();
 	}
 

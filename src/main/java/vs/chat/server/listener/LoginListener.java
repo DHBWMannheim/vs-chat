@@ -31,6 +31,7 @@ public class LoginListener implements Listener<LoginPacket, LoginSuccessPacket> 
 			user.setId(id);
 			user.setUsername(packet.username);// TODO
 			user.setPassword(packet.password);
+			System.out.println("created user with id:" + id);
 			context.getWarehouse().getUsers().add(user);
 			context.getBroadcaster().send(packet);
 		} else {

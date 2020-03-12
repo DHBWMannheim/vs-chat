@@ -23,6 +23,7 @@ public class MessageListener implements Listener<MessagePacket, MessageSuccessPa
 		if (storedMessage.isPresent())
 			return null;
 
+		System.out.println("found a new message with target " + packet.target);
 		var localConnection = context.getConnectionForUserId(packet.target);
 		if (localConnection.isPresent()) {
 			localConnection.get().pushTo(packet);
