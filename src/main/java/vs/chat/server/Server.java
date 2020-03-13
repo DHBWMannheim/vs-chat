@@ -21,10 +21,10 @@ public class Server implements Runnable {
 
 	
 
-	public Server(int port, int brotherport) {
+	public Server(final Integer port, final NodeConfig... configs) {
 		this.PORT = port;
 		var listeners = createListener();
-		this.context = new ServerContext(listeners, "localhost", brotherport);//TODO
+		this.context = new ServerContext(listeners, configs);
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import java.util.concurrent.Semaphore;
 
 import vs.chat.packets.Packet;
 
-public class BrotherNodeConnection extends Thread {
+public class NodeConnection extends Thread {
 
 	private final String hostname;
 	private final int port;
@@ -22,7 +22,7 @@ public class BrotherNodeConnection extends Thread {
 	private final ConcurrentLinkedQueue<Packet> sendQueue = new ConcurrentLinkedQueue<>();
 	private final Semaphore runSemaphore = new Semaphore(0);
 
-	public BrotherNodeConnection(final String hostname, final int port, final ServerContext context) {
+	public NodeConnection(final String hostname, final int port, final ServerContext context) {
 		this.hostname = hostname;
 		this.port = port;
 		this.context = context;

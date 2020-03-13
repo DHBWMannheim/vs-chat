@@ -6,14 +6,16 @@ import java.util.List;
 
 import vs.chat.packets.Packet;
 
-public class BrotherNodeBroadcaster {
+public class NodeBroadcaster {
 
-	private List<BrotherNodeConnection> nodes = new ArrayList<>();
+	private final List<NodeConnection> nodes = new ArrayList<>();
 
-	public BrotherNodeBroadcaster(String tempAddress, int port, ServerContext context) {// TODO multiple
-		var conn = new BrotherNodeConnection(tempAddress, port, context);
-		conn.start();
-		nodes.add(conn);
+	public NodeBroadcaster(final ServerContext context, final NodeConfig... configs) {
+		for(var config: configs) {
+			var conn = new NodeConnection(config.getAddress(), config.getPort(), context);
+			conn.start();
+			nodes.add(conn);			
+		}
 	}
 
 	public void send(final Packet packet) {

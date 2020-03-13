@@ -71,8 +71,7 @@ public class ConnectionHandler extends Thread {
 
 			} catch (SecurityException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();// TODO remove connection for context when connection was lost
+				e.printStackTrace();
 			}
 		}
 	}
@@ -86,8 +85,14 @@ public class ConnectionHandler extends Thread {
 			outputStream.writeObject(packet);
 			outputStream.flush();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			this.context.getConnections().remove(this);
+			try {
+				this.client.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 
 	}

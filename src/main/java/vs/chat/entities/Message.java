@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import vs.chat.packets.MessagePacket;
 
-public class Message extends MessagePacket implements Serializable { // TODO identifiable
+public class Message extends MessagePacket implements Serializable, Comparable<Message> { // TODO identifiable
 
 	private final UUID id;
 	private UUID origin;
@@ -40,6 +40,11 @@ public class Message extends MessagePacket implements Serializable { // TODO ide
 
 	public UUID getId() {
 		return id;
+	}
+
+	@Override
+	public int compareTo(Message o) {
+		return this.id.compareTo(o.id);
 	}
 
 }

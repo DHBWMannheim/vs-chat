@@ -16,7 +16,7 @@ public class LoginListener implements Listener<LoginPacket, LoginSuccessPacket> 
 
 	@Override
 	public LoginSuccessPacket next(final LoginPacket packet, final ServerContext context,
-			final ConnectionHandler handler) {
+			final ConnectionHandler handler) throws IOException {
 		// TODO Password / User prüfen
 		System.out.println("Invoked LoginListener");
 

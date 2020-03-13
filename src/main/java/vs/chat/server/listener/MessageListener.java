@@ -1,5 +1,7 @@
 package vs.chat.server.listener;
 
+import java.io.IOException;
+
 import vs.chat.entities.Message;
 import vs.chat.packets.MessagePacket;
 import vs.chat.packets.MessageSuccessPacket;
@@ -10,7 +12,7 @@ public class MessageListener implements Listener<MessagePacket, MessageSuccessPa
 
 	@Override
 	public MessageSuccessPacket next(final MessagePacket packet, final ServerContext context,
-			final ConnectionHandler handler) {
+			final ConnectionHandler handler) throws IOException {
 
 		Message newMessage;
 		if (packet instanceof Message) {

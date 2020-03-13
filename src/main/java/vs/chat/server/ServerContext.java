@@ -11,15 +11,15 @@ import vs.chat.server.listener.Listener;
 
 public class ServerContext {
 	private final List<Listener<? extends Packet, ? extends Packet>> listeners;
-	private final BrotherNodeBroadcaster broadcaster;
+	private final NodeBroadcaster broadcaster;
 	private final List<ConnectionHandler> connections = Collections.synchronizedList(new ArrayList<>());
 	private final Warehouse warehouse = new Warehouse();
 	private boolean isCloseRequested = false;
 
-	public ServerContext(final List<Listener<? extends Packet, ? extends Packet>> listeners, String tempBrotherAdress,
-			int tempBrotherPort) {
+	public ServerContext(final List<Listener<? extends Packet, ? extends Packet>> listeners,
+			final NodeConfig... configs) {
 		this.listeners = listeners;
-		this.broadcaster = new BrotherNodeBroadcaster(tempBrotherAdress, tempBrotherPort, this);
+		this.broadcaster = new NodeBroadcaster(this, configs);
 	}
 
 	public boolean isCloseRequested() {
@@ -34,7 +34,7 @@ public class ServerContext {
 		return listeners;
 	}
 
-	public BrotherNodeBroadcaster getBroadcaster() {
+	public NodeBroadcaster getBroadcaster() {
 		return broadcaster;
 	}
 

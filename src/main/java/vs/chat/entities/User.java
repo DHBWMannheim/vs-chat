@@ -3,7 +3,7 @@ package vs.chat.entities;
 import java.io.Serializable;
 import java.util.UUID;
 
-public class User implements Serializable {
+public class User implements Serializable, Comparable<User> {
 
 	private final UUID id;
 	private String username;
@@ -31,6 +31,11 @@ public class User implements Serializable {
 
 	public UUID getId() {
 		return id;
+	}
+
+	@Override
+	public int compareTo(final User o) {
+		return this.id.compareTo(o.id);
 	}
 
 }
