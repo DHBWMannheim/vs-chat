@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
+import java.util.UUID;
 
 import vs.chat.packets.Packet;
 
@@ -15,13 +16,13 @@ public class ConnectionHandler extends Thread {
 	private final ObjectOutputStream outputStream;
 	private final ObjectInputStream inputStream;
 
-	private Integer connectedToUserId;
+	private UUID connectedToUserId;
 
-	public Integer getConnectedToUserId() {
+	public UUID getConnectedToUserId() {
 		return connectedToUserId;
 	}
 
-	public void setConnectedToUserId(Integer connectedToUserId) {
+	public void setConnectedToUserId(UUID connectedToUserId) {
 		this.connectedToUserId = connectedToUserId;
 	}
 
@@ -61,7 +62,8 @@ public class ConnectionHandler extends Thread {
 					if (method.getName().equals("next")) {// TODO lookup in interface
 						var packetType = method.getParameters()[0];
 						if (packet.getClass().equals(packetType.getType())) {
-							var retu = (Packet) method.invoke(listener, packet, this.context, this); // TODO clone Packet
+							var retu = (Packet) method.invoke(listener, packet, this.context, this); // TODO clone
+																										// Packet
 							this.pushTo(retu);
 						}
 					}
@@ -70,7 +72,7 @@ public class ConnectionHandler extends Thread {
 			} catch (SecurityException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();//TODO remove connection for context when connection was lost
+				e.printStackTrace();// TODO remove connection for context when connection was lost
 			}
 		}
 	}
@@ -80,7 +82,7 @@ public class ConnectionHandler extends Thread {
 		try {
 			if (null == packet)
 				return;
-			System.out.println("pushing"+packet);
+			System.out.println("pushing" + packet);
 			outputStream.writeObject(packet);
 			outputStream.flush();
 		} catch (IOException e) {

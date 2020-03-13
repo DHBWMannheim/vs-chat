@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import vs.chat.entities.Message;
 import vs.chat.entities.User;
@@ -11,28 +13,28 @@ import vs.chat.server.persistance.PersistanceHandler;
 
 public class Warehouse {
 
-	private List<User> users = Collections.synchronizedList(new ArrayList<>());
-	private List<Message> messages = Collections.synchronizedList(new ArrayList<>());
+	private Set<User> users = Collections.synchronizedSet(new TreeSet<>());
+	private Set<Message> messages = Collections.synchronizedSet(new TreeSet<>());
 	
-	private final PersistanceHandler<List<User>> userPersistanceHandler = new PersistanceHandler<>("Users");
-	private final PersistanceHandler<List<Message>> messagePersistanceHandler = new PersistanceHandler<>("Messages");
+	private final PersistanceHandler<Set<User>> userPersistanceHandler = new PersistanceHandler<>("Users");
+	private final PersistanceHandler<Set<Message>> messagePersistanceHandler = new PersistanceHandler<>("Messages");
 	
 	public Warehouse() {
 		try {
-			this.users = Collections.synchronizedList(this.userPersistanceHandler.load());
+			this.users =  Collections.synchronizedSet(this.userPersistanceHandler.load());
 		} catch (ClassNotFoundException | IOException e) {
 		}
 		try {
-			this.messages = Collections.synchronizedList(this.messagePersistanceHandler.load());
+			this.messages = Collections.synchronizedSet(this.messagePersistanceHandler.load());
 		} catch (ClassNotFoundException | IOException e) {
 		}
 	}
 
-	public List<User> getUsers() {
+	public Set<User> getUsers() {
 		return users;
 	}
 
-	public List<Message> getMessages() {
+	public Set<Message> getMessages() {
 		return messages;
 	}
 

@@ -3,6 +3,7 @@ package vs.chat.server.listener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import vs.chat.entities.User;
 import vs.chat.packets.LoginPacket;
@@ -22,13 +23,13 @@ public class LoginListener implements Listener<LoginPacket, LoginSuccessPacket> 
 		var storedUser = context.getWarehouse().getUsers().stream()
 				.filter(u -> u.getUsername().equals(packet.username)).findFirst();
 
-		int id = 0;
+		UUID id;
 		if (!storedUser.isPresent()) {
+			
+			
 			System.out.println("writing new user");
 			var user = new User();
-
-			id = context.getWarehouse().getUsers().size();// TODO
-			user.setId(id);
+			id = user.getId();
 			user.setUsername(packet.username);// TODO
 			user.setPassword(packet.password);
 			System.out.println("created user with id:" + id);

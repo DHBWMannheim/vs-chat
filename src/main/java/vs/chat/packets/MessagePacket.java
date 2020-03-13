@@ -1,8 +1,10 @@
 package vs.chat.packets;
 
+import java.util.UUID;
+
 public class MessagePacket implements Packet {
 
-	public int target;
+	public UUID target;
 	public String content;
 
 	@Override

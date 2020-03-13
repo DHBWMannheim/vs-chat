@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import vs.chat.packets.Packet;
 import vs.chat.server.listener.Listener;
@@ -41,14 +42,9 @@ public class ServerContext {
 		return connections;
 	}
 
-	public Optional<ConnectionHandler> getConnectionForUserId(final Integer id) {
+	public Optional<ConnectionHandler> getConnectionForUserId(final UUID id) {
 		return this.connections.stream().filter(
-				connection -> {
-					System.out.println(connection.getConnectedToUserId());
-					System.out.println(id);
-					System.out.println(connection.getConnectedToUserId().equals(id));
-					return connection.getConnectedToUserId() != null && connection.getConnectedToUserId().equals(id);
-				})
+				connection -> connection.getConnectedToUserId() != null && connection.getConnectedToUserId().equals(id))
 				.findFirst();
 	}
 

@@ -11,28 +11,29 @@ public class MessageListener implements Listener<MessagePacket, MessageSuccessPa
 	@Override
 	public MessageSuccessPacket next(final MessagePacket packet, final ServerContext context,
 			final ConnectionHandler handler) {
-		
 
-		var newMessage = new Message();
-		newMessage.setTarget(packet.target);
-		newMessage.setOrigin(handler.getConnectedToUserId());
-		newMessage.setContent(packet.content);
-//		newMessage.setId(context.getWarehouse().getMessages().size());// TODO
-
-		var storedMessage = context.getWarehouse().getMessages().stream().filter(m -> m.equals(newMessage)).findFirst();
-		if (storedMessage.isPresent())
-			return null;
-
-		System.out.println("found a new message with target " + packet.target);
-		var localConnection = context.getConnectionForUserId(packet.target);
-		if (localConnection.isPresent()) {
-			localConnection.get().pushTo(packet);
+		Message newMessage;
+		if (packet instanceof Message) {
+			newMessage = (Message) packet;
+			var storedMessage = context.getWarehouse().getMessages().stream()
+					.filter(m -> m.getId().equals(newMessage.getId())).findFirst();
+			if (storedMessage.isPresent())
+				return null;
+		} else {
+			newMessage = new Message();
+			newMessage.setTarget(packet.target);
+			newMessage.setOrigin(handler.getConnectedToUserId());
+			newMessage.setContent(packet.content);
 		}
-		System.out.println("_____received message start_____");
-		System.out.println(newMessage.getContent());
-		System.out.println("_____received message end_____");
+
+		System.out.println("found a new message with target " + newMessage.target);
+		var localConnection = context.getConnectionForUserId(newMessage.target);
+		if (localConnection.isPresent()) {
+			localConnection.get().pushTo(newMessage);
+		}
 		context.getWarehouse().getMessages().add(newMessage);
-		context.getBroadcaster().send(packet);
+		context.getBroadcaster().send(newMessage);
+
 		return new MessageSuccessPacket();
 	}
 

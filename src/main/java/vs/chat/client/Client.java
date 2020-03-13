@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.UUID;
 
 import vs.chat.packets.LoginPacket;
 import vs.chat.packets.MessagePacket;
@@ -138,7 +139,7 @@ public class Client {
 					while (true) {
 						var m = new MessagePacket();
 						m.content = "Super Awesome Message with super long text " + Math.random();
-						m.target = 2;
+						m.target = UUID.fromString("09e47e93-856e-453d-b7e0-0c66847d1f47");
 						try {
 							objectOut.writeObject(m);
 							objectOut.flush();

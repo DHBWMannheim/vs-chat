@@ -1,12 +1,17 @@
 package vs.chat.entities;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class User implements Serializable {
 
-	private Integer id;
+	private final UUID id;
 	private String username;
 	private String password;
+	
+	public User() {
+		this.id = UUID.randomUUID();
+	}
 
 	public String getUsername() {
 		return username;
@@ -24,12 +29,8 @@ public class User implements Serializable {
 		this.password = password;
 	}
 
-	public Integer getId() {
+	public UUID getId() {
 		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 }
