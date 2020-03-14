@@ -37,7 +37,6 @@ public class ConnectionHandler extends Thread {
 	@Override
 	public void run() {
 		while (!this.context.isCloseRequested()) {
-			System.out.println("Handling");
 			try {
 				var object = inputStream.readObject();
 				var packet = (Packet) object;
