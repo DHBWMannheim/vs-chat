@@ -1,21 +1,18 @@
 package vs.chat.server.listener;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import vs.chat.entities.User;
 import vs.chat.packets.LoginPacket;
-import vs.chat.packets.LoginSuccessPacket;
+import vs.chat.packets.NoOpPacket;
 import vs.chat.server.ConnectionHandler;
 import vs.chat.server.ServerContext;
-import vs.chat.server.persistance.PersistanceHandler;
 
-public class LoginListener implements Listener<LoginPacket, LoginSuccessPacket> {
+public class LoginListener implements Listener<LoginPacket, NoOpPacket> {
 
 	@Override
-	public LoginSuccessPacket next(final LoginPacket packet, final ServerContext context,
+	public NoOpPacket next(final LoginPacket packet, final ServerContext context,
 			final ConnectionHandler handler) throws IOException {
 		// TODO Password / User prüfen
 		System.out.println("Invoked LoginListener");
@@ -42,7 +39,7 @@ public class LoginListener implements Listener<LoginPacket, LoginSuccessPacket> 
 		}
 
 		handler.setConnectedToUserId(id);// TODO
-		return new LoginSuccessPacket();
+		return new NoOpPacket();
 	}
 
 }

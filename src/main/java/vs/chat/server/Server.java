@@ -7,9 +7,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import vs.chat.packets.Packet;
 import vs.chat.server.listener.Listener;
 

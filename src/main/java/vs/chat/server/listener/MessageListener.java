@@ -4,14 +4,14 @@ import java.io.IOException;
 
 import vs.chat.entities.Message;
 import vs.chat.packets.MessagePacket;
-import vs.chat.packets.MessageSuccessPacket;
+import vs.chat.packets.NoOpPacket;
 import vs.chat.server.ConnectionHandler;
 import vs.chat.server.ServerContext;
 
-public class MessageListener implements Listener<MessagePacket, MessageSuccessPacket> {
+public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 
 	@Override
-	public MessageSuccessPacket next(final MessagePacket packet, final ServerContext context,
+	public NoOpPacket next(final MessagePacket packet, final ServerContext context,
 			final ConnectionHandler handler) throws IOException {
 
 		Message newMessage;
@@ -36,7 +36,7 @@ public class MessageListener implements Listener<MessagePacket, MessageSuccessPa
 		context.getWarehouse().getMessages().add(newMessage);
 		context.getBroadcaster().send(newMessage);
 
-		return new MessageSuccessPacket();
+		return new NoOpPacket();
 	}
 
 }
