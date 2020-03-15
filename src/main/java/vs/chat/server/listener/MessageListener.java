@@ -15,6 +15,11 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 	@Override
 	public NoOpPacket next(final MessagePacket packet, final ServerContext context, final ConnectionHandler handler)
 			throws IOException {
+		
+		if(handler.getConnectedToUserId().isEmpty()) {
+			//TODO throw error as user is not authed
+			return new NoOpPacket();
+		}
 
 		Message newMessage;
 		if (packet instanceof Message) {
@@ -25,7 +30,7 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 		} else {
 			newMessage = new Message();
 			newMessage.setTarget(packet.target);
-			newMessage.setOrigin(handler.getConnectedToUserId());
+			newMessage.setOrigin(handler.getConnectedToUserId().get());
 			newMessage.setContent(packet.content);
 		}
 

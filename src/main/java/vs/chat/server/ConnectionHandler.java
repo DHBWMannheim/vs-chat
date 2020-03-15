@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
+import java.util.Optional;
 import java.util.UUID;
 
 import vs.chat.packets.Packet;
@@ -16,14 +17,14 @@ public class ConnectionHandler extends Thread {
 	private final ObjectOutputStream outputStream;
 	private final ObjectInputStream inputStream;
 
-	private UUID connectedToUserId;
+	private Optional<UUID> connectedToUserId;
 
-	public UUID getConnectedToUserId() {
+	public Optional<UUID> getConnectedToUserId() {
 		return connectedToUserId;
 	}
 
 	public void setConnectedToUserId(UUID connectedToUserId) {
-		this.connectedToUserId = connectedToUserId;
+		this.connectedToUserId = Optional.of(connectedToUserId);
 	}
 
 	public ConnectionHandler(final Socket client, final ServerContext context, final ObjectOutputStream outputStream,
@@ -36,7 +37,8 @@ public class ConnectionHandler extends Thread {
 
 	@Override
 	public void run() {
-		while (!this.context.isCloseRequested()) {
+		Thread.currentThread().setName("Connection Handler");
+		while (!this.context.isCloseRequested().get()) {
 			System.out.println("Handling");
 			try {
 				var object = inputStream.readObject();

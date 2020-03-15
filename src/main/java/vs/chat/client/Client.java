@@ -14,6 +14,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.UUID;
 
+import vs.chat.packets.CreateChatPacket;
 import vs.chat.packets.LoginPacket;
 import vs.chat.packets.MessagePacket;
 
@@ -124,7 +125,7 @@ public class Client {
 //                networkOut.flush();
 
 			var l = new LoginPacket();
-			l.username = "test" + Math.random();
+			l.username = "test";
 			l.password = "password";
 			objectOut.writeObject(l);
 			objectOut.flush();
@@ -136,10 +137,19 @@ public class Client {
 
 				@Override
 				public void run() {
+//					var mm = new CreateChatPacket(UUID.fromString("2c725ba-a3d4-4014-9c19-6397b0f7ac0f"));
+//					try {
+//						objectOut.writeObject(mm);
+//						objectOut.flush();
+//					} catch (IOException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					}
+////					
 					while (true) {
 						var m = new MessagePacket();
 						m.content = "Super Awesome Message with super long text " + Math.random();
-						m.target = UUID.fromString("94832a77-da12-4132-a6f0-10f0b33d5d85");
+						m.target = UUID.fromString("fdf26463-3c1d-4f7f-a653-9969bf63a1fe");
 						try {
 							objectOut.writeObject(m);
 							objectOut.flush();

@@ -18,26 +18,23 @@ public class LoginListener implements Listener<LoginPacket, NoOpPacket> {
 		// TODO Password / User prüfen
 		System.out.println("Invoked LoginListener");
 
-		var storedUser = context.getWarehouse().get(WarehouseResourceType.USERS).values().stream()
-				.filter(u -> ((User) u).getUsername().equals(packet.username)).findFirst();
-
-		UUID id;
-		if (!storedUser.isPresent()) {
-
-			System.out.println("writing new user");
-			var user = new User();
-			id = user.getId();
-			user.setUsername(packet.username);
-			user.setPassword(packet.password);
-			System.out.println("created user with id:" + id);
-			context.getWarehouse().get(WarehouseResourceType.USERS).put(id, user);
-			context.getBroadcaster().send(packet);
-		} else {
-			id = storedUser.get().getId();
-			System.out.println("connected id: " + id);
-		}
-
-		handler.setConnectedToUserId(id);
+		context.getWarehouse().get(WarehouseResourceType.USERS).values().stream()
+				.filter(u -> ((User) u).getUsername().equals(packet.username)).findFirst()
+				.ifPresentOrElse(storedUser -> {
+					var id = storedUser.getId();
+					handler.setConnectedToUserId(id);
+					System.out.println("connected id: " + id);
+				}, () -> {
+					System.out.println("writing new user");
+					var user = new User();
+					var id = user.getId();
+					user.setUsername(packet.username);
+					user.setPassword(packet.password);
+					context.getWarehouse().get(WarehouseResourceType.USERS).put(id, user);
+					System.out.println("created user with id:" + id);
+					context.getBroadcaster().send(packet);
+					handler.setConnectedToUserId(id);
+				});
 		return new NoOpPacket();
 	}
 

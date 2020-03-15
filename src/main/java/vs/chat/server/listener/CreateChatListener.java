@@ -23,10 +23,12 @@ public class CreateChatListener implements Listener<CreateChatPacket, NoOpPacket
 			if (storedChats !=null)
 				return null;
 		} else {
-			newChat = new Chat((UUID[]) packet.getUsers().toArray());
+			UUID[] myArray = new UUID[packet.getUsers().size()];
+			packet.getUsers().toArray(myArray);
+			newChat = new Chat(myArray);
 		}
 
-		System.out.println("found a new chat");
+		System.out.println("found a new chat: " + newChat.getId());
 
 		context.getWarehouse().get(WarehouseResourceType.CHATS).put(newChat.getId(),newChat);
 		context.getBroadcaster().send(newChat);

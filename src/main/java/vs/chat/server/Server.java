@@ -16,8 +16,6 @@ public class Server implements Runnable {
 	
 	private final ServerContext context;
 
-	
-
 	public Server(final Integer port, final NodeConfig... configs) {
 		this.PORT = port;
 		var listeners = createListener();
@@ -27,8 +25,24 @@ public class Server implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("Starting Server on Port: " + PORT);
+//		new Thread(new Runnable() {//TEMP
+//			
+//			@Override
+//			public void run() {
+//				Thread.currentThread().setName("TEMP CLOSER");
+//				try {
+//					Thread.sleep(30000);
+//					context.close();
+//				} catch (InterruptedException | IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		}).start();
+		Thread.currentThread().setName("Server");
+		
 		try (var socket = new ServerSocket(PORT)) {
-			while (!this.context.isCloseRequested()) {
+			while (!this.context.isCloseRequested().get()) {
 				try {
 					var clientSocket = socket.accept();
 					var outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -43,17 +57,12 @@ public class Server implements Runnable {
 					e.printStackTrace();
 				}
 			}
-			for (var connection : this.context.getConnections()) {
-				connection.join();
-			}
-			for (var listener : this.context.getListeners()) {
-				listener.close();
-			}
+			System.out.println("Stopping Server...");
+			this.context.close();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 
-		System.out.println("Starting Server...");
 	}
 
 	private List<Listener<? extends Packet, ? extends Packet>> createListener() {

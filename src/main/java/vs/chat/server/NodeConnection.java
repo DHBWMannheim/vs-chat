@@ -29,9 +29,10 @@ public class NodeConnection extends Thread {
 
 	@Override
 	public void run() {
+		Thread.currentThread().setName("Node Connection");
 		try {
 			this.reconnect();
-			while (!this.context.isCloseRequested()) {
+			while (!this.context.isCloseRequested().get()) {
 				runSemaphore.acquire();
 				try {
 					if (this.currentSocket != null && out != null) {
