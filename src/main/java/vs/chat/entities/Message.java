@@ -1,11 +1,11 @@
 package vs.chat.entities;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 import vs.chat.packets.MessagePacket;
+import vs.chat.server.Warehouseable;
 
-public class Message extends MessagePacket implements Comparable<Message> { // TODO identifiable
+public class Message extends MessagePacket implements Comparable<Message>, Warehouseable {
 
 	private final UUID id;
 	private UUID origin;
@@ -38,6 +38,7 @@ public class Message extends MessagePacket implements Comparable<Message> { // T
 		this.target = target;
 	}
 
+	@Override
 	public UUID getId() {
 		return id;
 	}

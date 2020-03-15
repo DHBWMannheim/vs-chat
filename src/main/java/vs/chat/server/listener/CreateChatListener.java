@@ -8,6 +8,7 @@ import vs.chat.packets.CreateChatPacket;
 import vs.chat.packets.NoOpPacket;
 import vs.chat.server.ConnectionHandler;
 import vs.chat.server.ServerContext;
+import vs.chat.server.WarehouseResourceType;
 
 public class CreateChatListener implements Listener<CreateChatPacket, NoOpPacket> {
 
@@ -18,9 +19,8 @@ public class CreateChatListener implements Listener<CreateChatPacket, NoOpPacket
 		Chat newChat;
 		if (packet instanceof Chat) {
 			newChat = (Chat) packet;
-			var storedChats = context.getWarehouse().getChats().stream().filter(m -> m.getId().equals(newChat.getId()))
-					.findFirst();
-			if (storedChats.isPresent())
+			var storedChats = context.getWarehouse().get(WarehouseResourceType.CHATS).get(newChat.getId());
+			if (storedChats !=null)
 				return null;
 		} else {
 			newChat = new Chat((UUID[]) packet.getUsers().toArray());
@@ -28,7 +28,7 @@ public class CreateChatListener implements Listener<CreateChatPacket, NoOpPacket
 
 		System.out.println("found a new chat");
 
-		context.getWarehouse().getChats().add(newChat);
+		context.getWarehouse().get(WarehouseResourceType.CHATS).put(newChat.getId(),newChat);
 		context.getBroadcaster().send(newChat);
 
 		return new NoOpPacket();

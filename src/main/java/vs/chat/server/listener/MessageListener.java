@@ -2,11 +2,13 @@ package vs.chat.server.listener;
 
 import java.io.IOException;
 
+import vs.chat.entities.Chat;
 import vs.chat.entities.Message;
 import vs.chat.packets.MessagePacket;
 import vs.chat.packets.NoOpPacket;
 import vs.chat.server.ConnectionHandler;
 import vs.chat.server.ServerContext;
+import vs.chat.server.WarehouseResourceType;
 
 public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 
@@ -17,9 +19,8 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 		Message newMessage;
 		if (packet instanceof Message) {
 			newMessage = (Message) packet;
-			var storedMessage = context.getWarehouse().getMessages().stream()
-					.filter(m -> m.getId().equals(newMessage.getId())).findFirst();
-			if (storedMessage.isPresent())
+			var storedMessage = context.getWarehouse().get(WarehouseResourceType.MESSAGES).get(newMessage.getId());
+			if (storedMessage != null)
 				return null;
 		} else {
 			newMessage = new Message();
@@ -30,21 +31,19 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 
 		System.out.println("found a new message with target " + newMessage.target);
 
-		var correspondingChat = context.getWarehouse().getChats().stream()
-				.filter(c -> c.getId().equals(newMessage.target)).findFirst();
-		if (correspondingChat.isEmpty()) {
+		var correspondingChat = (Chat) context.getWarehouse().get(WarehouseResourceType.CHATS).get(newMessage.target);
+		if (correspondingChat == null) {
 			// TODO throw error as the chat id is invalid
+			return new NoOpPacket();
 		}
-		var chat = correspondingChat.get();
-
-		for (var user : chat.getUsers()) {
+		for (var user : correspondingChat.getUsers()) {
 			var localConnection = context.getConnectionForUserId(user);
 			if (localConnection.isPresent()) {
 				localConnection.get().pushTo(newMessage);
 			}
 		}
 
-		context.getWarehouse().getMessages().add(newMessage);
+		context.getWarehouse().get(WarehouseResourceType.MESSAGES).put(newMessage.getId(), newMessage);
 		context.getBroadcaster().send(newMessage);
 
 		return new NoOpPacket();
