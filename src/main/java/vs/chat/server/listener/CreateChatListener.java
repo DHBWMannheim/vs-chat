@@ -14,13 +14,12 @@ public class CreateChatListener implements Listener<CreateChatPacket, NoOpPacket
 	@Override
 	public NoOpPacket next(final CreateChatPacket packet, final ServerContext context, final ConnectionHandler handler)
 			throws IOException {
-		
-		
+
 		Chat newChat;
 		if (packet instanceof Chat) {
 			newChat = (Chat) packet;
-			var storedChats = context.getWarehouse().getChats().stream()
-					.filter(m -> m.getId().equals(newChat.getId())).findFirst();
+			var storedChats = context.getWarehouse().getChats().stream().filter(m -> m.getId().equals(newChat.getId()))
+					.findFirst();
 			if (storedChats.isPresent())
 				return null;
 		} else {
@@ -28,7 +27,7 @@ public class CreateChatListener implements Listener<CreateChatPacket, NoOpPacket
 		}
 
 		System.out.println("found a new chat");
-		
+
 		context.getWarehouse().getChats().add(newChat);
 		context.getBroadcaster().send(newChat);
 

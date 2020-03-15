@@ -11,8 +11,8 @@ import vs.chat.server.ServerContext;
 public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 
 	@Override
-	public NoOpPacket next(final MessagePacket packet, final ServerContext context,
-			final ConnectionHandler handler) throws IOException {
+	public NoOpPacket next(final MessagePacket packet, final ServerContext context, final ConnectionHandler handler)
+			throws IOException {
 
 		Message newMessage;
 		if (packet instanceof Message) {
@@ -29,10 +29,21 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 		}
 
 		System.out.println("found a new message with target " + newMessage.target);
-		var localConnection = context.getConnectionForUserId(newMessage.target);
-		if (localConnection.isPresent()) {
-			localConnection.get().pushTo(newMessage);
+
+		var correspondingChat = context.getWarehouse().getChats().stream()
+				.filter(c -> c.getId().equals(newMessage.target)).findFirst();
+		if (correspondingChat.isEmpty()) {
+			// TODO throw error as the chat id is invalid
 		}
+		var chat = correspondingChat.get();
+
+		for (var user : chat.getUsers()) {
+			var localConnection = context.getConnectionForUserId(user);
+			if (localConnection.isPresent()) {
+				localConnection.get().pushTo(newMessage);
+			}
+		}
+
 		context.getWarehouse().getMessages().add(newMessage);
 		context.getBroadcaster().send(newMessage);
 
