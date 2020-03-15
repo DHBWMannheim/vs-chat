@@ -149,7 +149,8 @@ public class Client {
 					while (true) {
 						var m = new MessagePacket();
 						m.content = "Super Awesome Message with super long text " + Math.random();
-						m.target = UUID.fromString("fdf26463-3c1d-4f7f-a653-9969bf63a1fe");
+						m.target = UUID.fromString("c2c725ba-a3d4-4014-9c19-6397b0f7ac0f");
+//						m.target = UUID.fromString("fdf26463-3c1d-4f7f-a653-9969bf63a1fe");
 						try {
 							objectOut.writeObject(m);
 							objectOut.flush();

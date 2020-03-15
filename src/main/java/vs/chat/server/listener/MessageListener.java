@@ -16,11 +16,45 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 	public NoOpPacket next(final MessagePacket packet, final ServerContext context, final ConnectionHandler handler)
 			throws IOException {
 		
-		if(handler.getConnectedToUserId().isEmpty()) {
-			//TODO throw error as user is not authed
-			return new NoOpPacket();
-		}
-
+//		if(handler.getConnectedToUserId().isEmpty()) {
+//			//TODO throw error as user is not authed
+//			return new NoOpPacket();
+//		}
+//
+//		Message newMessage;
+//		if (packet instanceof Message) {
+//			newMessage = (Message) packet;
+//			var storedMessage = context.getWarehouse().get(WarehouseResourceType.MESSAGES).get(newMessage.getId());
+//			if (storedMessage != null)
+//				return null;
+//		} else {
+//			newMessage = new Message();
+//			newMessage.setTarget(packet.target);
+//			newMessage.setOrigin(handler.getConnectedToUserId().get());
+//			newMessage.setContent(packet.content);
+//		}
+//
+//		System.out.println("found a new message with target " + newMessage.target);
+//
+//		var correspondingChat = (Chat) context.getWarehouse().get(WarehouseResourceType.CHATS).get(newMessage.target);
+//		if (correspondingChat == null) {
+//			// TODO throw error as the chat id is invalid
+//			return new NoOpPacket();
+//		}
+//		for (var user : correspondingChat.getUsers()) {
+//			var localConnection = context.getConnectionForUserId(user);
+//			if (localConnection.isPresent()) {
+//				localConnection.get().pushTo(newMessage);
+//			}
+//		}
+//
+//		context.getWarehouse().get(WarehouseResourceType.MESSAGES).put(newMessage.getId(), newMessage);
+//		context.getBroadcaster().send(newMessage);
+//
+//		return new NoOpPacket();
+		
+		
+		
 		Message newMessage;
 		if (packet instanceof Message) {
 			newMessage = (Message) packet;
@@ -30,24 +64,15 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 		} else {
 			newMessage = new Message();
 			newMessage.setTarget(packet.target);
-			newMessage.setOrigin(handler.getConnectedToUserId().get());
+			newMessage.setOrigin(handler.getConnectedToUserId().get());//TODO optional
 			newMessage.setContent(packet.content);
 		}
 
 		System.out.println("found a new message with target " + newMessage.target);
-
-		var correspondingChat = (Chat) context.getWarehouse().get(WarehouseResourceType.CHATS).get(newMessage.target);
-		if (correspondingChat == null) {
-			// TODO throw error as the chat id is invalid
-			return new NoOpPacket();
+		var localConnection = context.getConnectionForUserId(newMessage.target);
+		if (localConnection.isPresent()) {
+			localConnection.get().pushTo(newMessage);
 		}
-		for (var user : correspondingChat.getUsers()) {
-			var localConnection = context.getConnectionForUserId(user);
-			if (localConnection.isPresent()) {
-				localConnection.get().pushTo(newMessage);
-			}
-		}
-
 		context.getWarehouse().get(WarehouseResourceType.MESSAGES).put(newMessage.getId(), newMessage);
 		context.getBroadcaster().send(newMessage);
 

@@ -55,7 +55,7 @@ public class ServerContext {
 
 	public Optional<ConnectionHandler> getConnectionForUserId(final UUID id) {
 		return this.connections.stream().filter(
-				connection -> connection.getConnectedToUserId() != null && connection.getConnectedToUserId().equals(id))
+				connection -> connection.getConnectedToUserId().isPresent() && connection.getConnectedToUserId().get().equals(id))
 				.findFirst();
 	}
 
