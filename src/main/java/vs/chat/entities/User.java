@@ -2,7 +2,7 @@ package vs.chat.entities;
 
 import java.util.UUID;
 
-import vs.chat.server.Warehouseable;
+import vs.chat.server.warehouse.Warehouseable;
 
 public class User implements Comparable<User>, Warehouseable {
 

@@ -1,4 +1,4 @@
-package vs.chat.server;
+package vs.chat.server.warehouse;
 
 import java.io.IOException;
 import java.util.UUID;

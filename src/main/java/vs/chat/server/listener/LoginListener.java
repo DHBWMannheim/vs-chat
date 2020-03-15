@@ -8,7 +8,7 @@ import vs.chat.packets.LoginPacket;
 import vs.chat.packets.NoOpPacket;
 import vs.chat.server.ConnectionHandler;
 import vs.chat.server.ServerContext;
-import vs.chat.server.WarehouseResourceType;
+import vs.chat.server.warehouse.WarehouseResourceType;
 
 public class LoginListener implements Listener<LoginPacket, NoOpPacket> {
 

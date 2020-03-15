@@ -1,10 +1,11 @@
-package vs.chat.server;
+package vs.chat.server.node;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import vs.chat.packets.Packet;
+import vs.chat.server.ServerContext;
 
 public class NodeBroadcaster {
 

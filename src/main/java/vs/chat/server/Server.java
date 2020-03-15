@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import vs.chat.packets.Packet;
 import vs.chat.server.listener.Listener;
+import vs.chat.server.node.NodeConfig;
 
 public class Server implements Runnable {
 

@@ -3,7 +3,7 @@ package vs.chat.entities;
 import java.util.UUID;
 
 import vs.chat.packets.MessagePacket;
-import vs.chat.server.Warehouseable;
+import vs.chat.server.warehouse.Warehouseable;
 
 public class Message extends MessagePacket implements Comparable<Message>, Warehouseable {
 

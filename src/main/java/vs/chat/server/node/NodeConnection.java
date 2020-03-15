@@ -1,4 +1,4 @@
-package vs.chat.server;
+package vs.chat.server.node;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
 import vs.chat.packets.Packet;
+import vs.chat.server.ServerContext;
 
 public class NodeConnection extends Thread {
 

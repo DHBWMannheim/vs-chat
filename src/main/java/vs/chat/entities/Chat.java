@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import vs.chat.packets.CreateChatPacket;
-import vs.chat.server.Warehouseable;
+import vs.chat.server.warehouse.Warehouseable;
 
 public class Chat extends CreateChatPacket implements Comparable<Chat>, Warehouseable {
 
