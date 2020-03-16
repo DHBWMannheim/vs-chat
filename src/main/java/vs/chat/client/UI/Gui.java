@@ -2,39 +2,83 @@ package vs.chat.client.UI;
 
 import vs.chat.entities.Message;
 
-import javax.sql.rowset.FilteredRowSet;
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.UUID;
 
 public class Gui {
+
+
     //TODO: Use material-ui-swing from https://github.com/vincenzopalazzo/material-ui-swing
-    private static JFrame rootPane() {
+    private static JFrame rootPanel() {
         JFrame fenster = new JFrame();
+
+        Image logo = Toolkit.getDefaultToolkit().getImage("src/main/java/vs/chat/client/UI/mario.png");
+        fenster.setIconImage(logo);
+
         fenster.setLayout(new BorderLayout());
         fenster.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         fenster.setMinimumSize(new Dimension(400, 600));
         fenster.setVisible(true);
+        fenster.setResizable(false);
         fenster.pack();
         return fenster;
     }
 
     private static JPanel footer() {
         //TODO: Implement Action Listener for Emoji selection
-        JPanel footerPannel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        //TODO: Overflowing TextArea (both directions), -> firm TextArea
+        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         ImageIcon imageIcon = new ImageIcon("src/main/java/vs/chat/client/UI/emoji.png");
         Image image = imageIcon.getImage().getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
         JLabel emoji = new JLabel(new ImageIcon(image));
-        JTextArea messageInput = new JTextArea("Nachricht", 2, 30);
-        footerPannel.add(emoji);
-        footerPannel.add(messageInput);
-        return footerPannel;
+        JTextArea messageInput = new JTextArea("Nachricht",2,  30);
+        footerPanel.add(emoji);
+        footerPanel.add(messageInput);
+        footerPanel.setBorder(BorderFactory.createEtchedBorder());
+
+        MouseListener emojiMouseListener = new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                //Todo: Implement Emoji Selection Panel
+                JPanel emojiSelection = new JPanel(new GridLayout(5,2));
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        };
+        emoji.addMouseListener(emojiMouseListener);
+
+
+
+        return footerPanel;
     }
 
     private static JPanel header(String username) {
         //TODO: Implement Action Listener to get back to Recent User view
-        JPanel headerPannel = new JPanel(new GridLayout(0, 3));
+        JPanel headerPanel = new JPanel(new GridLayout(0, 3));
         ImageIcon imageIconProfile = new ImageIcon("src/main/java/vs/chat/client/UI/profile.png");
         Image imageProfile = imageIconProfile.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
         JLabel profile = new JLabel(new ImageIcon(imageProfile));
@@ -45,10 +89,11 @@ public class Gui {
 
         JLabel chatName = new JLabel(username);
 
-        headerPannel.add(profileBack);
-        headerPannel.add(chatName);
-        headerPannel.add(profile);
-        return headerPannel;
+        headerPanel.add(profileBack);
+        headerPanel.add(chatName);
+        headerPanel.add(profile);
+        headerPanel.setBorder(BorderFactory.createEtchedBorder());
+        return headerPanel;
 
     }
     private static JScrollPane DisplayMessages(){
@@ -57,22 +102,34 @@ public class Gui {
     }
 
     private static JPanel displayNewMessage(Message message) {
-        //TODO: Differ between Incoming and Outgoing Message, fix Position
-        JPanel messagePannel = new JPanel(new GridLayout(2,0));
+        JPanel messagePanel = new JPanel(new GridLayout(2,0));
         JLabel userName = new JLabel(message.getOrigin().toString());
         JLabel content = new JLabel(message.getContent());
-        messagePannel.add(userName);
-        messagePannel.add(content);
-        messagePannel.setBorder(BorderFactory.createEtchedBorder());
+        messagePanel.add(userName);
+        messagePanel.add(content);
+        messagePanel.setBorder(BorderFactory.createEtchedBorder());
 
-        return messagePannel;
+        if(message.getOrigin().equals(message.getId())) {
+            messagePanel.setBackground(Color.GREEN);
+        }else{
+            messagePanel.setBackground(Color.GRAY);
+        }
+
+        messagePanel.setMaximumSize(new Dimension(350,30));
+
+        JPanel boxPanel = new JPanel();
+        boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
+        // boxPanel.setMaximumSize(new Dimension(350, 40));
+        boxPanel.add(messagePanel);
+
+        return boxPanel;
     }
 
-    private static JPanel messsageInput(String message) {
-        JPanel inputPannel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private static JPanel messageInput(String message) {
+        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel nachricht = new JLabel(message);
-        inputPannel.add(nachricht);
-        return inputPannel;
+        inputPanel.add(nachricht);
+        return inputPanel;
     }
 
     private static JPanel displayRecentContacts(String[] userNames) {
@@ -95,21 +152,22 @@ public class Gui {
 
     public static void main(String[] args) {
 
-        JFrame rootPane = rootPane();
+       JFrame rootPanel = rootPanel();
         String[] nutzernamen = {"Max Mustermann","Patrick Mischka", "Michael Angermeier", "Aaron Schweig","Troy Kessler","Matthias von End", "Jan Grübener"};
         Message firstMessage = new Message();
         firstMessage.setContent("Hello World!");
-        firstMessage.setOrigin(UUID.randomUUID());
+        firstMessage.setOrigin(UUID.fromString("16a9d592-79a7-4386-bbca-3a78fc091d34"));
 
-        rootPane.getContentPane().add(displayRecentContacts(nutzernamen));
 
-        /*rootPane.getContentPane().add(header("Max Mustermann"), BorderLayout.NORTH);
-        rootPane.getContentPane().add(displayNewMessage(firstMessage));
-        rootPane.getContentPane().add(footer(), BorderLayout.SOUTH);
+        //rootPanel.getContentPane().add(displayRecentContacts(nutzernamen));
 
-         */
+        rootPanel.getContentPane().add(header("Max Mustermann"), BorderLayout.NORTH);
+        rootPanel.getContentPane().add(displayNewMessage(firstMessage));
+        rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
 
-        rootPane.pack();
+
+
+        rootPanel.pack();
 
     }
 
