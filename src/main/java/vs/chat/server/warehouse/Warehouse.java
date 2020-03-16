@@ -10,10 +10,14 @@ import vs.chat.server.persistance.PersistanceHandler;
 public class Warehouse {
 
 	private static final String SAVE_FILE_NAME = "warehouse";
-	//TODO simplify this and improve type safety -> remove casts
+	// TODO simplify this and improve type safety -> remove casts
 	private final PersistanceHandler<ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>>> warehousePersistanceHandler = new PersistanceHandler<>(
 			SAVE_FILE_NAME);
-	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();//TODO handle nulls as optionals
+	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();// TODO
+																																	// handle
+																																	// nulls
+																																	// as
+																																	// optionals
 
 	public Warehouse() {
 		Stream.of(WarehouseResourceType.values()).forEach(type -> warehouse.put(type, new ConcurrentHashMap<>()));
@@ -24,6 +28,9 @@ public class Warehouse {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		Stream.of(WarehouseResourceType.values())
+				.forEach(type -> System.out.println("" + type + warehouse.get(type)));
 	}
 
 	public ConcurrentHashMap<UUID, Warehouseable> get(final WarehouseResourceType type) {

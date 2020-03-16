@@ -125,7 +125,7 @@ public class Client {
 //                networkOut.flush();
 
 			var l = new LoginPacket();
-			l.username = "test";
+			l.username = "test2";
 			l.password = "password";
 			objectOut.writeObject(l);
 			objectOut.flush();
@@ -137,7 +137,8 @@ public class Client {
 
 				@Override
 				public void run() {
-//					var mm = new CreateChatPacket(UUID.fromString("2c725ba-a3d4-4014-9c19-6397b0f7ac0f"));
+//					var mm = new CreateChatPacket(UUID.fromString("16a9d592-79a7-4386-bbca-3a78fc091d34"),
+//							UUID.fromString("a97082b8-6b7c-48e5-9c5d-df3082c731f4"));
 //					try {
 //						objectOut.writeObject(mm);
 //						objectOut.flush();
@@ -149,8 +150,7 @@ public class Client {
 					while (true) {
 						var m = new MessagePacket();
 						m.content = "Super Awesome Message with super long text " + Math.random();
-						m.target = UUID.fromString("c2c725ba-a3d4-4014-9c19-6397b0f7ac0f");
-//						m.target = UUID.fromString("fdf26463-3c1d-4f7f-a653-9969bf63a1fe");
+						m.target = UUID.fromString("eae7ee33-4c52-43f6-acc8-9d1b2ad4f2bb");
 						try {
 							objectOut.writeObject(m);
 							objectOut.flush();
@@ -159,8 +159,6 @@ public class Client {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-
-//						i++;
 					}
 				}
 			}).start();

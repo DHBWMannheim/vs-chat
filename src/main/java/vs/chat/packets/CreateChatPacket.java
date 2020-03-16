@@ -10,7 +10,9 @@ public class CreateChatPacket implements Packet {
 	protected final Set<UUID> users = Collections.synchronizedSet(new TreeSet<>());
 
 	public CreateChatPacket(final UUID... userIds) {
-		this.users.addAll(users);
+		for (var id : userIds) {
+			this.users.add(id);
+		}
 	}
 
 	public Set<UUID> getUsers() {
