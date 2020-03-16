@@ -1,9 +1,10 @@
 package vs.chat.entities;
 
-import java.io.Serializable;
 import java.util.UUID;
 
-public class User implements Serializable, Comparable<User> {
+import vs.chat.server.warehouse.Warehouseable;
+
+public class User implements Comparable<User>, Warehouseable {
 
 	private final UUID id;
 	private String username;
@@ -29,6 +30,7 @@ public class User implements Serializable, Comparable<User> {
 		this.password = password;
 	}
 
+	@Override
 	public UUID getId() {
 		return id;
 	}

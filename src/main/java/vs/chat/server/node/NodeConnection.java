@@ -1,13 +1,13 @@
-package vs.chat.server;
+package vs.chat.server.node;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
 import vs.chat.packets.Packet;
+import vs.chat.server.ServerContext;
 
 public class NodeConnection extends Thread {
 
@@ -17,7 +17,7 @@ public class NodeConnection extends Thread {
 
 	private Socket currentSocket;
 	private ObjectOutputStream out;
-	private ObjectInputStream in;
+//	private ObjectInputStream in;
 
 	private final ConcurrentLinkedQueue<Packet> sendQueue = new ConcurrentLinkedQueue<>();
 	private final Semaphore runSemaphore = new Semaphore(0);
@@ -30,9 +30,10 @@ public class NodeConnection extends Thread {
 
 	@Override
 	public void run() {
+		Thread.currentThread().setName("Node Connection");
 		try {
 			this.reconnect();
-			while (!this.context.isCloseRequested()) {
+			while (!this.context.isCloseRequested().get()) {
 				runSemaphore.acquire();
 				try {
 					if (this.currentSocket != null && out != null) {
@@ -71,7 +72,7 @@ public class NodeConnection extends Thread {
 			this.close();
 			this.currentSocket = new Socket(this.hostname, this.port);
 			this.out = new ObjectOutputStream(this.currentSocket.getOutputStream());
-			this.in = new ObjectInputStream(this.currentSocket.getInputStream());
+//			this.in = new ObjectInputStream(this.currentSocket.getInputStream());
 			System.out.println("connected");
 		} catch (IOException e) {
 			e.printStackTrace();
