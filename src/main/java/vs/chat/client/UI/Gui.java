@@ -4,14 +4,13 @@ import vs.chat.entities.Message;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.UUID;
 
 public class Gui {
 
+    static JFrame rootPanel;
 
     //TODO: Use material-ui-swing from https://github.com/vincenzopalazzo/material-ui-swing
     private static JFrame rootPanel() {
@@ -30,23 +29,34 @@ public class Gui {
     }
 
     private static JPanel footer() {
-        //TODO: Implement Action Listener for Emoji selection
         //TODO: Overflowing TextArea (both directions), -> firm TextArea
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         ImageIcon imageIcon = new ImageIcon("src/main/java/vs/chat/client/UI/emoji.png");
         Image image = imageIcon.getImage().getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
         JLabel emoji = new JLabel(new ImageIcon(image));
-        JTextArea messageInput = new JTextArea("Nachricht",2,  30);
+        JTextArea messageInput = new JTextArea("Nachricht", 2, 30);
         footerPanel.add(emoji);
         footerPanel.add(messageInput);
         footerPanel.setBorder(BorderFactory.createEtchedBorder());
 
         MouseListener emojiMouseListener = new MouseListener() {
+            int counter = 0;
+            JPanel emojiPanel;
+
             @Override
             public void mouseClicked(MouseEvent e) {
-                //Todo: Implement Emoji Selection Panel
-                JPanel emojiSelection = new JPanel(new GridLayout(5,2));
-
+                if (counter % 2 == 0) {
+                    emojiPanel = renderEmojiPanel();
+                    emojiPanel.setVisible(true);
+                    rootPanel.getContentPane().add(emojiPanel, BorderLayout.CENTER);
+                    rootPanel.pack();
+                    counter++;
+                } else {
+                    emojiPanel.setVisible(false);
+                    rootPanel.getContentPane().remove(emojiPanel);
+                    emojiPanel = null;
+                    counter++;
+                }
             }
 
             @Override
@@ -72,8 +82,59 @@ public class Gui {
         emoji.addMouseListener(emojiMouseListener);
 
 
-
         return footerPanel;
+    }
+
+    private static JPanel renderEmojiPanel() {
+        float fontsize = 32f;
+        JPanel emojiSelection = new JPanel(new GridLayout(2, 5));
+        JLabel smile = new JLabel("\t\uD83D\uDE04");
+        smile.setHorizontalAlignment(JLabel.CENTER);
+        smile.setFont(smile.getFont().deriveFont(fontsize));
+        emojiSelection.add(smile);
+        JLabel tears = new JLabel("\uD83D\uDE02");
+        tears.setHorizontalAlignment(JLabel.CENTER);
+        tears.setFont(tears.getFont().deriveFont(fontsize));
+        emojiSelection.add(tears);
+        JLabel upsideDown = new JLabel("\uD83D\uDE43");
+        upsideDown.setHorizontalAlignment(JLabel.CENTER);
+        upsideDown.setFont(upsideDown.getFont().deriveFont(fontsize));
+        emojiSelection.add(upsideDown);
+        JLabel winking = new JLabel("\uD83D\uDE09");
+        winking.setHorizontalAlignment(JLabel.CENTER);
+        winking.setFont(winking.getFont().deriveFont(fontsize));
+        emojiSelection.add(winking);
+        JLabel angel = new JLabel("\uD83D\uDE07");
+        angel.setHorizontalAlignment(JLabel.CENTER);
+        angel.setFont(angel.getFont().deriveFont(fontsize));
+        emojiSelection.add(angel);
+        JLabel kiss = new JLabel("\uD83D\uDE18");
+        kiss.setHorizontalAlignment(JLabel.CENTER);
+        kiss.setFont(kiss.getFont().deriveFont(fontsize));
+        emojiSelection.add(kiss);
+        JLabel savoring = new JLabel("\uD83D\uDE0B");
+        savoring.setHorizontalAlignment(JLabel.CENTER);
+        savoring.setFont(savoring.getFont().deriveFont(fontsize));
+        emojiSelection.add(savoring);
+        JLabel thinking = new JLabel("\uD83E\uDD14");
+        thinking.setHorizontalAlignment(JLabel.CENTER);
+        thinking.setFont(thinking.getFont().deriveFont(fontsize));
+        emojiSelection.add(thinking);
+        JLabel pedoo = new JLabel("\uD83D\uDE0F");
+        pedoo.setHorizontalAlignment(JLabel.CENTER);
+        pedoo.setFont(pedoo.getFont().deriveFont(fontsize));
+        emojiSelection.add(pedoo);
+        JLabel corona = new JLabel("\uD83D\uDE37");
+        corona.setHorizontalAlignment(JLabel.CENTER);
+        corona.setFont(corona.getFont().deriveFont(fontsize));
+        emojiSelection.add(corona);
+
+        emojiSelection.setMaximumSize(new Dimension(400,100));
+        JPanel centerEmojiPanel = new JPanel();
+        centerEmojiPanel.setLayout(new BoxLayout(centerEmojiPanel, BoxLayout.Y_AXIS));
+        centerEmojiPanel.add(emojiSelection);
+
+        return centerEmojiPanel;
     }
 
     private static JPanel header(String username) {
@@ -96,26 +157,27 @@ public class Gui {
         return headerPanel;
 
     }
-    private static JScrollPane DisplayMessages(){
+
+    private static JScrollPane DisplayMessages() {
         //TODO: Implementation needed after Chat Entity is provided!
         return new JScrollPane();
     }
 
     private static JPanel displayNewMessage(Message message) {
-        JPanel messagePanel = new JPanel(new GridLayout(2,0));
+        JPanel messagePanel = new JPanel(new GridLayout(2, 0));
         JLabel userName = new JLabel(message.getOrigin().toString());
         JLabel content = new JLabel(message.getContent());
         messagePanel.add(userName);
         messagePanel.add(content);
         messagePanel.setBorder(BorderFactory.createEtchedBorder());
 
-        if(message.getOrigin().equals(message.getId())) {
+        if (message.getOrigin().equals(message.getId())) {
             messagePanel.setBackground(Color.GREEN);
-        }else{
+        } else {
             messagePanel.setBackground(Color.GRAY);
         }
 
-        messagePanel.setMaximumSize(new Dimension(350,30));
+        messagePanel.setMaximumSize(new Dimension(350, 30));
 
         JPanel boxPanel = new JPanel();
         boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
@@ -140,35 +202,72 @@ public class Gui {
             Image imageProfile = imageIconProfile.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
             JLabel profile = new JLabel(new ImageIcon(imageProfile));
             JLabel userNameLabel = new JLabel(userName);
-            JPanel userPanel = new JPanel(new GridLayout(1,2));
+            JPanel userPanel = new JPanel(new GridLayout(1, 2));
             userPanel.add(profile);
             userPanel.add(userNameLabel);
             userPanel.setBorder(BorderFactory.createEtchedBorder());
             contactsPanel.add(userPanel);
+
+            MouseListener contactsMouseListener = new MouseListener() {
+                @Override
+                public void mouseClicked(MouseEvent mouseEvent) {
+                    //TODO: Display Chat View (see main Method)
+                    System.out.println("Ich hab was gedrückt!");
+                }
+
+                @Override
+                public void mousePressed(MouseEvent mouseEvent) {
+
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent mouseEvent) {
+
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent mouseEvent) {
+
+                }
+
+                @Override
+                public void mouseExited(MouseEvent mouseEvent) {
+
+                }
+            };
+            userPanel.addMouseListener(contactsMouseListener);
         }
 
         return contactsPanel;
     }
 
     public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
 
-       JFrame rootPanel = rootPanel();
-        String[] nutzernamen = {"Max Mustermann","Patrick Mischka", "Michael Angermeier", "Aaron Schweig","Troy Kessler","Matthias von End", "Jan Grübener"};
-        Message firstMessage = new Message();
-        firstMessage.setContent("Hello World!");
-        firstMessage.setOrigin(UUID.fromString("16a9d592-79a7-4386-bbca-3a78fc091d34"));
+                    String[] nutzernamen = {"Max Mustermann", "Patrick Mischka", "Michael Angermeier", "Aaron Schweig", "Troy Kessler", "Matthias von End", "Jan Grübener"};
+                    Message firstMessage = new Message();
+                    firstMessage.setContent("Hello World!");
+                    firstMessage.setOrigin(UUID.fromString("16a9d592-79a7-4386-bbca-3a78fc091d34"));
+                    rootPanel = rootPanel();
+
+                    //rootPanel.getContentPane().add(displayRecentContacts(nutzernamen));
+
+                    rootPanel.getContentPane().add(header("Max Mustermann"), BorderLayout.NORTH);
+                    rootPanel.getContentPane().add(displayNewMessage(firstMessage));
+                    rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
 
 
-        //rootPanel.getContentPane().add(displayRecentContacts(nutzernamen));
+                    rootPanel.pack();
 
-        rootPanel.getContentPane().add(header("Max Mustermann"), BorderLayout.NORTH);
-        rootPanel.getContentPane().add(displayNewMessage(firstMessage));
-        rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-
-
-        rootPanel.pack();
-
+            }
+        });
     }
 
 }
