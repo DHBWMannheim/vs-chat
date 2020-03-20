@@ -15,6 +15,11 @@ public class CreateChatListener implements Listener<CreateChatPacket, NoOpPacket
 	@Override
 	public NoOpPacket next(final CreateChatPacket packet, final ServerContext context, final ConnectionHandler handler)
 			throws IOException {
+		
+		var currentUser = handler.getConnectedToUserId();
+		if(currentUser.isEmpty()) return null;
+		
+		//TODO prevent user from creating chats without him in it
 
 		Chat newChat;
 		if (packet instanceof Chat) {
