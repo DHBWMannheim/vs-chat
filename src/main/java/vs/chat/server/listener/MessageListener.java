@@ -18,7 +18,7 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 		
 		if(handler.getConnectedToUserId().isEmpty()) {
 			//TODO throw error as user is not authed
-			return new NoOpPacket();
+			return null;
 		}
 
 		Message newMessage;
