@@ -1,6 +1,5 @@
 package vs.chat.entities;
 
-import java.util.Set;
 import java.util.UUID;
 
 import vs.chat.packets.CreateChatPacket;
@@ -9,9 +8,9 @@ import vs.chat.server.warehouse.Warehouseable;
 public class Chat extends CreateChatPacket implements Comparable<Chat>, Warehouseable {
 
 	private final UUID id = UUID.randomUUID();
-	
-	public Chat(final UUID... userIds) {
-		super(userIds);
+
+	public Chat(final String name, final UUID... userIds) {
+		super(name, userIds);
 	}
 
 	@Override
@@ -22,11 +21,6 @@ public class Chat extends CreateChatPacket implements Comparable<Chat>, Warehous
 	@Override
 	public UUID getId() {
 		return id;
-	}
-
-	@Override
-	public Set<UUID> getUsers() {// TODO
-		return this.users;
 	}
 
 }

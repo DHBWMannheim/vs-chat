@@ -7,9 +7,11 @@ import java.util.UUID;
 
 public class CreateChatPacket implements Packet {
 
+	protected final String name;
 	protected final Set<UUID> users = Collections.synchronizedSet(new TreeSet<>());
 
-	public CreateChatPacket(final UUID... userIds) {
+	public CreateChatPacket(final String name, final UUID... userIds) {
+		this.name = name;
 		for (var id : userIds) {
 			this.users.add(id);
 		}
@@ -17,6 +19,10 @@ public class CreateChatPacket implements Packet {
 
 	public Set<UUID> getUsers() {
 		return users;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 }
