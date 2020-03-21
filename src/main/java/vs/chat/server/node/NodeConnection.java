@@ -75,7 +75,8 @@ public class NodeConnection extends Thread {
 			this.close();
 			this.currentSocket = new Socket(this.hostname, this.port);
 			this.out = new ObjectOutputStream(this.currentSocket.getOutputStream());
-			this.bodyGuard = new NodeHeartBeatThread(out);
+			this.bodyGuard = new NodeHeartBeatThread(this);
+			this.bodyGuard.start();
 
 			var nodeSyncPacket = new NodeSyncPacket();
 			nodeSyncPacket.warehouse = this.context.getWarehouse().get();
