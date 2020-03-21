@@ -9,9 +9,9 @@ import vs.chat.server.persistance.PersistanceHandler;
 
 public class Warehouse {
 
-	private transient static final String SAVE_FILE_NAME = "warehouse";
+	private static final String SAVE_FILE_NAME = "warehouse";
 	// TODO simplify this and improve type safety -> remove casts
-	private transient final PersistanceHandler<ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>>> warehousePersistanceHandler = new PersistanceHandler<>(
+	private final PersistanceHandler<ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>>> warehousePersistanceHandler = new PersistanceHandler<>(
 			SAVE_FILE_NAME);
 	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();// TODO
 																																	// handle
