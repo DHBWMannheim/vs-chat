@@ -47,13 +47,6 @@ public class LoginListener implements Listener<LoginPacket, LoginSyncPacket> {
 				.map(chat -> (Chat) chat)
 				.filter(chat -> chat.getUsers().contains(syncPacket.userId))
 				.collect(Collectors.toSet());
-		syncPacket.messages = context.getWarehouse().get(WarehouseResourceType.MESSAGES).values().stream()
-				.map(m -> (Message) m)
-				.filter(m -> syncPacket.chats.stream()
-						.filter(chat -> chat.getId().equals(m.target))
-						.findAny()
-						.isPresent())
-				.collect(Collectors.toSet());
 		syncPacket.userIds = context.getWarehouse().get(WarehouseResourceType.USERS).keySet();
 
 		return syncPacket;
