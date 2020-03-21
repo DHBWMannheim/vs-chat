@@ -10,7 +10,5 @@ public class LoginSyncPacket implements Packet {
 
 	public UUID userId;
 	public Set<Chat> chats;
-	public Set<UUID> userIds;
-	public Set<Message> messages;
-	
+	public Set<UUID> userIds;	
 }

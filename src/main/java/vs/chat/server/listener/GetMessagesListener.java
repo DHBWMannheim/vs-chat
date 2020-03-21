@@ -32,7 +32,7 @@ public class GetMessagesListener implements Listener<GetMessagesPacket, GetMessa
 		var response = new GetMessagesResponsePacket();
 		response.chatId = chatId;
 		response.messages = messages;
-		return null;
+		return response;
 	}
 
 }
