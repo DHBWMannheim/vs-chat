@@ -1,7 +1,6 @@
 package vs.chat.server.listener;
 
 import java.io.IOException;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import vs.chat.entities.Chat;
@@ -9,7 +8,6 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 import vs.chat.packets.LoginPacket;
 import vs.chat.packets.LoginSyncPacket;
-import vs.chat.packets.NoOpPacket;
 import vs.chat.server.ConnectionHandler;
 import vs.chat.server.ServerContext;
 import vs.chat.server.warehouse.WarehouseResourceType;

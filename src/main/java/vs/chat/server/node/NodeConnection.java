@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
+import vs.chat.packets.NodeSyncPacket;
 import vs.chat.packets.Packet;
 import vs.chat.server.ServerContext;
 
@@ -72,6 +73,11 @@ public class NodeConnection extends Thread {
 			this.close();
 			this.currentSocket = new Socket(this.hostname, this.port);
 			this.out = new ObjectOutputStream(this.currentSocket.getOutputStream());
+
+			var nodeSyncPacket = new NodeSyncPacket();
+			nodeSyncPacket.warehouse = this.context.getWarehouse().get();
+			this.send(nodeSyncPacket);
+
 //			this.in = new ObjectInputStream(this.currentSocket.getInputStream());
 			System.out.println("connected");
 		} catch (IOException e) {
