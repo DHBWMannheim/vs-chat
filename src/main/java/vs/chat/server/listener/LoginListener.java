@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import vs.chat.entities.Chat;
+import vs.chat.entities.Message;
 import vs.chat.entities.User;
 import vs.chat.packets.LoginPacket;
 import vs.chat.packets.LoginSyncPacket;
@@ -33,10 +34,7 @@ public class LoginListener implements Listener<LoginPacket, LoginSyncPacket> {
 					var id = user.getId();
 					user.setUsername(packet.username);
 					user.setPassword(packet.password);
-					
-					
-					
-					
+
 					context.getWarehouse().get(WarehouseResourceType.USERS).put(id, user);
 					System.out.println("created user with id:" + id);
 					context.getBroadcaster().send(packet);
@@ -49,8 +47,14 @@ public class LoginListener implements Listener<LoginPacket, LoginSyncPacket> {
 				.map(chat -> (Chat) chat)
 				.filter(chat -> chat.getUsers().contains(syncPacket.userId))
 				.collect(Collectors.toSet());
+		syncPacket.messages = context.getWarehouse().get(WarehouseResourceType.MESSAGES).values().stream()
+				.map(m -> (Message) m)
+				.filter(m -> syncPacket.chats.stream()
+						.filter(chat -> chat.getId().equals(m.target))
+						.findAny()
+						.isPresent())
+				.collect(Collectors.toSet());
 		syncPacket.userIds = context.getWarehouse().get(WarehouseResourceType.USERS).keySet();
-		
 
 		return syncPacket;
 	}
