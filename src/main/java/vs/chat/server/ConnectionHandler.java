@@ -17,7 +17,7 @@ public class ConnectionHandler extends Thread {
 	private final ObjectOutputStream outputStream;
 	private final ObjectInputStream inputStream;
 
-	private Optional<UUID> connectedToUserId;
+	private Optional<UUID> connectedToUserId = Optional.empty();
 
 	public Optional<UUID> getConnectedToUserId() {
 		return connectedToUserId;
