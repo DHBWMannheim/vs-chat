@@ -22,6 +22,7 @@ public class NodeConnection extends Thread {
 
 	private final ConcurrentLinkedQueue<Packet> sendQueue = new ConcurrentLinkedQueue<>();
 	private final Semaphore runSemaphore = new Semaphore(0);
+	private NodeHeartBeatThread bodyGuard;
 
 	public NodeConnection(final String hostname, final int port, final ServerContext context) {
 		this.hostname = hostname;
@@ -57,9 +58,10 @@ public class NodeConnection extends Thread {
 	}
 
 	void close() throws IOException {// TODO syncornize to have out flushed
-		if (null != this.currentSocket) {
+		if (null != this.bodyGuard)
+			this.bodyGuard.close();
+		if (null != this.currentSocket)
 			this.currentSocket.close();
-		}
 	}
 
 	public void send(final Packet packet) {
@@ -73,6 +75,7 @@ public class NodeConnection extends Thread {
 			this.close();
 			this.currentSocket = new Socket(this.hostname, this.port);
 			this.out = new ObjectOutputStream(this.currentSocket.getOutputStream());
+			this.bodyGuard = new NodeHeartBeatThread(out);
 
 			var nodeSyncPacket = new NodeSyncPacket();
 			nodeSyncPacket.warehouse = this.context.getWarehouse().get();
