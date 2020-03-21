@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.stream.Collectors;
 
 import vs.chat.entities.Chat;
-import vs.chat.entities.Message;
 import vs.chat.entities.User;
 import vs.chat.packets.LoginPacket;
 import vs.chat.packets.LoginSyncPacket;
