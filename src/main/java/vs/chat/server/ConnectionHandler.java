@@ -63,7 +63,7 @@ public class ConnectionHandler extends Thread {
 				for (var method : methods) {
 					if (method.getName().equals("next")) {// TODO lookup in interface
 						var packetType = method.getParameters()[0];
-						if (packet.getClass().equals(packetType.getType())) {
+						if (packetType.getType().isAssignableFrom(packet.getClass())) {
 							var retu = (Packet) method.invoke(listener, packet, this.context, this); // TODO clone
 																										// Packet
 							this.pushTo(retu);
