@@ -59,19 +59,18 @@ public class ConnectionHandler extends Thread {
 	private void handlePacket(final Packet packet) throws IOException {
 		for (var listener : this.context.getListeners()) {
 			try {
-				var methods = listener.getClass().getMethods();
+				var methods = listener.getClass().getDeclaredMethods();
 				for (var method : methods) {
-					if (method.getName().equals("next")) {// TODO lookup in interface
+					if (method.getName().equals("next") && !method.isSynthetic()) {
 						var packetType = method.getParameters()[0];
 						if (packetType.getType().isAssignableFrom(packet.getClass())) {
-							var retu = (Packet) method.invoke(listener, packet, this.context, this); // TODO clone
-																										// Packet
+							var retu = (Packet) method.invoke(listener, packet, this.context, this);
 							this.pushTo(retu);
 						}
 					}
 				}
 
-			} catch (SecurityException | IllegalAccessException | IllegalArgumentException
+			} catch (SecurityException | IllegalArgumentException | IllegalAccessException
 					| InvocationTargetException e) {
 				e.printStackTrace();
 			}

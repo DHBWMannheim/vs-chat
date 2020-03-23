@@ -1,6 +1,7 @@
 package vs.chat.server.node;
 
 import vs.chat.packets.NoOpPacket;
+import vs.chat.packets.NodeSyncPacket;
 
 public class NodeHeartBeatThread extends Thread {
 
@@ -14,12 +15,21 @@ public class NodeHeartBeatThread extends Thread {
 
 	@Override
 	public void run() {
+		boolean connected = true;
 		while (!this.isCloseRequested) {
 			try {
 				out.send(new NoOpPacket());
+				if(!connected) {
+					System.out.println("lets go");
+					var nodeSyncPacket = new NodeSyncPacket();
+					nodeSyncPacket.warehouse = out.getContext().getWarehouse().get();
+					out.send(nodeSyncPacket);
+				}
+				connected = true;
 				Thread.sleep(BEAT_RATE);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+				connected = false;
 			}
 		}
 	}
