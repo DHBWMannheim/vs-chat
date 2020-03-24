@@ -78,13 +78,15 @@ public class NodeConnection extends Thread {
 			this.bodyGuard = new NodeHeartBeatThread(this);
 			this.bodyGuard.start();
 
-			
+			var nodeSyncPacket = new NodeSyncPacket();
+			nodeSyncPacket.warehouse = this.context.getWarehouse().get();
+			this.send(nodeSyncPacket);
 
 //			this.in = new ObjectInputStream(this.currentSocket.getInputStream());
 			System.out.println("connected");
 		} catch (IOException e) {
 			e.printStackTrace();
-			this.reconnect();
+			this.reconnect();//TODO replace this with while
 		}
 	}
 

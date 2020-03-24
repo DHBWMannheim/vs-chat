@@ -75,6 +75,7 @@ public class ConnectionHandler extends Thread {
 				e.printStackTrace();
 			}
 		}
+		this.context.getWarehouse().print();
 	}
 
 	public void pushTo(final Packet packet) {
