@@ -4,6 +4,8 @@ import vs.chat.entities.Message;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.UUID;
@@ -189,6 +191,41 @@ public class Gui {
         return inputPanel;
     }
 
+    private static JPanel loginPanel() {
+        //JPanel rootLoginPanel = new JPanel(new BorderLayout());
+        JPanel loginPanel = new JPanel();
+        loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
+
+
+        loginPanel.add(new JLabel("Username: "));
+        JTextField usernameField = new JTextField(20);
+        usernameField.setMaximumSize(new Dimension(550,20));
+        loginPanel.add(usernameField);
+
+        loginPanel.add(new JLabel("Passwort: "));
+        JPasswordField userPasswordField = new JPasswordField(20);
+        userPasswordField.setMaximumSize(new Dimension(550,20));
+        loginPanel.add(userPasswordField);
+
+        JButton loginButton = new JButton("Login!");
+
+        loginPanel.add(loginButton, BorderLayout.SOUTH);
+
+        ActionListener loginButtonListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                 //TODO: Check credentials
+                 String[] nutzernamen = {"Max Mustermann", "Patrick Mischka", "Michael Angermeier", "Aaron Schweig", "Troy Kessler", "Matthias von End", "Jan Grübener"};
+                 rootPanel.getContentPane().removeAll();
+                 rootPanel.getContentPane().add(displayRecentConversations(nutzernamen));
+                 rootPanel.pack();
+            }
+        }  ;
+        loginButton.addActionListener(loginButtonListener);
+
+        return loginPanel;
+    }
+
     private static JPanel displayRecentConversations(String[] userNames) {
         JPanel contactsPanel = new JPanel(new GridLayout(0, 1));
         for (String userName : userNames) {
@@ -240,7 +277,7 @@ public class Gui {
         firstMessage.setContent("Hello World!");
         firstMessage.setOrigin(UUID.fromString("16a9d592-79a7-4386-bbca-3a78fc091d34"));
         rootPanel = rootPanel();
-        rootPanel.getContentPane().add(displayRecentConversations(nutzernamen));
+        rootPanel.getContentPane().add(loginPanel());
         rootPanel.pack();
     }
 }
