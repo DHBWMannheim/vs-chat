@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
+
 import vs.chat.packets.Packet;
 import vs.chat.server.listener.Listener;
 import vs.chat.server.node.NodeConfig;
@@ -26,20 +27,6 @@ public class Server implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("Starting Server on Port: " + PORT);
-//		new Thread(new Runnable() {//TEMP
-//			
-//			@Override
-//			public void run() {
-//				Thread.currentThread().setName("TEMP CLOSER");
-//				try {
-//					Thread.sleep(30000);
-//					context.close();
-//				} catch (InterruptedException | IOException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-//		}).start();
 		Thread.currentThread().setName("Server");
 		
 		try (var socket = new ServerSocket(PORT)) {

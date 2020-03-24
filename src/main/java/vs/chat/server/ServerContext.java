@@ -12,6 +12,7 @@ import vs.chat.packets.Packet;
 import vs.chat.server.listener.Listener;
 import vs.chat.server.node.NodeBroadcaster;
 import vs.chat.server.node.NodeConfig;
+import vs.chat.server.persistance.Persister;
 import vs.chat.server.warehouse.Warehouse;
 
 public class ServerContext {
@@ -20,11 +21,13 @@ public class ServerContext {
 	private final List<ConnectionHandler> connections = Collections.synchronizedList(new ArrayList<>());
 	private final Warehouse warehouse = new Warehouse();
 	private final AtomicBoolean isCloseRequested = new AtomicBoolean(false);
+	private final Persister persister = new Persister(this);
 
 	public ServerContext(final List<Listener<? extends Packet, ? extends Packet>> listeners,
 			final NodeConfig... configs) {
 		this.listeners = listeners;
 		this.broadcaster = new NodeBroadcaster(this, configs);
+		this.persister.start();
 	}
 
 	public AtomicBoolean isCloseRequested() {
@@ -40,8 +43,7 @@ public class ServerContext {
 		for (var listener : this.listeners) {
 			listener.close();
 		}
-		System.out.println("saving");
-		this.warehouse.close();
+		this.persister.join();
 	}
 
 	public List<Listener<? extends Packet, ? extends Packet>> getListeners() {

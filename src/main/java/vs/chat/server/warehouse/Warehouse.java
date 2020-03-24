@@ -21,16 +21,6 @@ public class Warehouse {
 
 	public Warehouse() {
 		Stream.of(WarehouseResourceType.values()).forEach(type -> warehouse.put(type, new ConcurrentHashMap<>()));
-
-		try {
-			this.warehouse = this.warehousePersistanceHandler.load();
-		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("No save found");
-//			e.printStackTrace();
-		}
-
-		this.print();
 	}
 
 	public ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> get() {
@@ -41,7 +31,13 @@ public class Warehouse {
 		return this.get().get(type);
 	}
 
-	public void close() throws IOException {
+	public void load() throws ClassNotFoundException, IOException {
+		this.warehouse = this.warehousePersistanceHandler.load();
+		System.out.println("Loaded warehouse:");
+		this.print();
+	}
+
+	public void save() throws IOException {
 		this.warehousePersistanceHandler.store(warehouse);
 	}
 
