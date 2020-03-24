@@ -1,18 +1,21 @@
 package vs.chat.server.warehouse;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import vs.chat.server.persistance.PersistanceHandler;
-
 public class Warehouse {
 
 	private static final String SAVE_FILE_NAME = "warehouse";
-	// TODO simplify this and improve type safety -> remove casts
-	private final PersistanceHandler<ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>>> warehousePersistanceHandler = new PersistanceHandler<>(
-			SAVE_FILE_NAME);
 	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();// TODO
 																																	// handle
 																																	// nulls
@@ -21,16 +24,6 @@ public class Warehouse {
 
 	public Warehouse() {
 		Stream.of(WarehouseResourceType.values()).forEach(type -> warehouse.put(type, new ConcurrentHashMap<>()));
-
-		try {
-			this.warehouse = this.warehousePersistanceHandler.load();
-		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("No save found");
-//			e.printStackTrace();
-		}
-
-		this.print();
 	}
 
 	public ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> get() {
@@ -41,8 +34,29 @@ public class Warehouse {
 		return this.get().get(type);
 	}
 
-	public void close() throws IOException {
-		this.warehousePersistanceHandler.store(warehouse);
+	@SuppressWarnings("unchecked")
+	public void load() throws ClassNotFoundException, IOException {
+		var stream = new FileInputStream(SAVE_FILE_NAME + ".dat");
+		var inputStream = new ObjectInputStream(stream);
+		var object = inputStream.readObject();
+		stream.close();
+		this.warehouse = (ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>>) object;
+		System.out.println("Loaded warehouse:");
+		this.print();
+	}
+
+	public void save() throws IOException {
+		File tempFile = File.createTempFile(SAVE_FILE_NAME, ".tmp");
+
+		var stream = new FileOutputStream(tempFile);
+		var outputStream = new ObjectOutputStream(stream);
+		outputStream.writeObject(warehouse);
+		stream.close();
+
+		System.out.println(tempFile.getPath());
+
+		Files.move(Paths.get(tempFile.getPath()), Paths.get(new File(SAVE_FILE_NAME + ".dat").getPath()),
+				StandardCopyOption.ATOMIC_MOVE);
 	}
 
 	public void print() {
