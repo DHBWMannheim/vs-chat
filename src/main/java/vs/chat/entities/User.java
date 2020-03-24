@@ -8,7 +8,7 @@ public class User implements Comparable<User>, Warehouseable {
 
 	private final UUID id;
 	private String username;
-	private String password;
+	private transient String password;
 	
 	public User() {
 		this.id = UUID.randomUUID();

@@ -5,10 +5,11 @@ import java.util.UUID;
 
 import vs.chat.entities.Chat;
 import vs.chat.entities.Message;
+import vs.chat.entities.User;
 
 public class LoginSyncPacket implements Packet {
 
 	public UUID userId;
 	public Set<Chat> chats;
-	public Set<UUID> userIds;	
+	public Set<User> users;	
 }
