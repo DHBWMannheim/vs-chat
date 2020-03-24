@@ -13,7 +13,6 @@ public class NodeSyncListener implements Listener<NodeSyncPacket, NoOpPacket> {
 	@Override
 	public NoOpPacket next(final NodeSyncPacket packet, final ServerContext context, final ConnectionHandler handler)
 			throws IOException {
-		System.out.println("cre");
 		var needsBroadcast = false;
 		for (var type : WarehouseResourceType.values()) {
 			for (var entry : packet.warehouse.get(type).entrySet()) {
@@ -28,7 +27,6 @@ public class NodeSyncListener implements Listener<NodeSyncPacket, NoOpPacket> {
 			packet.warehouse = context.getWarehouse().get(); // This is optional, i think :)
 			context.getBroadcaster().send(packet);
 		}
-
 
 		return new NoOpPacket();
 	}
