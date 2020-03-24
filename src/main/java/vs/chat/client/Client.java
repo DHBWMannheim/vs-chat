@@ -130,7 +130,6 @@ public class Client {
 			objectOut.writeObject(l);
 			objectOut.flush();
 
-			System.out.println(networkIn.readObject());
 //int i=0;
 
 			new Thread(new Runnable() {
@@ -168,7 +167,8 @@ public class Client {
 				public void run() {
 					while (true) {
 						try {
-							System.out.println(networkIn.readObject());
+							var a = networkIn.readObject();
+							System.out.println(a);
 						} catch (IOException | ClassNotFoundException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -184,7 +184,7 @@ public class Client {
 //                networkOut.flush();
 //            }
 
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 //			try {

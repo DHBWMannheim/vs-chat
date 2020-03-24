@@ -41,10 +41,10 @@ public class LoginListener implements Listener<LoginPacket, LoginSyncPacket> {
 		var syncPacket = new LoginSyncPacket();
 		syncPacket.userId = handler.getConnectedToUserId().get();
 		syncPacket.chats = context.getWarehouse().get(WarehouseResourceType.CHATS).values().stream()
-				.map(chat -> (Chat) chat)
-				.filter(chat -> chat.getUsers().contains(syncPacket.userId))
+				.map(chat -> (Chat) chat).filter(chat -> chat.getUsers().contains(syncPacket.userId))
 				.collect(Collectors.toSet());
-		syncPacket.userIds = context.getWarehouse().get(WarehouseResourceType.USERS).keySet();
+		syncPacket.users = context.getWarehouse().get(WarehouseResourceType.USERS).values().stream()
+				.map(user -> (User) user).collect(Collectors.toSet());
 
 		return syncPacket;
 	}
