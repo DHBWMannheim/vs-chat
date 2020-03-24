@@ -46,13 +46,13 @@ public class Warehouse {
 	}
 
 	public void save() throws IOException {
-		File tempFile = File.createTempFile("warehouse", ".tmp");
+		File tempFile = File.createTempFile(SAVE_FILE_NAME, ".tmp");
 
 		var stream = new FileOutputStream(tempFile);
 		var outputStream = new ObjectOutputStream(stream);
 		outputStream.writeObject(warehouse);
 		stream.close();
-		
+
 		System.out.println(tempFile.getPath());
 
 		Files.move(Paths.get(tempFile.getPath()), Paths.get(new File(SAVE_FILE_NAME + ".dat").getPath()),
