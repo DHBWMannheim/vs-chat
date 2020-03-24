@@ -7,19 +7,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import vs.chat.packets.Packet;
 import vs.chat.server.listener.Listener;
+import vs.chat.server.node.NodeConfig;
 
 public class Server implements Runnable {
 
 	private final int PORT;
 	
 	private final ServerContext context;
-
-	
 
 	public Server(final Integer port, final NodeConfig... configs) {
 		this.PORT = port;
@@ -30,8 +27,10 @@ public class Server implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("Starting Server on Port: " + PORT);
+		Thread.currentThread().setName("Server");
+		
 		try (var socket = new ServerSocket(PORT)) {
-			while (!this.context.isCloseRequested()) {
+			while (!this.context.isCloseRequested().get()) {
 				try {
 					var clientSocket = socket.accept();
 					var outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -46,17 +45,12 @@ public class Server implements Runnable {
 					e.printStackTrace();
 				}
 			}
-			for (var connection : this.context.getConnections()) {
-				connection.join();
-			}
-			for (var listener : this.context.getListeners()) {
-				listener.close();
-			}
+			System.out.println("Stopping Server...");
+			this.context.close();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 
-		System.out.println("Starting Server...");
 	}
 
 	private List<Listener<? extends Packet, ? extends Packet>> createListener() {

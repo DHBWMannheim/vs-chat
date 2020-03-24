@@ -14,6 +14,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.UUID;
 
+import vs.chat.packets.CreateChatPacket;
 import vs.chat.packets.LoginPacket;
 import vs.chat.packets.MessagePacket;
 
@@ -124,22 +125,31 @@ public class Client {
 //                networkOut.flush();
 
 			var l = new LoginPacket();
-			l.username = "test" + Math.random();
+			l.username = "test2";
 			l.password = "password";
 			objectOut.writeObject(l);
 			objectOut.flush();
 
-			System.out.println(networkIn.readObject());
 //int i=0;
 
 			new Thread(new Runnable() {
 
 				@Override
 				public void run() {
+//					var mm = new CreateChatPacket(UUID.fromString("16a9d592-79a7-4386-bbca-3a78fc091d34"),
+//							UUID.fromString("a97082b8-6b7c-48e5-9c5d-df3082c731f4"));
+//					try {
+//						objectOut.writeObject(mm);
+//						objectOut.flush();
+//					} catch (IOException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					}
+////					
 					while (true) {
 						var m = new MessagePacket();
 						m.content = "Super Awesome Message with super long text " + Math.random();
-						m.target = UUID.fromString("94832a77-da12-4132-a6f0-10f0b33d5d85");
+						m.target = UUID.fromString("eae7ee33-4c52-43f6-acc8-9d1b2ad4f2bb");
 						try {
 							objectOut.writeObject(m);
 							objectOut.flush();
@@ -148,8 +158,6 @@ public class Client {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-
-//						i++;
 					}
 				}
 			}).start();
@@ -159,7 +167,8 @@ public class Client {
 				public void run() {
 					while (true) {
 						try {
-							System.out.println(networkIn.readObject());
+							var a = networkIn.readObject();
+							System.out.println(a);
 						} catch (IOException | ClassNotFoundException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -175,7 +184,7 @@ public class Client {
 //                networkOut.flush();
 //            }
 
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 //			try {

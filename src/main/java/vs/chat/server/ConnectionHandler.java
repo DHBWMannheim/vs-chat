@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
+import java.util.Optional;
 import java.util.UUID;
 
 import vs.chat.packets.Packet;
@@ -16,14 +17,14 @@ public class ConnectionHandler extends Thread {
 	private final ObjectOutputStream outputStream;
 	private final ObjectInputStream inputStream;
 
-	private UUID connectedToUserId;
+	private Optional<UUID> connectedToUserId = Optional.empty();
 
-	public UUID getConnectedToUserId() {
+	public Optional<UUID> getConnectedToUserId() {
 		return connectedToUserId;
 	}
 
 	public void setConnectedToUserId(UUID connectedToUserId) {
-		this.connectedToUserId = connectedToUserId;
+		this.connectedToUserId = Optional.of(connectedToUserId);
 	}
 
 	public ConnectionHandler(final Socket client, final ServerContext context, final ObjectOutputStream outputStream,
@@ -36,7 +37,9 @@ public class ConnectionHandler extends Thread {
 
 	@Override
 	public void run() {
-		while (!this.context.isCloseRequested()) {
+		Thread.currentThread().setName("Connection Handler");
+		while (!this.context.isCloseRequested().get()) {
+			System.out.println("Handling");
 			try {
 				var object = inputStream.readObject();
 				var packet = (Packet) object;
@@ -56,23 +59,23 @@ public class ConnectionHandler extends Thread {
 	private void handlePacket(final Packet packet) throws IOException {
 		for (var listener : this.context.getListeners()) {
 			try {
-				var methods = listener.getClass().getMethods();
+				var methods = listener.getClass().getDeclaredMethods();
 				for (var method : methods) {
-					if (method.getName().equals("next")) {// TODO lookup in interface
+					if (method.getName().equals("next") && !method.isSynthetic()) {
 						var packetType = method.getParameters()[0];
-						if (packet.getClass().equals(packetType.getType())) {
-							var retu = (Packet) method.invoke(listener, packet, this.context, this); // TODO clone
-																										// Packet
+						if (packetType.getType().isAssignableFrom(packet.getClass())) {
+							var retu = (Packet) method.invoke(listener, packet, this.context, this);
 							this.pushTo(retu);
 						}
 					}
 				}
 
-			} catch (SecurityException | IllegalAccessException | IllegalArgumentException
+			} catch (SecurityException | IllegalArgumentException | IllegalAccessException
 					| InvocationTargetException e) {
 				e.printStackTrace();
 			}
 		}
+		this.context.getWarehouse().print();
 	}
 
 	public void pushTo(final Packet packet) {

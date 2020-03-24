@@ -1,13 +1,14 @@
-package vs.chat.server;
+package vs.chat.server.node;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
+import vs.chat.packets.NodeSyncPacket;
 import vs.chat.packets.Packet;
+import vs.chat.server.ServerContext;
 
 public class NodeConnection extends Thread {
 
@@ -17,10 +18,11 @@ public class NodeConnection extends Thread {
 
 	private Socket currentSocket;
 	private ObjectOutputStream out;
-	private ObjectInputStream in;
+//	private ObjectInputStream in;
 
 	private final ConcurrentLinkedQueue<Packet> sendQueue = new ConcurrentLinkedQueue<>();
 	private final Semaphore runSemaphore = new Semaphore(0);
+	private NodeHeartBeatThread bodyGuard;
 
 	public NodeConnection(final String hostname, final int port, final ServerContext context) {
 		this.hostname = hostname;
@@ -30,9 +32,10 @@ public class NodeConnection extends Thread {
 
 	@Override
 	public void run() {
+		Thread.currentThread().setName("Node Connection");
 		try {
 			this.reconnect();
-			while (!this.context.isCloseRequested()) {
+			while (!this.context.isCloseRequested().get()) {
 				runSemaphore.acquire();
 				try {
 					if (this.currentSocket != null && out != null) {
@@ -55,9 +58,10 @@ public class NodeConnection extends Thread {
 	}
 
 	void close() throws IOException {// TODO syncornize to have out flushed
-		if (null != this.currentSocket) {
+		if (null != this.bodyGuard)
+			this.bodyGuard.close();
+		if (null != this.currentSocket)
 			this.currentSocket.close();
-		}
 	}
 
 	public void send(final Packet packet) {
@@ -71,11 +75,24 @@ public class NodeConnection extends Thread {
 			this.close();
 			this.currentSocket = new Socket(this.hostname, this.port);
 			this.out = new ObjectOutputStream(this.currentSocket.getOutputStream());
-			this.in = new ObjectInputStream(this.currentSocket.getInputStream());
+			this.bodyGuard = new NodeHeartBeatThread(this);
+			this.bodyGuard.start();
+
+			var nodeSyncPacket = new NodeSyncPacket();
+			nodeSyncPacket.warehouse = this.context.getWarehouse().get();
+			this.send(nodeSyncPacket);
+
+//			this.in = new ObjectInputStream(this.currentSocket.getInputStream());
 			System.out.println("connected");
 		} catch (IOException e) {
 			e.printStackTrace();
-			this.reconnect();
+			this.reconnect();//TODO replace this with while
 		}
 	}
+
+	public ServerContext getContext() {
+		return context;
+	}
+	
+	
 }

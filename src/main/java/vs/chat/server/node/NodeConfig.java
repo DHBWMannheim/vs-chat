@@ -1,4 +1,4 @@
-package vs.chat.server;
+package vs.chat.server.node;
 
 public class NodeConfig {
 
