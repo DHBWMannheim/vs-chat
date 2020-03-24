@@ -1,7 +1,6 @@
 package vs.chat.server.listener;
 
 import java.io.IOException;
-import java.util.stream.Stream;
 
 import vs.chat.packets.NoOpPacket;
 import vs.chat.packets.NodeSyncPacket;
@@ -28,9 +27,6 @@ public class NodeSyncListener implements Listener<NodeSyncPacket, NoOpPacket> {
 			packet.warehouse = context.getWarehouse().get(); // This is optional, i think :)
 			context.getBroadcaster().send(packet);
 		}
-
-		Stream.of(WarehouseResourceType.values())
-				.forEach(type -> System.out.println("" + type + context.getWarehouse().get(type)));
 
 		return new NoOpPacket();
 	}

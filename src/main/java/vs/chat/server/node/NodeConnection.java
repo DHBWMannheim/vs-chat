@@ -86,7 +86,13 @@ public class NodeConnection extends Thread {
 			System.out.println("connected");
 		} catch (IOException e) {
 			e.printStackTrace();
-			this.reconnect();
+			this.reconnect();//TODO replace this with while
 		}
 	}
+
+	public ServerContext getContext() {
+		return context;
+	}
+	
+	
 }
