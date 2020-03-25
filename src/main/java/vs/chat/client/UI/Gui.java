@@ -249,9 +249,8 @@ public class Gui {
                 @Override
                 public void mouseClicked(MouseEvent mouseEvent) {
                     //TODO: Remove message creation when Backend is done!
-                    Message message = new Message();
+                    Message message = new Message(UUID.fromString("16a9d592-79a7-4386-bbca-3a78fc091d34"));
                     message.setContent("Hello World!");
-                    message.setOrigin(UUID.fromString("16a9d592-79a7-4386-bbca-3a78fc091d34"));
                     rootPanel.getContentPane().removeAll();
                     rootPanel.getContentPane().add(header("Max Mustermann"), BorderLayout.NORTH);
                     rootPanel.getContentPane().add(displayNewMessage(message));
@@ -282,9 +281,8 @@ public class Gui {
 
     private void startGui() {
         String[] nutzernamen = {"Max Mustermann", "Patrick Mischka", "Michael Angermeier", "Aaron Schweig", "Troy Kessler", "Matthias von End", "Jan Grübener"};
-        Message firstMessage = new Message();
-        firstMessage.setContent("Hello World!");
-        firstMessage.setOrigin(UUID.fromString("16a9d592-79a7-4386-bbca-3a78fc091d34"));
+        Message message = new Message(UUID.fromString("16a9d592-79a7-4386-bbca-3a78fc091d34"));
+        message.setContent("Hello World!");
         rootPanel = rootPanel();
         rootPanel.getContentPane().add(loginPanel());
         rootPanel.pack();

@@ -29,6 +29,11 @@ public class User implements Comparable<User>, Warehouseable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return this.id.equals(obj);
+	}
 
 	@Override
 	public UUID getId() {

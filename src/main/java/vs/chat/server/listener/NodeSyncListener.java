@@ -28,7 +28,7 @@ public class NodeSyncListener implements Listener<NodeSyncPacket, NoOpPacket> {
 			context.getBroadcaster().send(packet);
 		}
 
-		return new NoOpPacket();
+		return null;
 	}
 
 }

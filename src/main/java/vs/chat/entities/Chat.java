@@ -23,4 +23,8 @@ public class Chat extends CreateChatPacket implements Comparable<Chat>, Warehous
 		return id;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		return this.id.equals(obj);
+	}
 }
