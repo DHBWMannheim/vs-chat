@@ -15,20 +15,6 @@
 		<java.version>11</java.version>
 	</properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.github.vincenzopalazzo</groupId>
-			<artifactId>material-ui-swing</artifactId>
-			<version>1.1.1_pre-release_6.1</version>
-		</dependency>
-	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
