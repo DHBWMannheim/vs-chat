@@ -63,8 +63,13 @@ public class ClientApiImpl implements ClientApi {
         this.networkOut.writeObject(getMessagesPacket);
         this.networkOut.flush();
 
-        GetMessagesResponsePacket response = (GetMessagesResponsePacket)this.networkIn.readObject();
-        return response.messages;
+        Object response = this.networkIn.readObject();
+
+        if (response instanceof GetMessagesResponsePacket) {
+            return ((GetMessagesResponsePacket) response).messages;
+        }
+
+        return null;
     }
 
     // gets all users except current user
@@ -108,8 +113,6 @@ public class ClientApiImpl implements ClientApi {
 
     public Message waitForNewMessages() throws IOException, ClassNotFoundException {
         Object response = this.networkIn.readObject();
-
-        // System.out.println(response);
 
         if (response instanceof Message) {
             return ((Message) response);
