@@ -2,6 +2,7 @@ package vs.chat.server.warehouse;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -35,23 +36,24 @@ public class Warehouse {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void load() throws ClassNotFoundException, IOException {
-		var stream = new FileInputStream(SAVE_FILE_NAME + ".dat");
-		var inputStream = new ObjectInputStream(stream);
-		var object = inputStream.readObject();
-		stream.close();
-		this.warehouse = (ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>>) object;
-		System.out.println("Loaded warehouse:");
-		this.print();
+	public void load() throws FileNotFoundException, IOException, ClassNotFoundException {
+		try (var stream = new FileInputStream(SAVE_FILE_NAME + ".dat")) {
+			var inputStream = new ObjectInputStream(stream);
+			var object = inputStream.readObject();
+			this.warehouse = (ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>>) object;
+			System.out.println("Loaded warehouse:");
+			this.print();
+		}
+
 	}
 
 	public void save() throws IOException {
 		File tempFile = File.createTempFile(SAVE_FILE_NAME, ".tmp");
 
-		var stream = new FileOutputStream(tempFile);
-		var outputStream = new ObjectOutputStream(stream);
-		outputStream.writeObject(warehouse);
-		stream.close();
+		try (var stream = new FileOutputStream(tempFile)) {
+			var outputStream = new ObjectOutputStream(stream);
+			outputStream.writeObject(warehouse);
+		}
 
 		System.out.println(tempFile.getPath());
 
