@@ -28,9 +28,8 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 			if (storedMessage != null)
 				return null;
 		} else {
-			newMessage = new Message();
+			newMessage = new Message(handler.getConnectedToUserId().get());
 			newMessage.setTarget(packet.target);
-			newMessage.setOrigin(handler.getConnectedToUserId().get());
 			newMessage.setContent(packet.content);
 		}
 
