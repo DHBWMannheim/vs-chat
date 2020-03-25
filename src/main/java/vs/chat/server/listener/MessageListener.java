@@ -51,32 +51,7 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 		context.getWarehouse().get(WarehouseResourceType.MESSAGES).put(newMessage.getId(), newMessage);
 		context.getBroadcaster().send(newMessage);
 
-		return new NoOpPacket();
-		
-		
-//		
-//		Message newMessage;
-//		if (packet instanceof Message) {
-//			newMessage = (Message) packet;
-//			var storedMessage = context.getWarehouse().get(WarehouseResourceType.MESSAGES).get(newMessage.getId());
-//			if (storedMessage != null)
-//				return null;
-//		} else {
-//			newMessage = new Message();
-//			newMessage.setTarget(packet.target);
-//			newMessage.setOrigin(handler.getConnectedToUserId().get());//TODO optional
-//			newMessage.setContent(packet.content);
-//		}
-//
-//		System.out.println("found a new message with target " + newMessage.target);
-//		var localConnection = context.getConnectionForUserId(newMessage.target);
-//		if (localConnection.isPresent()) {
-//			localConnection.get().pushTo(newMessage);
-//		}
-//		context.getWarehouse().get(WarehouseResourceType.MESSAGES).put(newMessage.getId(), newMessage);
-//		context.getBroadcaster().send(newMessage);
-//
-//		return new NoOpPacket();
+		return null;
 	}
 
 }

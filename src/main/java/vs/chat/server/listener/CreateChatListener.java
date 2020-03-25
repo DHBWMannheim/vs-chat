@@ -11,10 +11,10 @@ import vs.chat.server.ServerContext;
 import vs.chat.server.warehouse.WarehouseResourceType;
 
 //Falls Gruppenchats nicht erlaubt sind in der Basisversion kann diese Klasse gelöscht werden
-public class CreateChatListener implements Listener<CreateChatPacket, NoOpPacket> {
+public class CreateChatListener implements Listener<CreateChatPacket, Chat> {
 
 	@Override
-	public NoOpPacket next(final CreateChatPacket packet, final ServerContext context, final ConnectionHandler handler)
+	public Chat next(final CreateChatPacket packet, final ServerContext context, final ConnectionHandler handler)
 			throws IOException {
 		var currentUser = handler.getConnectedToUserId();
 
@@ -41,7 +41,7 @@ public class CreateChatListener implements Listener<CreateChatPacket, NoOpPacket
 		context.getWarehouse().get(WarehouseResourceType.CHATS).put(newChat.getId(), newChat);
 		context.getBroadcaster().send(newChat);
 
-		return new NoOpPacket();
+		return newChat;
 	}
 
 }
