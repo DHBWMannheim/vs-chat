@@ -1,5 +1,6 @@
 package vs.chat.entities;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import vs.chat.packets.MessagePacket;
@@ -8,10 +9,13 @@ import vs.chat.server.warehouse.Warehouseable;
 public class Message extends MessagePacket implements Comparable<Message>, Warehouseable {
 
 	private final UUID id;
-	private UUID origin;
+	private final UUID origin;
+	private final LocalDateTime receiveTime;
 
-	public Message() {
+	public Message(final UUID origin) {
 		this.id = UUID.randomUUID();
+		this.origin = origin;
+		this.receiveTime = LocalDateTime.now();
 	}
 
 	public String getContent() {
@@ -26,10 +30,6 @@ public class Message extends MessagePacket implements Comparable<Message>, Wareh
 		return origin;
 	}
 
-	public void setOrigin(UUID origin) {
-		this.origin = origin;
-	}
-
 	public UUID getTarget() {
 		return target;
 	}
@@ -38,14 +38,26 @@ public class Message extends MessagePacket implements Comparable<Message>, Wareh
 		this.target = target;
 	}
 
+	public LocalDateTime getReceiveTime() {
+		return receiveTime;
+	}
+
 	@Override
 	public UUID getId() {
 		return id;
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return this.id.equals(obj);
+	}
+
+	@Override
 	public int compareTo(Message o) {
-		return this.id.compareTo(o.id);
+		var compareResult = this.receiveTime.compareTo(o.getReceiveTime());
+		if (compareResult == 0)
+			compareResult = this.id.compareTo(o.id);
+		return compareResult;
 	}
 
 }
