@@ -38,7 +38,7 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 		var correspondingChat = (Chat) context.getWarehouse().get(WarehouseResourceType.CHATS).get(newMessage.target);
 		if (correspondingChat == null) {
 			// TODO throw error as the chat id is invalid
-			return new NoOpPacket();
+			return null;
 		}
 		for (var user : correspondingChat.getUsers()) {
 			var localConnection = context.getConnectionForUserId(user);
