@@ -1,11 +1,9 @@
 package vs.chat.client;
 
 import vs.chat.entities.Chat;
+import vs.chat.entities.Message;
 import vs.chat.entities.User;
-import vs.chat.packets.CreateChatPacket;
-import vs.chat.packets.LoginPacket;
-import vs.chat.packets.LoginSyncPacket;
-import vs.chat.packets.MessagePacket;
+import vs.chat.packets.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ClientApiImpl implements ClientApi {
 
@@ -30,7 +29,7 @@ public class ClientApiImpl implements ClientApi {
         this.socket = socket;
     }
 
-    // returns me id (uuid), contacts (uuid),
+    // login with username and password, returns user id, user chat & all users
     public void login(String username, String password) throws IOException, ClassNotFoundException {
         LoginPacket loginPacket = new LoginPacket();
         loginPacket.username = username;
@@ -46,16 +45,41 @@ public class ClientApiImpl implements ClientApi {
         this.contacts = response.users;
     }
 
+    // get user id of current user
     public UUID getUserId() {
         return userId;
     }
 
+    // get all chats of current user
     public Set<Chat> getChats() {
         return chats;
     }
 
+    // get all messages of chat
+    public Set<Message> getChatMessages(UUID chatId) throws IOException, ClassNotFoundException {
+        GetMessagesPacket getMessagesPacket = new GetMessagesPacket();
+        getMessagesPacket.chatId = chatId;
+
+        this.networkOut.writeObject(getMessagesPacket);
+        this.networkOut.flush();
+
+        GetMessagesResponsePacket response = (GetMessagesResponsePacket)this.networkIn.readObject();
+        return response.messages;
+    }
+
+    // gets all users except current user
     public Set<User> getContacts() {
-        return contacts;
+        return contacts.stream().filter(c -> c.getId() != this.userId).collect(Collectors.toSet());
+    }
+
+    // gets username of contact id
+    public String getUsernameFromId(UUID userId) {
+        User user = contacts.stream().filter(c -> c.getId() == userId).findAny().orElse(null);
+
+        if (user != null) {
+            return user.getUsername();
+        }
+        return null;
     }
 
     // create chats with chat name and contacts (userIds)
@@ -63,6 +87,8 @@ public class ClientApiImpl implements ClientApi {
         CreateChatPacket createChatPacket = new CreateChatPacket(chatName, userIds);
 
         this.networkOut.writeObject(createChatPacket);
+        networkOut.flush();
+
         Chat createdChat = (Chat)networkIn.readObject();
 
         this.chats.add(createdChat);
@@ -80,8 +106,15 @@ public class ClientApiImpl implements ClientApi {
         networkOut.flush();
     }
 
-    public Object waitForMessages() throws IOException, ClassNotFoundException {
-        return this.networkIn.readObject();
+    public Message waitForNewMessages() throws IOException, ClassNotFoundException {
+        Object response = this.networkIn.readObject();
+
+        // System.out.println(response);
+
+        if (response instanceof Message) {
+            return ((Message) response);
+        }
+        return null;
     }
 
     // exit program and close connection to server

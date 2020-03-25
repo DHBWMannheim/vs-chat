@@ -2,17 +2,20 @@ package vs.chat.client.CMD;
 
 import vs.chat.client.ClientApiImpl;
 import vs.chat.entities.Chat;
+import vs.chat.entities.Message;
 import vs.chat.entities.User;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Cmd {
 
     private ClientApiImpl api;
     private BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
+    private boolean listening = false;
 
     public Cmd(ClientApiImpl api) {
         this.api = api;
@@ -59,6 +62,9 @@ public class Cmd {
                     case "/createchat":
                         this.createChat();
                         break;
+                    case "/openchat":
+                        this.openChat();
+                        break;
                     case "/help":
                         this.printHelp();
                         break;
@@ -86,7 +92,7 @@ public class Cmd {
 
             this.api.login(username, password);
 
-            System.out.println("Logged in as User -> " + this.api.getUserId());
+            System.out.println("\nLogged in as '" + this.api.getUsernameFromId(this.api.getUserId()) + "'");
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -100,6 +106,7 @@ public class Cmd {
         System.out.println("/chats -- list available chats");
         System.out.println("/contacts -- list contacts");
         System.out.println("/createchat -- create new chat with other contacts");
+        System.out.println("/openchat -- open chat to send messages");
         System.out.println("/exit -- exit application");
     }
 
@@ -111,7 +118,13 @@ public class Cmd {
         if (chats != null) {
             if (chats.size() > 0) {
                 for (Chat chat: chats) {
-                    System.out.println("Chatname: " + chat.getName() + " -- " + chat.getId().toString());
+                    Set<User> chatContacts = this.api.getContacts()
+                            .stream()
+                            .filter(c -> chat.getUsers().contains(c.getId()))
+                            .collect(Collectors.toSet());
+
+                    String users = chatContacts.stream().map(User::getUsername).reduce("", String::concat);
+                    System.out.println("Chatname: " + chat.getName() + " (Users: " + users + ")");
                 }
             } else {
                 System.out.println("0 Chats");
@@ -159,9 +172,22 @@ public class Cmd {
             } while (amountChatUsers < 1);
 
             for (int i = 0; i < amountChatUsers; i++) {
-                System.out.print((i + 1) + ". User: ");
-                String user = this.userIn.readLine();
-                users.add(UUID.fromString(user));
+
+                User user;
+
+                do {
+                    System.out.print((i + 1) + ". User (username): ");
+                    String username = this.userIn.readLine();
+
+                    user = this.api.getContacts().stream().filter(c -> c.getUsername().equals(username)).findAny().orElse(null);
+
+                    if (user == null) {
+                        System.out.println("User not found!");
+                    }
+
+                } while (user == null);
+
+                users.add(user.getId());
             }
 
             UUID[] userIds = new UUID[users.size()];
@@ -174,22 +200,69 @@ public class Cmd {
         }
     }
 
-    private void listenerThread() {
-        new Thread(new Runnable() {
+    private void openChat() {
+        try {
+
+            Thread messageListener = this.messageListener();
+            Chat chat;
+
+            do {
+                System.out.print("Chatname: ");
+                String chatname = this.userIn.readLine();
+                chat = this.api.getChats().stream().filter(c -> c.getName().equals(chatname)).findAny().orElse(null);
+
+                if (chat == null) {
+                    System.out.println("Chat not found!");
+                }
+            } while (chat == null);
+
+            Set<Message> chatMessages = this.api.getChatMessages(chat.getId());
+
+            System.out.println("Opened chat '" + chat.getName() + "' (type /quit to exit chat window)\n");
+
+            for (Message message: chatMessages) {
+                System.out.println(this.api.getUsernameFromId(message.getOrigin()) + " -> " + message.getContent());
+            }
+
+            this.listening = true;
+            messageListener.start();
+
+            while (true) {
+                String message = this.userIn.readLine();
+
+                if (message.equals("/quit")) {
+                    System.out.println("\nExited chat window");
+                    break;
+                }
+
+                this.api.sendMessage(message, chat.getId());
+            }
+
+            // stop message listener
+            this.listening = false;
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Thread messageListener() {
+        return new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
+                while (listening) {
                     try {
-                        api.waitForMessages();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
+                        // System.out.println("listening for messages");
+                        Message message = api.waitForNewMessages();
+                        if (message != null) {
+                            System.out.println(api.getUsernameFromId(message.getOrigin()) + " -> " + message.getContent());
+                        }
+                    } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
-
                 }
             }
-        }).start();
+        });
     }
 
 }
