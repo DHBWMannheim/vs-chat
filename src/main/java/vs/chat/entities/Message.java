@@ -1,6 +1,6 @@
 package vs.chat.entities;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 import vs.chat.packets.MessagePacket;
@@ -10,12 +10,12 @@ public class Message extends MessagePacket implements Comparable<Message>, Wareh
 
 	private final UUID id;
 	private final UUID origin;
-	private final LocalDateTime receiveTime;
+	private final Date receiveTime;
 
 	public Message(final UUID origin) {
 		this.id = UUID.randomUUID();
 		this.origin = origin;
-		this.receiveTime = LocalDateTime.now();
+		this.receiveTime = new Date();
 	}
 
 	public String getContent() {
@@ -38,7 +38,7 @@ public class Message extends MessagePacket implements Comparable<Message>, Wareh
 		this.target = target;
 	}
 
-	public LocalDateTime getReceiveTime() {
+	public Date getReceiveTime() {
 		return receiveTime;
 	}
 
