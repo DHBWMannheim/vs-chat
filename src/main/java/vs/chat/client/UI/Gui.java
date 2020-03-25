@@ -1,5 +1,6 @@
 package vs.chat.client.UI;
 
+import vs.chat.client.ClientApiImpl;
 import vs.chat.entities.Message;
 
 import javax.swing.*;
@@ -15,6 +16,14 @@ public class Gui {
     static JFrame rootPanel;
     static JTextArea messageInput;
     static String[] nutzernamen = {"Max Mustermann", "Patrick Mischka", "Michael Angermeier", "Aaron Schweig", "Troy Kessler", "Matthias von End", "Jan Grübener"};
+
+    // login, nachrichten senden usw
+    private ClientApiImpl api;
+
+    public Gui(ClientApiImpl api) {
+        this.api = api;
+        this.startGui();
+    }
 
     private static JFrame rootPanel() {
         JFrame fenster = new JFrame();
@@ -271,7 +280,7 @@ public class Gui {
         return contactsPanel;
     }
 
-    public static void main(String[] args) {
+    private void startGui() {
         String[] nutzernamen = {"Max Mustermann", "Patrick Mischka", "Michael Angermeier", "Aaron Schweig", "Troy Kessler", "Matthias von End", "Jan Grübener"};
         Message firstMessage = new Message();
         firstMessage.setContent("Hello World!");
