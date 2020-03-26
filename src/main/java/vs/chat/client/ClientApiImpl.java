@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,6 @@ public class ClientApiImpl implements ClientApi {
         this.socket = socket;
     }
 
-    // login with username and password, returns user id, user chat & all users
     public void login(String username, String password) throws IOException, ClassNotFoundException {
         LoginPacket loginPacket = new LoginPacket();
         loginPacket.username = username;
@@ -45,17 +45,14 @@ public class ClientApiImpl implements ClientApi {
         this.contacts = response.users;
     }
 
-    // get user id of current user
     public UUID getUserId() {
         return userId;
     }
 
-    // get all chats of current user
     public Set<Chat> getChats() {
         return chats;
     }
 
-    // get all messages of chat
     public Set<Message> getChatMessages(UUID chatId) throws IOException, ClassNotFoundException {
         GetMessagesPacket getMessagesPacket = new GetMessagesPacket();
         getMessagesPacket.chatId = chatId;
@@ -66,20 +63,24 @@ public class ClientApiImpl implements ClientApi {
         Object response = this.networkIn.readObject();
 
         if (response instanceof GetMessagesResponsePacket) {
-            return ((GetMessagesResponsePacket) response).messages;
+            return new TreeSet<>(((GetMessagesResponsePacket) response).messages);
         }
 
         return null;
     }
 
-    // gets all users except current user
     public Set<User> getContacts() {
-        return contacts.stream().filter(c -> c.getId() != this.userId).collect(Collectors.toSet());
+        return contacts
+                .stream()
+                .filter(c -> c.getId() != this.userId)
+                .collect(Collectors.toSet());
     }
 
-    // gets username of contact id
     public String getUsernameFromId(UUID userId) {
-        User user = contacts.stream().filter(c -> c.getId() == userId).findAny().orElse(null);
+        User user = contacts.stream()
+                        .filter(c -> c.getId() == userId)
+                        .findAny()
+                        .orElse(null);
 
         if (user != null) {
             return user.getUsername();
@@ -87,7 +88,6 @@ public class ClientApiImpl implements ClientApi {
         return null;
     }
 
-    // create chats with chat name and contacts (userIds)
     public Chat createChat(String chatName, final UUID... userIds) throws IOException, ClassNotFoundException {
         CreateChatPacket createChatPacket = new CreateChatPacket(chatName, userIds);
 
@@ -101,7 +101,6 @@ public class ClientApiImpl implements ClientApi {
         return createdChat;
     }
 
-    // send chat message to user
     public void sendMessage(String message, UUID chatId) throws IOException {
         MessagePacket messagePacket = new MessagePacket();
         messagePacket.content = message;
@@ -120,7 +119,6 @@ public class ClientApiImpl implements ClientApi {
         return null;
     }
 
-    // exit program and close connection to server
     public void exit() throws IOException {
         socket.close();
         System.exit(0);

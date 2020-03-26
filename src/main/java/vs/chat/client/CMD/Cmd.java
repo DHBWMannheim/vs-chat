@@ -8,6 +8,7 @@ import vs.chat.entities.User;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,20 +17,11 @@ public class Cmd {
     private ClientApiImpl api;
     private BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
     private boolean listening = false;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
     public Cmd(ClientApiImpl api) {
         this.api = api;
-
         this.startCommandLineClient();
-
-        // user: troykessler
-        // password: Passwort123
-        // userId: bb413062-c471-45cd-8258-369d769d8317
-
-        // user: troy
-        // password: Passwort123
-        // userId: 5980d889-2ba4-446f-b082-10fa7c605c9c
-
     }
 
     private void startCommandLineClient() {
@@ -44,7 +36,7 @@ public class Cmd {
                     continue;
                 } else if (this.api.getUserId() == null) {
                     if (!userInput.equals("/login") && !userInput.equals("/help") && !userInput.equals("/exit")) {
-                        System.out.println("You need to login!");
+                        System.out.println("You need to login! -> /login");
                         continue;
                     }
                 }
@@ -72,7 +64,7 @@ public class Cmd {
                         this.api.exit();
                         break;
                     default:
-                        System.out.println("Command not found! Type /help for available commands");
+                        System.out.println("Command not found! -> /help");
                 }
 
             } catch (IOException e) {
@@ -107,7 +99,7 @@ public class Cmd {
         System.out.println("/contacts -- list contacts");
         System.out.println("/createchat -- create new chat with other contacts");
         System.out.println("/openchat -- open chat to send messages");
-        System.out.println("/exit -- exit application");
+        System.out.println("/exit -- exit application\n");
     }
 
     private void listChats() {
@@ -166,7 +158,7 @@ public class Cmd {
             List<UUID> users = new ArrayList<>();
 
             do {
-                System.out.print("Amount of Chat Users (at least 1): ");
+                System.out.print("Number of users to add (at least 1): ");
                 String userIn = this.userIn.readLine();
                 amountChatUsers = Integer.parseInt(userIn);
             } while (amountChatUsers < 1);
@@ -224,7 +216,7 @@ public class Cmd {
             System.out.println("Opened chat '" + chat.getName() + "' (type /quit to exit chat window)\n");
 
             for (Message message: chatMessages) {
-                System.out.println(this.api.getUsernameFromId(message.getOrigin()) + " -> " + message.getContent());
+                System.out.println(this.api.getUsernameFromId(message.getOrigin()) + ": " + dateFormat.format(message.getReceiveTime()) + " -> " + message.getContent());
             }
 
             this.api.sendMessage("<" + this.api.getUsernameFromId(this.api.getUserId()) + " has joined the chat>", chat.getId());
@@ -255,7 +247,7 @@ public class Cmd {
                     try {
                         Message message = api.waitForNewMessages();
                         if (message != null) {
-                            System.out.println(api.getUsernameFromId(message.getOrigin()) + " -> " + message.getContent());
+                            System.out.println(api.getUsernameFromId(message.getOrigin()) + ": " + dateFormat.format(message.getReceiveTime()) + " -> " + message.getContent());
                         }
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
@@ -264,5 +256,4 @@ public class Cmd {
             }
         });
     }
-
 }
