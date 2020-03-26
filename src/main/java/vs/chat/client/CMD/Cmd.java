@@ -218,30 +218,31 @@ public class Cmd {
 
             Set<Message> chatMessages = this.api.getChatMessages(chat.getId());
 
+            this.listening = true;
+            messageListener.start();
+
             System.out.println("Opened chat '" + chat.getName() + "' (type /quit to exit chat window)\n");
 
             for (Message message: chatMessages) {
                 System.out.println(this.api.getUsernameFromId(message.getOrigin()) + " -> " + message.getContent());
             }
 
-            this.listening = true;
-            messageListener.start();
+            this.api.sendMessage("<" + this.api.getUsernameFromId(this.api.getUserId()) + " has joined the chat>", chat.getId());
 
             while (true) {
                 String message = this.userIn.readLine();
 
                 if (message.equals("/quit")) {
-                    System.out.println("\nExited chat window");
+                    this.listening = false;
+                    this.api.sendMessage("<" + this.api.getUsernameFromId(this.api.getUserId()) + " has left the chat>", chat.getId());
+                    messageListener.join();
                     break;
                 }
 
                 this.api.sendMessage(message, chat.getId());
             }
 
-            // stop message listener
-            this.listening = false;
-
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (InterruptedException | IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -252,7 +253,6 @@ public class Cmd {
             public void run() {
                 while (listening) {
                     try {
-                        // System.out.println("listening for messages");
                         Message message = api.waitForNewMessages();
                         if (message != null) {
                             System.out.println(api.getUsernameFromId(message.getOrigin()) + " -> " + message.getContent());
