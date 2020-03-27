@@ -4,7 +4,8 @@ import java.io.*;
 import java.net.Socket;
 
 import vs.chat.client.CMD.Cmd;
-import vs.chat.client.UI.Gui;
+import vs.chat.client.UI.ClientGUI;
+// import vs.chat.client.UI.Gui;
 
 public class Client {
 
@@ -31,7 +32,7 @@ public class Client {
 			} while (!(userInput.toLowerCase().equals("y") || userInput.toLowerCase().equals("n")));
 
 			if (userInput.toLowerCase().equals("y")) {
-				new Gui(api);
+				new ClientGUI(api);
 			} else if (userInput.toLowerCase().equals("n")) {
 				new Cmd(api);
 			}
