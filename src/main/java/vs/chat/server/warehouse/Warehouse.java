@@ -17,14 +17,12 @@ import java.util.stream.Stream;
 public class Warehouse {
 
 	private static final String SAVE_FILE_NAME = "warehouse";
-	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();// TODO
-																																	// handle
-																																	// nulls
-																																	// as
-																																	// optionals
+	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();
+	private final String saveFileName;
 
-	public Warehouse() {
+	public Warehouse(final String saveFileIdentifier) {
 		Stream.of(WarehouseResourceType.values()).forEach(type -> warehouse.put(type, new ConcurrentHashMap<>()));
+		this.saveFileName = SAVE_FILE_NAME + saveFileIdentifier;
 	}
 
 	public ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> get() {
@@ -37,7 +35,7 @@ public class Warehouse {
 
 	@SuppressWarnings("unchecked")
 	public void load() throws FileNotFoundException, IOException, ClassNotFoundException {
-		try (var stream = new FileInputStream(SAVE_FILE_NAME + ".dat")) {
+		try (var stream = new FileInputStream(this.saveFileName + ".dat")) {
 			var inputStream = new ObjectInputStream(stream);
 			var object = inputStream.readObject();
 			this.warehouse = (ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>>) object;
@@ -48,7 +46,7 @@ public class Warehouse {
 	}
 
 	public void save() throws IOException {
-		File tempFile = File.createTempFile(SAVE_FILE_NAME, ".tmp");
+		File tempFile = File.createTempFile(this.saveFileName, ".tmp");
 
 		try (var stream = new FileOutputStream(tempFile)) {
 			var outputStream = new ObjectOutputStream(stream);
@@ -57,7 +55,7 @@ public class Warehouse {
 
 		System.out.println(tempFile.getPath());
 
-		Files.move(Paths.get(tempFile.getPath()), Paths.get(new File(SAVE_FILE_NAME + ".dat").getPath()),
+		Files.move(Paths.get(tempFile.getPath()), Paths.get(new File(this.saveFileName + ".dat").getPath()),
 				StandardCopyOption.ATOMIC_MOVE);
 	}
 

@@ -15,20 +15,20 @@ import vs.chat.server.node.NodeConfig;
 public class Server implements Runnable {
 
 	private final int PORT;
-	
+
 	private final ServerContext context;
 
 	public Server(final Integer port, final NodeConfig... configs) {
 		this.PORT = port;
 		var listeners = createListener();
-		this.context = new ServerContext(listeners, configs);
+		this.context = new ServerContext(port.toString(), listeners, configs);
 	}
 
 	@Override
 	public void run() {
 		System.out.println("Starting Server on Port: " + PORT);
 		Thread.currentThread().setName("Server");
-		
+
 		try (var socket = new ServerSocket(PORT)) {
 			while (!this.context.isCloseRequested().get()) {
 				try {
@@ -38,9 +38,8 @@ public class Server implements Runnable {
 
 					var connectionHandler = new ConnectionHandler(clientSocket, this.context, outputStream,
 							inputStream);
-					this.context.getConnections().add(connectionHandler);//TODO fix access
+					this.context.getConnections().add(connectionHandler);
 					connectionHandler.start();
-
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

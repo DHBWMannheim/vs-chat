@@ -19,12 +19,13 @@ public class ServerContext {
 	private final List<Listener<? extends Packet, ? extends Packet>> listeners;
 	private final NodeBroadcaster broadcaster;
 	private final List<ConnectionHandler> connections = Collections.synchronizedList(new ArrayList<>());
-	private final Warehouse warehouse = new Warehouse();
+	private final Warehouse warehouse;
 	private final AtomicBoolean isCloseRequested = new AtomicBoolean(false);
 	private final Persister persister = new Persister(this);
 
-	public ServerContext(final List<Listener<? extends Packet, ? extends Packet>> listeners,
+	public ServerContext(final String warehouseSaveFileIdentifier, final List<Listener<? extends Packet, ? extends Packet>> listeners,
 			final NodeConfig... configs) {
+		this.warehouse = new Warehouse(warehouseSaveFileIdentifier);
 		this.listeners = listeners;
 		this.broadcaster = new NodeBroadcaster(this, configs);
 		this.persister.start();
