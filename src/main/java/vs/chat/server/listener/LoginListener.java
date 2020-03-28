@@ -18,7 +18,6 @@ public class LoginListener implements Listener<LoginPacket, Packet> {
 	@Override
 	public Packet next(final LoginPacket packet, final ServerContext context, final ConnectionHandler handler)
 			throws IOException {
-		// TODO Password / User prüfen
 		System.out.println("Invoked LoginListener");
 
 		var res = context.getWarehouse().get(WarehouseResourceType.USERS).values().stream()
