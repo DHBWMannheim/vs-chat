@@ -5,14 +5,13 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 import vs.chat.packets.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
 import java.net.Socket;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientApiImpl implements ClientApi {
@@ -21,6 +20,9 @@ public class ClientApiImpl implements ClientApi {
     private ObjectOutputStream networkOut;
     private ObjectInputStream networkIn;
     private BufferedReader userIn;
+
+    private static SecretKeySpec secretKey;
+    private static byte[] key;
 
     private UUID userId;
     private Set<Chat> chats;
@@ -128,6 +130,7 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void sendMessage(String message, UUID chatId) throws IOException {
+        message = encryptAES("TestKey", message);
         MessagePacket messagePacket = new MessagePacket();
         messagePacket.content = message;
         messagePacket.target = chatId;
@@ -140,6 +143,8 @@ public class ClientApiImpl implements ClientApi {
         Object response = this.networkIn.readObject();
 
         if (response instanceof Message) {
+            String decryptMessage = decryptAES("TestKey", ((Message) response).getContent());
+            ((Message) response).setContent(decryptMessage);
             return ((Message) response);
         }
         return null;
@@ -149,5 +154,47 @@ public class ClientApiImpl implements ClientApi {
         socket.close();
         System.exit(0);
     }
+
+    public String encryptAES(String key, String message) {
+        try {
+            setKey(key);
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(message.getBytes("UTF-8")));
+        } catch (Exception e) {
+            System.out.println("Error while encrypting: " + e.toString());
+        }
+        return null;
+
+
+    }
+
+    public String decryptAES(String key, String ciffre) {
+        try {
+            setKey(key);
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(ciffre)));
+        } catch (Exception e) {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
+    }
+
+    public void setKey(String myKey) {
+        MessageDigest sha = null;
+        try {
+            key = myKey.getBytes("UTF-8");
+            sha = MessageDigest.getInstance("SHA-1");
+            key = sha.digest(key);
+            key = Arrays.copyOf(key, 16);
+            secretKey = new SecretKeySpec(key, "AES");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }
