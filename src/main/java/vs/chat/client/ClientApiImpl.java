@@ -31,18 +31,26 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void login(String username, String password) throws IOException, ClassNotFoundException {
-        LoginPacket loginPacket = new LoginPacket();
-        loginPacket.username = username;
-        loginPacket.password = password;
 
-        this.networkOut.writeObject(loginPacket);
-        this.networkOut.flush();
+        Object response;
 
-        LoginSyncPacket response = (LoginSyncPacket)networkIn.readObject();
+        do {
+            LoginPacket loginPacket = new LoginPacket();
+            loginPacket.username = username;
+            loginPacket.password = password;
 
-        this.userId = response.userId;
-        this.chats = response.chats;
-        this.contacts = response.users;
+            this.networkOut.writeObject(loginPacket);
+            this.networkOut.flush();
+
+            response = networkIn.readObject();
+
+        } while (response instanceof NoOpPacket);
+
+        LoginSyncPacket loginSyncPacket = (LoginSyncPacket)response;
+
+        this.userId = loginSyncPacket.userId;
+        this.chats = loginSyncPacket.chats;
+        this.contacts = loginSyncPacket.users;
     }
 
     public UUID getUserId() {
