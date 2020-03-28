@@ -38,14 +38,12 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void login() throws IOException, ClassNotFoundException {
-
         Object response;
 
         do {
             System.out.print("Username: ");
             String username = this.userIn.readLine();
 
-            // passwort mit console.readPassword() einlesen
             System.out.print("Password: ");
             String password = this.userIn.readLine();
 
@@ -79,20 +77,12 @@ public class ClientApiImpl implements ClientApi {
         return chats;
     }
 
-    public Set<Message> getChatMessages(UUID chatId) throws IOException, ClassNotFoundException {
+    public void getChatMessages(UUID chatId) throws IOException, ClassNotFoundException {
         GetMessagesPacket getMessagesPacket = new GetMessagesPacket();
         getMessagesPacket.chatId = chatId;
 
         this.networkOut.writeObject(getMessagesPacket);
         this.networkOut.flush();
-
-        Object response = this.networkIn.readObject();
-
-        if (response instanceof GetMessagesResponsePacket) {
-            return new TreeSet<>(((GetMessagesResponsePacket) response).messages);
-        }
-
-        return null;
     }
 
     public Set<User> getContacts() {
@@ -114,17 +104,11 @@ public class ClientApiImpl implements ClientApi {
         return null;
     }
 
-    public Chat createChat(String chatName, final UUID... userIds) throws IOException, ClassNotFoundException {
+    public void createChat(String chatName, final UUID... userIds) throws IOException, ClassNotFoundException {
         CreateChatPacket createChatPacket = new CreateChatPacket(chatName, userIds);
 
         this.networkOut.writeObject(createChatPacket);
         networkOut.flush();
-
-        Chat createdChat = (Chat)networkIn.readObject();
-
-        this.chats.add(createdChat);
-
-        return createdChat;
     }
 
     public void sendMessage(String message, UUID chatId) throws IOException {
@@ -148,6 +132,30 @@ public class ClientApiImpl implements ClientApi {
     public void exit() throws IOException {
         socket.close();
         System.exit(0);
+    }
+
+    public void startPacketListener(OnCreateChat onCreateChat, OnGetChatMessages onChatMessages, OnMessage onMessage) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Object packet = networkIn.readObject();
+
+                        if (packet instanceof Chat) {
+                            chats.add((Chat)packet);
+                            onCreateChat.run((Chat)packet);
+                        } else if (packet instanceof GetMessagesResponsePacket) {
+                            onChatMessages.run(new TreeSet<>(((GetMessagesResponsePacket) packet).messages));
+                        } else if (packet instanceof Message) {
+                            onMessage.run((Message)packet);
+                        }
+                    } catch (IOException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 
 }
