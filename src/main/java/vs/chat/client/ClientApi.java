@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface ClientApi {
 
     // login with username and password, returns user id, user chat & all users
-    void login(String username, String password) throws IOException, ClassNotFoundException;
+    void login() throws IOException, ClassNotFoundException;
 
     // get user id of current user
     UUID getUserId();

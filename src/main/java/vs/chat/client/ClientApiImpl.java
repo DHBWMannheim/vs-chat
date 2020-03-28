@@ -5,6 +5,7 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 import vs.chat.packets.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -19,22 +20,35 @@ public class ClientApiImpl implements ClientApi {
     private Socket socket;
     private ObjectOutputStream networkOut;
     private ObjectInputStream networkIn;
+    private BufferedReader userIn;
 
     private UUID userId;
     private Set<Chat> chats;
     private Set<User> contacts;
 
-    ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn) {
+    ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn, BufferedReader userIn) {
         this.networkOut = networkOut;
         this.networkIn = networkIn;
         this.socket = socket;
+        this.userIn = userIn;
     }
 
-    public void login(String username, String password) throws IOException, ClassNotFoundException {
+    public BufferedReader getUserIn() {
+        return this.userIn;
+    }
+
+    public void login() throws IOException, ClassNotFoundException {
 
         Object response;
 
         do {
+            System.out.print("Username: ");
+            String username = this.userIn.readLine();
+
+            // passwort mit console.readPassword() einlesen
+            System.out.print("Password: ");
+            String password = this.userIn.readLine();
+
             LoginPacket loginPacket = new LoginPacket();
             loginPacket.username = username;
             loginPacket.password = password;
