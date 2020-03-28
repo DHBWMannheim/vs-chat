@@ -1,8 +1,12 @@
 % !TEX root = ./docs.tex
 
 \subsection{Grafische Oberfläche bei den Nutzern}
+//TODO 
 
 \subsection{Verwendung von Emojis}
+//TODO
+
+Auf Serverseite müssen keine Veränderungen vorgenommen werden.
 
 \subsection{Mehrere Chatverläufe pro Nutzer}
 
@@ -18,6 +22,7 @@ Zu beachten ist der Fall, dass eine Node zusammenbricht während der Speichervor
 \subsection{Verschlüsselte serverseitige Speicherung der Chats}
 
 \subsection{Gruppenchats}
+Gruppenchats stellen nur eine Erweiterung der bestehenden Chatimplementierung dar. Statt das ein Chat nur die beiden Teilnehmer besitzt, besitzt es nur beliebig viele Nutzer. Wird eine Nachricht empfangen werden nun alle am Chatbeteiligten Nutzer durchlaufen und die Nachricht wird an alle der Node bekannten Clients weitergeleitet. Außerdem wird wie bereits erwähnt die Nachricht aus Konsistenzgründen weiter gebroadcastet.
 
 \subsection{Verschlüsselte Übertragung der Chat-Nachrichten}
 

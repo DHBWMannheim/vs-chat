@@ -1,13 +1,7 @@
 % !TEX root = ./docs.tex
 
 
-% Test
 
-% Die Anwendung soll //TODO
-
-% Aus diesem Grund wird die Anwendung von mehreren Gleichwertigen Servern bedient. Jeder dieser sog. Nodes hat dabei eine vollständige Kopie sämtlicher dem System bekannten Daten. Eine Veränderung des Datenbestandes muss dem entsprechend an alle anderen Nodes weiter gegeben.
-
-% Jeder Client kann sich zu einer Node verbinden. Möchte dieser eine Nachricht an einen weiteren Client senden, schickt er diese an seine verbundene Node und überlässt die Zustellung dieser. Da alle Nachrichten aus Persitenzgründen an alle Nodes verteilt werden müssen, brauchen die Nodes keine Information über die Clients anderer Nodes. Im Falle einer solchen Anforderung (z.\,B. Abfrage ob ein anderer Nutzer aktiv ist) könnte ein Protokoll ähnlich zu Routing-Tabellen implementiert werden. Empfängt eine Node eine Nachricht, egal ob von einem Client oder von einer anderen Node, überprüft diese ob die Nachricht für einen ihr bekannten Client bestimmt war und sendet diese gegebenenfalls an diesen.
 
 \begin{figure}[h]
     \centering
@@ -27,7 +21,7 @@ Textnachrichten in korrekter Reihenfolge
 
 Chats beider verschiedenen Nutzer zeitnah verarbeiten (Non-Persistent Server)
 
-Zwei identische Server mit kompletten Chat-Verlauf
+Jeder Client kann sich zu einer Node verbinden. Möchte dieser eine Nachricht an einen weiteren Client senden, schickt er diese an seine verbundene Node und überlässt die Zustellung dieser. Da alle Nachrichten aus Persistenzgründen an alle Nodes verteilt werden müssen, brauchen die Nodes keine Information über die Clients anderer Nodes. Im Falle einer solchen Anforderung (z.\,B. Abfrage ob ein anderer Nutzer aktiv ist) könnte ein Protokoll ähnlich zu Routing-Tabellen implementiert werden. Empfängt eine Node eine Nachricht, egal ob von einem Client oder von einer anderen Node, überprüft diese ob die Nachricht für einen ihr bekannten Client bestimmt war und sendet diese gegebenenfalls an diesen.
 
 \subsection{Fehlerbehandlung}
 Aus den Anforderungen geht hervor, dass es mindestens zwei Server geben muss, die sämtliche Informationen des Chatsystems besitzen müssen. Bricht eine Node zusammen muss dementsprechend eine andere Node dessen Aufgabe übernehmen.
@@ -37,7 +31,7 @@ Aus den Anforderungen geht hervor, dass es mindestens zwei Server geben muss, di
 Im Fehlerfall scheitert das Senden einer Nachricht an den Server. In diesem Fall versucht sich der Client mit einer anderen Node zu verbinden und sendet die Nachricht erneut.
 
 \subsubsection{Server}
-Serverseitig können verschiedene Fehler auftretten. VIele Fehler werden bereits durch das TCP-Protocol verhindert. Dennoch können grundsätzlich die folgende Fehlerfälle eintretten:
+Serverseitig können verschiedene Fehler auftretten. VIele Fehler werden bereits durch das TCP-Protokoll verhindert. Dennoch können grundsätzlich die folgende Fehlerfälle eintretten:
 \begin{enumerate}
     \item Nachricht des Clients kann nicht korrekt empfangen/gesendet werden\\
         In diesem Fall muss der Server davon ausgehen, dass die Verbindung zusammengebrochen ist und er beendet seine Verbindung. Der Server verlässt sich darauf, dass der Client erneut eine Verbindung aufbaut. Alle für den Client relevanten Nachrichten werden dann zu diesem übertragen und der Client muss neue Informationen zurück übertragen
@@ -46,6 +40,9 @@ Serverseitig können verschiedene Fehler auftretten. VIele Fehler werden bereits
         Sind keine Nachrichten zu senden hat die Node keine Möglichkeit festzustellen ob eine Verbindung noch existiert. Zu diesem Zweck existiert ein Heartbeat, der periodisch die Nachbarnodes anpingt und so prüft ob die Verbindung noch existiert.
 \end{enumerate}
 Wie gerade beschrieben führen alle beteiligten stehts eine synchronisation durch wodurch diese immer den kompletten Informationsbestand besitzen.
+
+Eine Veränderung des Datenbestandes muss dem entsprechend an alle anderen Nodes weiter gegeben werden. Dadurch sind alle Server gleichwertige Servern.
+
 
 
 
