@@ -1,8 +1,6 @@
 package vs.chat.server.listener;
 
 import java.io.IOException;
-import java.lang.reflect.Executable;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import vs.chat.entities.Chat;
