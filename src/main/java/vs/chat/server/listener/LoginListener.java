@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.stream.Collectors;
 
 import vs.chat.entities.Chat;
+import vs.chat.entities.PasswordUser;
 import vs.chat.entities.User;
 import vs.chat.packets.LoginPacket;
 import vs.chat.packets.LoginSyncPacket;
@@ -21,9 +22,9 @@ public class LoginListener implements Listener<LoginPacket, Packet> {
 		System.out.println("Invoked LoginListener");
 
 		var res = context.getWarehouse().get(WarehouseResourceType.USERS).values().stream()
-				.filter(u -> ((User) u).getUsername().equals(packet.username)).findFirst();
+				.filter(u -> ((PasswordUser) u).getUsername().equals(packet.username)).findFirst();
 		if (res.isPresent()) {
-			if (!((User) res.get()).hasPassword(packet.password)) {
+			if (!((PasswordUser) res.get()).hasPassword(packet.password)) {
 				return new NoOpPacket();
 			} else {
 				var id = res.get().getId();
@@ -32,7 +33,7 @@ public class LoginListener implements Listener<LoginPacket, Packet> {
 			}
 		} else {
 			System.out.println("writing new user");
-			var user = new User();
+			var user = new PasswordUser();
 			var id = user.getId();
 			user.setUsername(packet.username);
 			user.setPassword(packet.password);
@@ -47,8 +48,10 @@ public class LoginListener implements Listener<LoginPacket, Packet> {
 		syncPacket.chats = context.getWarehouse().get(WarehouseResourceType.CHATS).values().stream()
 				.map(chat -> (Chat) chat).filter(chat -> chat.getUsers().contains(syncPacket.userId))
 				.collect(Collectors.toSet());
-		syncPacket.users = context.getWarehouse().get(WarehouseResourceType.USERS).values().stream()
-				.map(user -> (User) user).collect(Collectors.toSet());
+		syncPacket.users = context.getWarehouse().get(WarehouseResourceType.USERS).values().stream().map(user -> {
+			var u = (PasswordUser) user;
+			return new User(u.getId(), u.getUsername());
+		}).collect(Collectors.toSet());
 
 		return syncPacket;
 	}
