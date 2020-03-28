@@ -44,6 +44,10 @@ public class ClientApiImpl implements ClientApi {
 
             response = networkIn.readObject();
 
+            if (response instanceof NoOpPacket) {
+                System.out.println("Password incorrect!");
+            }
+
         } while (response instanceof NoOpPacket);
 
         LoginSyncPacket loginSyncPacket = (LoginSyncPacket)response;
