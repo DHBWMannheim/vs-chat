@@ -48,12 +48,7 @@ public class ConnectionHandler extends Thread {
 				break;
 			}
 		}
-		try {
-			this.client.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.close();
 	}
 
 	private void handlePacket(final Packet packet) throws IOException {
@@ -88,15 +83,19 @@ public class ConnectionHandler extends Thread {
 			outputStream.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
-			this.context.getConnections().remove(this);
-			try {
-				this.client.close();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			this.close();
 		}
 
+	}
+	
+	private void close() {
+		this.context.getConnections().remove(this);
+		try {
+			this.client.close();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 }
