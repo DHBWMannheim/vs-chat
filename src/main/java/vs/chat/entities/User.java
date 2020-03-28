@@ -9,7 +9,7 @@ public class User implements Comparable<User>, Warehouseable {
 	private final UUID id;
 	private String username;
 	// private byte[] password;
-	private int password;
+	private int password; //TODO prevent this from being send but send -> new dto for id and username for loginsync
 
 	public User() {
 		this.id = UUID.randomUUID();
