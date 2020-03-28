@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import vs.chat.entities.Chat;
 import vs.chat.packets.CreateChatPacket;
-import vs.chat.packets.NoOpPacket;
 import vs.chat.server.ConnectionHandler;
 import vs.chat.server.ServerContext;
 import vs.chat.server.warehouse.WarehouseResourceType;
