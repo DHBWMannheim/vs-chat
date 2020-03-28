@@ -23,7 +23,7 @@ public class Client {
 			BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
 			String userInput;
 
-			ClientApiImpl api = new ClientApiImpl(socket, objectOut, networkIn);
+			ClientApiImpl api = new ClientApiImpl(socket, objectOut, networkIn, userIn);
 
 			do {
 				System.out.print("Start with GUI [Y/n]? ");

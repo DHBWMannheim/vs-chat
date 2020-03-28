@@ -5,6 +5,7 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 import vs.chat.packets.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -19,30 +20,53 @@ public class ClientApiImpl implements ClientApi {
     private Socket socket;
     private ObjectOutputStream networkOut;
     private ObjectInputStream networkIn;
+    private BufferedReader userIn;
 
     private UUID userId;
     private Set<Chat> chats;
     private Set<User> contacts;
 
-    ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn) {
+    ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn, BufferedReader userIn) {
         this.networkOut = networkOut;
         this.networkIn = networkIn;
         this.socket = socket;
+        this.userIn = userIn;
     }
 
-    public void login(String username, String password) throws IOException, ClassNotFoundException {
-        LoginPacket loginPacket = new LoginPacket();
-        loginPacket.username = username;
-        loginPacket.password = password;
+    public BufferedReader getUserIn() {
+        return this.userIn;
+    }
 
-        this.networkOut.writeObject(loginPacket);
-        this.networkOut.flush();
+    public void login() throws IOException, ClassNotFoundException {
+        Object response;
 
-        LoginSyncPacket response = (LoginSyncPacket)networkIn.readObject();
+        do {
+            System.out.print("Username: ");
+            String username = this.userIn.readLine();
 
-        this.userId = response.userId;
-        this.chats = response.chats;
-        this.contacts = response.users;
+            System.out.print("Password: ");
+            String password = this.userIn.readLine();
+
+            LoginPacket loginPacket = new LoginPacket();
+            loginPacket.username = username;
+            loginPacket.password = password;
+
+            this.networkOut.writeObject(loginPacket);
+            this.networkOut.flush();
+
+            response = networkIn.readObject();
+
+            if (response instanceof NoOpPacket) {
+                System.out.println("Password incorrect!");
+            }
+
+        } while (response instanceof NoOpPacket);
+
+        LoginSyncPacket loginSyncPacket = (LoginSyncPacket)response;
+
+        this.userId = loginSyncPacket.userId;
+        this.chats = loginSyncPacket.chats;
+        this.contacts = loginSyncPacket.users;
     }
 
     public UUID getUserId() {
@@ -53,20 +77,12 @@ public class ClientApiImpl implements ClientApi {
         return chats;
     }
 
-    public Set<Message> getChatMessages(UUID chatId) throws IOException, ClassNotFoundException {
+    public void getChatMessages(UUID chatId) throws IOException, ClassNotFoundException {
         GetMessagesPacket getMessagesPacket = new GetMessagesPacket();
         getMessagesPacket.chatId = chatId;
 
         this.networkOut.writeObject(getMessagesPacket);
         this.networkOut.flush();
-
-        Object response = this.networkIn.readObject();
-
-        if (response instanceof GetMessagesResponsePacket) {
-            return new TreeSet<>(((GetMessagesResponsePacket) response).messages);
-        }
-
-        return null;
     }
 
     public Set<User> getContacts() {
@@ -88,17 +104,11 @@ public class ClientApiImpl implements ClientApi {
         return null;
     }
 
-    public Chat createChat(String chatName, final UUID... userIds) throws IOException, ClassNotFoundException {
+    public void createChat(String chatName, final UUID... userIds) throws IOException, ClassNotFoundException {
         CreateChatPacket createChatPacket = new CreateChatPacket(chatName, userIds);
 
         this.networkOut.writeObject(createChatPacket);
         networkOut.flush();
-
-        Chat createdChat = (Chat)networkIn.readObject();
-
-        this.chats.add(createdChat);
-
-        return createdChat;
     }
 
     public void sendMessage(String message, UUID chatId) throws IOException {
@@ -122,6 +132,30 @@ public class ClientApiImpl implements ClientApi {
     public void exit() throws IOException {
         socket.close();
         System.exit(0);
+    }
+
+    public void startPacketListener(OnCreateChat onCreateChat, OnGetChatMessages onChatMessages, OnMessage onMessage) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Object packet = networkIn.readObject();
+
+                        if (packet instanceof Chat) {
+                            chats.add((Chat)packet);
+                            onCreateChat.run((Chat)packet);
+                        } else if (packet instanceof GetMessagesResponsePacket) {
+                            onChatMessages.run(new TreeSet<>(((GetMessagesResponsePacket) packet).messages));
+                        } else if (packet instanceof Message) {
+                            onMessage.run((Message)packet);
+                        }
+                    } catch (IOException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 
 }
