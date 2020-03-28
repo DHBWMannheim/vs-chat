@@ -40,4 +40,8 @@ public interface ClientApi {
     // exit program and close connection to server
     void exit() throws IOException;
 
+    // String encryptAES(String key, String message);
+
+    // String decryptAES(String key, String ciffre);
+
 }
