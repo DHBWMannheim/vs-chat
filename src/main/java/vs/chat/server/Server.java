@@ -3,13 +3,17 @@ package vs.chat.server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 
 import vs.chat.packets.Packet;
+import vs.chat.server.listener.CreateChatListener;
+import vs.chat.server.listener.GetMessagesListener;
 import vs.chat.server.listener.Listener;
+import vs.chat.server.listener.LoginListener;
+import vs.chat.server.listener.MessageListener;
+import vs.chat.server.listener.NodeSyncListener;
 import vs.chat.server.node.NodeConfig;
 
 public class Server implements Runnable {
@@ -54,28 +58,11 @@ public class Server implements Runnable {
 
 	private List<Listener<? extends Packet, ? extends Packet>> createListener() {
 		List<Listener<? extends Packet, ? extends Packet>> listeners = new ArrayList<>();
-		try {
-			Class<?>[] classes = Reflector.getClasses("vs.chat.server");
-			for (Class<?> c : classes) {
-				for (Class<?> cc : c.getInterfaces()) {
-					if (Listener.class.equals(cc)) {
-						System.out.println("creating listener of type: " + c.getSimpleName());
-						try {
-							var constructor = c.getConstructor();
-							var listener = constructor.newInstance();
-							listeners.add((Listener<?, ?>) listener);
-						} catch (NoSuchMethodException | SecurityException | InstantiationException
-								| IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		listeners.add(new CreateChatListener());
+		listeners.add(new GetMessagesListener());
+		listeners.add(new LoginListener());
+		listeners.add(new MessageListener());
+		listeners.add(new NodeSyncListener());
 		return listeners;
 	}
 }

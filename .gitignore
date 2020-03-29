@@ -187,3 +187,9 @@ hs_err_pid*
 # End of https://www.gitignore.io/api/java,eclipse,intellij
 target/
 *.dat
+*.fls
+*.aux
+*.gz
+*.fdb_latexmk
+__latexindent_temp.tex
+*.toc
