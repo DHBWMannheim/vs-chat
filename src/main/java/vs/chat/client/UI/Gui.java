@@ -1,6 +1,7 @@
 package vs.chat.client.UI;
 
 import vs.chat.client.ClientApiImpl;
+import vs.chat.client.UI.Listener.EmojiMouseListener;
 import vs.chat.entities.Message;
 
 import javax.swing.*;

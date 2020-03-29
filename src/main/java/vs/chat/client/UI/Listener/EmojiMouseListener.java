@@ -1,4 +1,4 @@
-package vs.chat.client.UI;
+package vs.chat.client.UI.Listener;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
