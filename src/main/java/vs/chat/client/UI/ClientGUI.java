@@ -1,7 +1,6 @@
 package vs.chat.client.UI;
 
 import vs.chat.client.ClientApiImpl;
-import vs.chat.client.UI.Listener.*;
 import vs.chat.entities.Chat;
 import vs.chat.entities.Message;
 
