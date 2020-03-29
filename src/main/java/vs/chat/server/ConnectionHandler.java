@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.util.Optional;
 import java.util.UUID;
 
+import vs.chat.packets.LogoutPacket;
+import vs.chat.packets.LogoutSuccessPacket;
 import vs.chat.packets.Packet;
 
 public class ConnectionHandler extends Thread {
@@ -18,6 +20,7 @@ public class ConnectionHandler extends Thread {
 	private final ObjectInputStream inputStream;
 
 	private Optional<UUID> connectedToUserId = Optional.empty();
+	private boolean closeRequested = false;
 
 	public Optional<UUID> getConnectedToUserId() {
 		return connectedToUserId;
@@ -38,7 +41,7 @@ public class ConnectionHandler extends Thread {
 	@Override
 	public void run() {
 		Thread.currentThread().setName("Connection Handler");
-		while (!this.context.isCloseRequested().get()) {
+		while (!this.context.isCloseRequested().get() && !closeRequested) {
 			System.out.println("Handling");
 			try {
 				var object = inputStream.readObject();
@@ -52,6 +55,11 @@ public class ConnectionHandler extends Thread {
 	}
 
 	private void handlePacket(final Packet packet) throws IOException {
+		if (packet instanceof LogoutPacket) {
+			this.pushTo(new LogoutSuccessPacket());
+			this.closeRequested = true;
+			return;
+		}
 		for (var listener : this.context.getListeners()) {
 			try {
 				var methods = listener.getClass().getDeclaredMethods();
@@ -73,8 +81,7 @@ public class ConnectionHandler extends Thread {
 		this.context.getWarehouse().print();
 	}
 
-	public void pushTo(final Packet packet) {
-		// TODO synconize this
+	public synchronized void pushTo(final Packet packet) {
 		try {
 			if (null == packet)
 				return;
@@ -87,8 +94,9 @@ public class ConnectionHandler extends Thread {
 		}
 
 	}
-	
+
 	private void close() {
+		System.out.println("closing");
 		this.context.getConnections().remove(this);
 		try {
 			this.client.close();
