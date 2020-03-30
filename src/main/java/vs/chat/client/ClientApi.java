@@ -20,7 +20,7 @@ public interface ClientApi {
     Set<Chat> getChats();
 
     // get all messages of chat sorted in chronological order
-    Set<Message> getChatMessages(UUID chatId) throws IOException, ClassNotFoundException;
+    void getChatMessages(UUID chatId) throws IOException, ClassNotFoundException;
 
     // gets all users except current user
     Set<User> getContacts();
@@ -29,7 +29,7 @@ public interface ClientApi {
     String getUsernameFromId(UUID userId);
 
     // create chats with chat name and contacts (userIds)
-    Chat createChat(String chatName, final UUID... userIds) throws IOException, ClassNotFoundException;
+    void createChat(String chatName, final UUID... userIds) throws IOException, ClassNotFoundException;
 
     // send chat message to user
     void sendMessage(String message, UUID chatId) throws IOException;
@@ -48,5 +48,4 @@ public interface ClientApi {
 
     // generate Key for AES
     void setKey(String myKey);
-
 }
