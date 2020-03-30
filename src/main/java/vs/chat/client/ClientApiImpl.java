@@ -8,10 +8,13 @@ import vs.chat.packets.*;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.math.BigInteger;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +30,11 @@ public class ClientApiImpl implements ClientApi {
     private UUID userId;
     private Set<Chat> chats;
     private Set<User> contacts;
+
+    // 128 bit key generators
+    private BigInteger n = new BigInteger("66259297998496367004492150774417033857");
+    private BigInteger g = new BigInteger("29851");
+    private BigInteger privateKey;
 
     ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn, BufferedReader userIn) {
         this.networkOut = networkOut;
@@ -69,6 +77,9 @@ public class ClientApiImpl implements ClientApi {
         this.userId = loginSyncPacket.userId;
         this.chats = loginSyncPacket.chats;
         this.contacts = loginSyncPacket.users;
+
+        this.privateKey = this.generatePrivateKey();
+        System.out.println("Generated private key");
     }
 
     public UUID getUserId() {
@@ -77,6 +88,14 @@ public class ClientApiImpl implements ClientApi {
 
     public Set<Chat> getChats() {
         return chats;
+    }
+
+    private BigInteger generatePrivateKey() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[16];
+        random.nextBytes(bytes);
+
+        return BigInteger.valueOf(ByteBuffer.wrap(bytes).getLong());
     }
 
     public void getChatMessages(UUID chatId) throws IOException {
