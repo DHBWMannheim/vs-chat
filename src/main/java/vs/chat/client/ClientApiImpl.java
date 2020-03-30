@@ -23,7 +23,6 @@ public class ClientApiImpl implements ClientApi {
     private BufferedReader userIn;
 
     private static SecretKeySpec secretKey;
-    private static byte[] key;
 
     private UUID userId;
     private Set<Chat> chats;
@@ -80,7 +79,7 @@ public class ClientApiImpl implements ClientApi {
         return chats;
     }
 
-    public void getChatMessages(UUID chatId) throws IOException, ClassNotFoundException {
+    public void getChatMessages(UUID chatId) throws IOException {
         GetMessagesPacket getMessagesPacket = new GetMessagesPacket();
         getMessagesPacket.chatId = chatId;
 
@@ -107,7 +106,7 @@ public class ClientApiImpl implements ClientApi {
         return null;
     }
 
-    public void createChat(String chatName, final UUID... userIds) throws IOException, ClassNotFoundException {
+    public void createChat(String chatName, final UUID... userIds) throws IOException {
         CreateChatPacket createChatPacket = new CreateChatPacket(chatName, userIds);
 
         this.networkOut.writeObject(createChatPacket);
@@ -115,24 +114,12 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void sendMessage(String message, UUID chatId) throws IOException {
-        message = encryptAES(chatId.toString(), message);
         MessagePacket messagePacket = new MessagePacket();
-        messagePacket.content = message;
+        messagePacket.content = encryptAES(chatId.toString(), message);
         messagePacket.target = chatId;
 
         networkOut.writeObject(messagePacket);
         networkOut.flush();
-    }
-
-    public Message waitForNewMessages() throws IOException, ClassNotFoundException {
-        Object response = this.networkIn.readObject();
-
-        if (response instanceof Message) {
-            String decryptMessage = decryptAES("TestKey", ((Message) response).getContent());
-            ((Message) response).setContent(decryptMessage);
-            return ((Message) response);
-        }
-        return null;
     }
 
     public void exit() throws IOException {
@@ -150,8 +137,6 @@ public class ClientApiImpl implements ClientApi {
             System.out.println("Error while encrypting: " + e.toString());
         }
         return null;
-
-
     }
 
     public String decryptAES(String key, String ciffre) {
@@ -168,6 +153,8 @@ public class ClientApiImpl implements ClientApi {
 
     public void setKey(String myKey) {
         MessageDigest sha;
+        byte[] key;
+
         try {
             key = myKey.getBytes(StandardCharsets.UTF_8);
             sha = MessageDigest.getInstance("SHA-1");

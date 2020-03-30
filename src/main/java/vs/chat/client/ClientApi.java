@@ -34,9 +34,6 @@ public interface ClientApi {
     // send chat message to user
     void sendMessage(String message, UUID chatId) throws IOException;
 
-    // read incoming messages
-    Message waitForNewMessages() throws IOException, ClassNotFoundException;
-
     // exit program and close connection to server
     void exit() throws IOException;
 

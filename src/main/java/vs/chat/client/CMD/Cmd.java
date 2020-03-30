@@ -199,7 +199,7 @@ public class Cmd {
 
             this.api.createChat(chatname, userIds);
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -238,7 +238,7 @@ public class Cmd {
 
             this.isChatOpen = false;
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
