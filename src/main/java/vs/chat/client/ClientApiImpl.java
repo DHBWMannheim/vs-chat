@@ -1,5 +1,6 @@
 package vs.chat.client;
 
+import vs.chat.client.exceptions.LoginException;
 import vs.chat.entities.Chat;
 import vs.chat.entities.Message;
 import vs.chat.entities.User;
@@ -47,16 +48,8 @@ public class ClientApiImpl implements ClientApi {
         return this.userIn;
     }
 
-    public void login() throws IOException, ClassNotFoundException {
-        Object response;
-
-        do {
-            System.out.print("Username: ");
-            String username = this.userIn.readLine();
-
-            System.out.print("Password: ");
-            String password = this.userIn.readLine();
-
+    public void login(String username, String password) throws LoginException {
+        try {
             LoginPacket loginPacket = new LoginPacket();
             loginPacket.username = username;
             loginPacket.password = password;
@@ -64,30 +57,32 @@ public class ClientApiImpl implements ClientApi {
             this.networkOut.writeObject(loginPacket);
             this.networkOut.flush();
 
-            response = networkIn.readObject();
+            Object response = this.networkIn.readObject();
 
             if (response instanceof NoOpPacket) {
-                System.out.println("Password incorrect!");
+                throw new LoginException();
             }
 
-        } while (response instanceof NoOpPacket);
+            LoginSyncPacket loginSyncPacket = (LoginSyncPacket)response;
 
-        LoginSyncPacket loginSyncPacket = (LoginSyncPacket)response;
+            this.userId = loginSyncPacket.userId;
+            this.chats = loginSyncPacket.chats;
+            this.contacts = loginSyncPacket.users;
 
-        this.userId = loginSyncPacket.userId;
-        this.chats = loginSyncPacket.chats;
-        this.contacts = loginSyncPacket.users;
+            this.privateKey = this.generatePrivateKey();
+            System.out.println("Generated private key");
 
-        this.privateKey = this.generatePrivateKey();
-        System.out.println("Generated private key");
+        } catch (IOException | ClassNotFoundException e) {
+            throw new LoginException();
+        }
     }
 
     public UUID getUserId() {
-        return userId;
+        return this.userId;
     }
 
     public Set<Chat> getChats() {
-        return chats;
+        return this.chats;
     }
 
     private BigInteger generatePrivateKey() {
@@ -107,15 +102,15 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public Set<User> getContacts() {
-        return contacts
+        return this.contacts
                 .stream()
                 .filter(c -> c.getId() != this.userId)
                 .collect(Collectors.toSet());
     }
 
     public String getUsernameFromId(UUID userId) {
-        User user = contacts.stream()
-                        .filter(c -> c.getId() == userId)
+        User user = this.contacts.stream()
+                        .filter(c -> c.getId() == this.userId)
                         .findAny()
                         .orElse(null);
 
@@ -129,7 +124,7 @@ public class ClientApiImpl implements ClientApi {
         CreateChatPacket createChatPacket = new CreateChatPacket(chatName, userIds);
 
         this.networkOut.writeObject(createChatPacket);
-        networkOut.flush();
+        this.networkOut.flush();
     }
 
     public void sendMessage(String message, UUID chatId) throws IOException {
@@ -137,13 +132,8 @@ public class ClientApiImpl implements ClientApi {
         messagePacket.content = encryptAES(chatId.toString(), message);
         messagePacket.target = chatId;
 
-        networkOut.writeObject(messagePacket);
-        networkOut.flush();
-    }
-
-    public void exit() throws IOException {
-        socket.close();
-        System.exit(0);
+        this.networkOut.writeObject(messagePacket);
+        this.networkOut.flush();
     }
 
     public String encryptAES(String key, String message) {
@@ -185,6 +175,12 @@ public class ClientApiImpl implements ClientApi {
         }
     }
 
+    public void exit() throws IOException {
+        LogoutPacket logoutPacket = new LogoutPacket();
+        this.networkOut.writeObject(logoutPacket);
+        this.networkOut.flush();
+    }
+
     public void startPacketListener(OnCreateChat onCreateChat, OnGetChatMessages onChatMessages, OnMessage onMessage) {
         new Thread(new Runnable() {
             @Override
@@ -207,11 +203,23 @@ public class ClientApiImpl implements ClientApi {
                             message.content = decryptAES(message.target.toString(), message.getContent());
 
                             onMessage.run(message);
+                        } else if (packet instanceof LogoutSuccessPacket) {
+                            break;
                         }
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
                 }
+
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                System.out.println("Logged out");
+                System.exit(0);
+
             }
         }).start();
     }
