@@ -47,7 +47,7 @@ public class ClientApiImpl implements ClientApi {
             this.networkOut.writeObject(loginPacket);
             this.networkOut.flush();
 
-            Object response = networkIn.readObject();
+            Object response = this.networkIn.readObject();
 
             if (response instanceof NoOpPacket) {
                 throw new LoginException();
@@ -65,11 +65,11 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public UUID getUserId() {
-        return userId;
+        return this.userId;
     }
 
     public Set<Chat> getChats() {
-        return chats;
+        return this.chats;
     }
 
     public void getChatMessages(UUID chatId) throws IOException, ClassNotFoundException {
@@ -81,15 +81,15 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public Set<User> getContacts() {
-        return contacts
+        return this.contacts
                 .stream()
                 .filter(c -> c.getId() != this.userId)
                 .collect(Collectors.toSet());
     }
 
     public String getUsernameFromId(UUID userId) {
-        User user = contacts.stream()
-                        .filter(c -> c.getId() == userId)
+        User user = this.contacts.stream()
+                        .filter(c -> c.getId() == this.userId)
                         .findAny()
                         .orElse(null);
 
@@ -103,7 +103,7 @@ public class ClientApiImpl implements ClientApi {
         CreateChatPacket createChatPacket = new CreateChatPacket(chatName, userIds);
 
         this.networkOut.writeObject(createChatPacket);
-        networkOut.flush();
+        this.networkOut.flush();
     }
 
     public void sendMessage(String message, UUID chatId) throws IOException {
@@ -111,8 +111,8 @@ public class ClientApiImpl implements ClientApi {
         messagePacket.content = message;
         messagePacket.target = chatId;
 
-        networkOut.writeObject(messagePacket);
-        networkOut.flush();
+        this.networkOut.writeObject(messagePacket);
+        this.networkOut.flush();
     }
 
     public Message waitForNewMessages() throws IOException, ClassNotFoundException {
@@ -125,8 +125,9 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void exit() throws IOException {
-        socket.close();
-        System.exit(0);
+        LogoutPacket logoutPacket = new LogoutPacket();
+        this.networkOut.writeObject(logoutPacket);
+        this.networkOut.flush();
     }
 
     public void startPacketListener(OnCreateChat onCreateChat, OnGetChatMessages onChatMessages, OnMessage onMessage) {
@@ -144,11 +145,23 @@ public class ClientApiImpl implements ClientApi {
                             onChatMessages.run(new TreeSet<>(((GetMessagesResponsePacket) packet).messages));
                         } else if (packet instanceof Message) {
                             onMessage.run((Message)packet);
+                        } else if (packet instanceof LogoutSuccessPacket) {
+                            break;
                         }
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
                 }
+
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                System.out.println("Logged out");
+                System.exit(0);
+
             }
         }).start();
     }
