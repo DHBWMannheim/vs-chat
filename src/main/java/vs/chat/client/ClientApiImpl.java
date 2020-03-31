@@ -1,5 +1,6 @@
 package vs.chat.client;
 
+import vs.chat.client.exceptions.LoginException;
 import vs.chat.entities.Chat;
 import vs.chat.entities.Message;
 import vs.chat.entities.User;
@@ -37,16 +38,8 @@ public class ClientApiImpl implements ClientApi {
         return this.userIn;
     }
 
-    public void login() throws IOException, ClassNotFoundException {
-        Object response;
-
-        do {
-            System.out.print("Username: ");
-            String username = this.userIn.readLine();
-
-            System.out.print("Password: ");
-            String password = this.userIn.readLine();
-
+    public void login(String username, String password) throws LoginException {
+        try {
             LoginPacket loginPacket = new LoginPacket();
             loginPacket.username = username;
             loginPacket.password = password;
@@ -54,19 +47,21 @@ public class ClientApiImpl implements ClientApi {
             this.networkOut.writeObject(loginPacket);
             this.networkOut.flush();
 
-            response = networkIn.readObject();
+            Object response = networkIn.readObject();
 
             if (response instanceof NoOpPacket) {
-                System.out.println("Password incorrect!");
+                throw new LoginException();
             }
 
-        } while (response instanceof NoOpPacket);
+            LoginSyncPacket loginSyncPacket = (LoginSyncPacket)response;
 
-        LoginSyncPacket loginSyncPacket = (LoginSyncPacket)response;
+            this.userId = loginSyncPacket.userId;
+            this.chats = loginSyncPacket.chats;
+            this.contacts = loginSyncPacket.users;
 
-        this.userId = loginSyncPacket.userId;
-        this.chats = loginSyncPacket.chats;
-        this.contacts = loginSyncPacket.users;
+        } catch (IOException | ClassNotFoundException e) {
+            throw new LoginException();
+        }
     }
 
     public UUID getUserId() {

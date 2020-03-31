@@ -1,6 +1,7 @@
 package vs.chat.client.CMD;
 
 import vs.chat.client.ClientApiImpl;
+import vs.chat.client.exceptions.LoginException;
 import vs.chat.entities.Chat;
 import vs.chat.entities.Message;
 import vs.chat.entities.User;
@@ -93,12 +94,26 @@ public class Cmd {
 
     private void login() {
         try {
-            this.api.login();
+            while (true) {
+                System.out.print("Username: ");
+                String username = this.api.getUserIn().readLine();
+
+                System.out.print("Password: ");
+                String password = this.api.getUserIn().readLine();
+
+                try {
+                    this.api.login(username, password);
+                    break;
+                } catch (LoginException e) {
+                    System.out.println("Username or password incorrect!");
+                }
+            }
+
             System.out.println("\nLogged in as '" + this.api.getUsernameFromId(this.api.getUserId()) + "'");
 
             this.api.startPacketListener(this::onCreateChat, this::onGetChatMessages, this::onMessage);
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

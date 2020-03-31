@@ -1,5 +1,6 @@
 package vs.chat.client;
 
+import vs.chat.client.exceptions.LoginException;
 import vs.chat.entities.Chat;
 import vs.chat.entities.Message;
 import vs.chat.entities.User;
@@ -11,7 +12,7 @@ import java.util.UUID;
 public interface ClientApi {
 
     // login with username and password, returns user id, user chat & all users
-    void login() throws IOException, ClassNotFoundException;
+    void login(String username, String password) throws LoginException;
 
     // get user id of current user
     UUID getUserId();
