@@ -5,6 +5,7 @@ import vs.chat.entities.Chat;
 import vs.chat.entities.Message;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -131,10 +132,19 @@ public class ClientGUI {
         private JPanel emojiPanel;
         private int counter;
 
+        JPanel emojiAppendFooterPanel;
+
         public OpenEmojiPanelMouseListener(JPanel footerPanel) {
+
 
             this.footerPanel = footerPanel;
             this.emojiPanel = new JPanel();
+
+
+            emojiAppendFooterPanel = new JPanel(new BorderLayout());
+            emojiAppendFooterPanel.add(footerPanel, BorderLayout.SOUTH);
+            emojiAppendFooterPanel.add(emojiPanel, BorderLayout.NORTH);
+
             counter = 0;
         }
 
@@ -144,7 +154,7 @@ public class ClientGUI {
                 if (counter % 2 == 0) {
                     emojiPanel = renderEmojiPanel();
                     emojiPanel.setVisible(true);
-                    JPanel emojiAppendFooterPanel = new JPanel(new BorderLayout());
+                    emojiAppendFooterPanel = new JPanel(new BorderLayout());
                     emojiAppendFooterPanel.add(footerPanel, BorderLayout.SOUTH);
                     emojiAppendFooterPanel.add(emojiPanel, BorderLayout.NORTH);
                     rootPanel.getContentPane().add(emojiAppendFooterPanel, BorderLayout.SOUTH);
@@ -152,7 +162,9 @@ public class ClientGUI {
                     counter++;
                 } else {
                     emojiPanel.setVisible(false);
-                    rootPanel.getContentPane().remove(emojiPanel);
+                    rootPanel.getContentPane().remove(emojiAppendFooterPanel);
+                    rootPanel.getContentPane().add(footerPanel, BorderLayout.SOUTH);
+                    emojiAppendFooterPanel = null;
                     emojiPanel = null;
                     counter++;
                 }
