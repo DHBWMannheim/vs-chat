@@ -76,6 +76,7 @@ public class ClientGUI {
             System.out.println("Ich bin der Listener für : " + chat.getName());
             currentChat = chat;
             try {
+                System.out.println("getting chat messages...");
                 api.getChatMessages(chat.getId());
             } catch (IOException | ClassNotFoundException ex) {
                 ex.printStackTrace();
@@ -271,13 +272,9 @@ public class ClientGUI {
         }
 
         private void onGetMessageHistory(Set<Message> messages) {
+            System.out.println(messages);
             rootPanel.getContentPane().removeAll();
             rootPanel.getContentPane().add(header(currentChat), BorderLayout.NORTH);
-            try {
-                api.getChatMessages(currentChat.getId());
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
 
             Set<Message> chatMessages = new HashSet<>();
             for (Message message : messages) {
@@ -325,12 +322,12 @@ public class ClientGUI {
         loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
 
         loginPanel.add(new JLabel("Username: "));
-        JTextField usernameField = new JTextField("patrick-traurig", 20);
+        JTextField usernameField = new JTextField("troy", 20);
         usernameField.setMaximumSize(new Dimension(550, 20));
         loginPanel.add(usernameField);
 
         loginPanel.add(new JLabel("Passwort: "));
-        JPasswordField userPasswordField = new JPasswordField("patrick-glücklich", 20);
+        JPasswordField userPasswordField = new JPasswordField("asdf", 20);
         userPasswordField.setMaximumSize(new Dimension(550, 20));
         loginPanel.add(userPasswordField);
 
