@@ -204,7 +204,7 @@ public class ClientGUI {
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
             try {
-                api.sendMessage(messageInput.toString(), UUID.randomUUID());
+                api.sendMessage(messageInput.toString(), currentChat.getId());
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -265,6 +265,12 @@ public class ClientGUI {
 
         private void onMessage(Message message) {
             System.out.println("Neue Nachricht geht ein!");
+            JPanel messagePanel = new JPanel(new GridLayout(2, 0));
+            JLabel userName = new JLabel(message.getOrigin().toString());
+            JLabel content = new JLabel(message.getContent());
+            messagePanel.add(userName);
+            messagePanel.add(content);
+            messagePanel.setBorder(BorderFactory.createEtchedBorder());
         }
 
         private void onCreateChat(Chat chat) {
@@ -272,31 +278,19 @@ public class ClientGUI {
         }
 
         private void onGetMessageHistory(Set<Message> messages) {
-            System.out.println(messages);
             rootPanel.getContentPane().removeAll();
             rootPanel.getContentPane().add(header(currentChat), BorderLayout.NORTH);
-
-            Set<Message> chatMessages = new HashSet<>();
+            JPanel messagePanel = new JPanel(new GridLayout(0,2));
             for (Message message : messages) {
                 if (message.getOrigin().equals(currentChat.getId())) {
-                    chatMessages.add(message);
+                    messagePanel.add(new JLabel(message.getContent()));
                 }
             }
 
             JScrollPane chatJScrollPane = new JScrollPane();
             chatJScrollPane.setLayout(new ScrollPaneLayout());
             chatJScrollPane.setVerticalScrollBar(new JScrollBar());
-
-            JPanel testPanel = new JPanel();
-            testPanel.setLayout(new BoxLayout(testPanel, BoxLayout.Y_AXIS));
-
-            int i = 0;
-            for (Message message : chatMessages) {
-                message.setContent(message.content);
-                testPanel.add(displayNewMessage(message), i++);
-                System.out.println("Entered for in displayMessages: " + i);
-            }
-            chatJScrollPane.add(testPanel);
+            chatJScrollPane.add(messagePanel);
             rootPanel.add(chatJScrollPane, BorderLayout.CENTER);
             rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
             rootPanel.pack();
@@ -322,12 +316,12 @@ public class ClientGUI {
         loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
 
         loginPanel.add(new JLabel("Username: "));
-        JTextField usernameField = new JTextField("troy", 20);
+        JTextField usernameField = new JTextField("jan", 20);
         usernameField.setMaximumSize(new Dimension(550, 20));
         loginPanel.add(usernameField);
 
         loginPanel.add(new JLabel("Passwort: "));
-        JPasswordField userPasswordField = new JPasswordField("asdf", 20);
+        JPasswordField userPasswordField = new JPasswordField("1234", 20);
         userPasswordField.setMaximumSize(new Dimension(550, 20));
         loginPanel.add(userPasswordField);
 
@@ -340,19 +334,23 @@ public class ClientGUI {
 
     public JPanel displayRecentConversations() {
         JPanel chatsPanel = new JPanel(new GridLayout(0, 1));
+        JPanel newChatPanel = new JPanel(new GridLayout(0,2));
+        JLabel titleLabel = new JLabel("VS-Chat");
+        titleLabel.setForeground(Color.WHITE);
+        newChatPanel.add(titleLabel);
+        JLabel addChatLabel = getImageJLabel("src/main/java/vs/chat/client/UI/icons/add.png", 50, 50);
+        newChatPanel.add(addChatLabel);
+        newChatPanel.setBackground(Color.DARK_GRAY);
+        newChatPanel.setMaximumSize(new Dimension(600,100));
+        chatsPanel.add(newChatPanel);
+
         for (Chat chat : api.getChats()) {
-            System.out.println(chat.getName());
-        }
-        for (Chat chat : api.getChats()) {
-            System.out.println(chat + chat.getName());
             JLabel nameLabel = new JLabel(chat.getName());
             JPanel panel = new JPanel(new GridLayout(1, 2));
             panel.add(getImageJLabel("src/main/java/vs/chat/client/UI/icons/profile.png", 50, 50));
             panel.add(nameLabel);
             panel.setBorder(BorderFactory.createEtchedBorder());
             chatsPanel.add(panel);
-            // Alle Chats sind angezeigt
-
             panel.addMouseListener(new ContactsMouseListener(chat));
         }
         return chatsPanel;
@@ -394,28 +392,6 @@ public class ClientGUI {
         JLabel nachricht = new JLabel(message);
         inputPanel.add(nachricht);
         return inputPanel;
-    }
-
-    private JPanel displayNewMessage(Message message) {
-        JPanel messagePanel = new JPanel(new GridLayout(2, 0));
-        JLabel userName = new JLabel(message.getOrigin().toString());
-        JLabel content = new JLabel(message.getContent());
-        System.out.println("displayNewMessage triggerd: " + message.getOrigin());
-        messagePanel.add(userName);
-        messagePanel.add(content);
-        messagePanel.setBorder(BorderFactory.createEtchedBorder());
-    /*
-        if (message.getOrigin().equals(message.getId())) {
-            messagePanel.setBackground(Color.DARK_GRAY);
-        } else {
-            messagePanel.setBackground(Color.GRAY);
-        }
-        messagePanel.setMaximumSize(new Dimension(350, 30));
-        JPanel boxPanel = new JPanel();
-        boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
-        boxPanel.add(messagePanel);
-        */
-        return messagePanel;
     }
 
     public JPanel renderEmojiPanel() {
