@@ -13,10 +13,13 @@ public class KeyExchangeListener implements Listener<KeyEchangePacket, Packet> {
 	public Packet next(final KeyEchangePacket packet, final ServerContext context, final ConnectionHandler handler)
 			throws IOException {
 		var currentUser = handler.getConnectedToUserId();
-		if (currentUser.isEmpty())
+		if (currentUser.isPresent()) {
+			packet.origin = handler.getConnectedToUserId().get();
+		}
+		if (null == packet.origin) {
 			return null;
+		}
 
-		packet.origin = handler.getConnectedToUserId().get();
 		var localConnection = context.getConnectionForUserId(packet.target);
 		if (localConnection.isPresent()) {
 			localConnection.get().pushTo(packet);
