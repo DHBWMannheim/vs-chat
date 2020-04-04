@@ -24,7 +24,7 @@ public class KeyExchangeListener implements Listener<KeyEchangePacket, Packet> {
 		if (localConnection.isPresent()) {
 			localConnection.get().pushTo(packet);
 		}
-		context.getBroadcaster().send(packet);// TODO prevent recursive broadcast
+//		context.getBroadcaster().send(packet);// TODO prevent recursive broadcast
 		return null;
 	}
 

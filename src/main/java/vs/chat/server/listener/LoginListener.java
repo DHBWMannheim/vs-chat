@@ -40,7 +40,7 @@ public class LoginListener implements Listener<LoginPacket, Packet> {
 
 			context.getWarehouse().get(WarehouseResourceType.USERS).put(id, user);
 			System.out.println("created user with id:" + id);
-			context.getBroadcaster().send(packet);
+			context.getBroadcaster().send(packet);//TODO is this correctly broadcasted? -> i think not
 			handler.setConnectedToUserId(id);
 		}
 		var syncPacket = new LoginSyncPacket();
