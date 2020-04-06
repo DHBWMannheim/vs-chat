@@ -11,7 +11,6 @@ import java.util.UUID;
 import vs.chat.packets.LogoutPacket;
 import vs.chat.packets.LogoutSuccessPacket;
 import vs.chat.packets.Packet;
-import vs.chat.server.warehouse.WarehouseResourceType;
 
 public class ConnectionHandler extends Thread {
 
@@ -47,24 +46,16 @@ public class ConnectionHandler extends Thread {
 			try {
 				var object = inputStream.readObject();
 				var packet = (Packet) object;
-				if (this.wasPacketIdSeen(packet)) {
-					continue;
+				var canActivate = this.context.getFilters().stream().allMatch(f -> f.canActivate(packet, this.context, this));
+				if (canActivate) {
+					this.handlePacket(packet);
+					this.context.getFilters().stream().forEach(f -> f.postHandle(packet, this.context, this));
 				}
-				this.handlePacket(packet);
-				this.storePacketId(packet);
 			} catch (IOException | ClassNotFoundException e) {
 				break;
 			}
 		}
 		this.close();
-	}
-
-	private boolean wasPacketIdSeen(final Packet packet) {
-		return this.context.getWarehouse().get(WarehouseResourceType.PACKETS).containsKey(packet.getId());
-	}
-
-	private void storePacketId(final Packet packet) {
-		this.context.getWarehouse().get(WarehouseResourceType.PACKETS).put(packet.getId(), packet);
 	}
 
 	private void handlePacket(final Packet packet) throws IOException {
