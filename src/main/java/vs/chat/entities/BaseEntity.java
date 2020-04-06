@@ -6,7 +6,7 @@ import vs.chat.server.warehouse.WarehouseResourceType;
 import vs.chat.server.warehouse.Warehouseable;
 
 //TODO filter like packet filter
-public class BaseEntity implements Comparable<BaseEntity>, Warehouseable {
+public abstract class BaseEntity implements Comparable<BaseEntity>, Warehouseable {
 
 	private final UUID id;
 	private final WarehouseResourceType type;
