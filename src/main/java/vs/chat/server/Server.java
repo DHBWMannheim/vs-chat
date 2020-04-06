@@ -10,6 +10,7 @@ import java.util.List;
 import vs.chat.packets.Packet;
 import vs.chat.server.listener.CreateChatListener;
 import vs.chat.server.listener.GetMessagesListener;
+import vs.chat.server.listener.KeyExchangeListener;
 import vs.chat.server.listener.Listener;
 import vs.chat.server.listener.LoginListener;
 import vs.chat.server.listener.MessageListener;
@@ -63,6 +64,7 @@ public class Server implements Runnable {
 		listeners.add(new LoginListener());
 		listeners.add(new MessageListener());
 		listeners.add(new NodeSyncListener());
+		listeners.add(new KeyExchangeListener());
 		return listeners;
 	}
 }
