@@ -1,7 +1,7 @@
 package vs.chat.packets;
 
 import java.math.BigInteger;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 public class KeyEchangePacket implements Packet {
@@ -9,7 +9,7 @@ public class KeyEchangePacket implements Packet {
 	public BigInteger content;
 	public int requests;
 	public UUID initiator;
-	public Set<UUID> participants;
+	public List<UUID> participants;
 
 	public UUID target;
 	public UUID origin;
@@ -90,11 +90,11 @@ public class KeyEchangePacket implements Packet {
 		this.initiator = initiator;
 	}
 
-	public Set<UUID> getParticipants() {
+	public List<UUID> getParticipants() {
 		return participants;
 	}
 
-	public void setParticipants(Set<UUID> participants) {
+	public void setParticipants(List<UUID> participants) {
 		this.participants = participants;
 	}
 

@@ -36,6 +36,7 @@ public class ClientApiImpl implements ClientApi {
     private BigInteger n = new BigInteger("66259297998496367004492150774417033857");
     private BigInteger g = new BigInteger("29851");
     private BigInteger privateKey;
+    private BigInteger nextKey;
 
     ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn, BufferedReader userIn) {
         this.networkOut = networkOut;
@@ -70,7 +71,9 @@ public class ClientApiImpl implements ClientApi {
             this.contacts = loginSyncPacket.users;
 
             this.privateKey = this.generatePrivateKey();
-            System.out.println("Generated private key");
+            this.nextKey = this.g.modPow(this.privateKey, this.n);
+            System.out.println(this.userId);
+            System.out.println("\nGenerated private key: " + this.privateKey);
 
         } catch (IOException | ClassNotFoundException e) {
             throw new LoginException();
@@ -90,7 +93,7 @@ public class ClientApiImpl implements ClientApi {
         byte[] bytes = new byte[16];
         random.nextBytes(bytes);
 
-        return BigInteger.valueOf(ByteBuffer.wrap(bytes).getLong());
+        return BigInteger.valueOf(ByteBuffer.wrap(bytes).getLong()).abs();
     }
 
     public void getChatMessages(UUID chatId) throws IOException {
@@ -121,9 +124,26 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void createChat(String chatName, final UUID... userIds) throws IOException {
-        CreateChatPacket createChatPacket = new CreateChatPacket(chatName, userIds);
+        KeyEchangePacket keyEchangePacket = new KeyEchangePacket();
+        List<UUID> participants = new ArrayList<>();
 
-        this.networkOut.writeObject(createChatPacket);
+        participants.add(this.userId);
+
+        for (UUID participant: userIds) {
+            participants.add(participant);
+        }
+
+        keyEchangePacket.setTarget(participants.get(1));
+        keyEchangePacket.setOrigin(this.userId);
+
+        keyEchangePacket.setContent(this.nextKey);
+        keyEchangePacket.setRequests(1);
+        keyEchangePacket.setInitiator(this.userId);
+
+
+        keyEchangePacket.setParticipants(participants);
+
+        this.networkOut.writeObject(keyEchangePacket);
         this.networkOut.flush();
     }
 
@@ -204,6 +224,50 @@ public class ClientApiImpl implements ClientApi {
                         if (packet instanceof Chat) {
                             chats.add((Chat)packet);
                             onCreateChat.run((Chat)packet);
+                        } else if (packet instanceof KeyEchangePacket) {
+
+                            KeyEchangePacket keyEchangePacket = (KeyEchangePacket) packet;
+
+                            if (keyEchangePacket.getTarget().equals(userId)) {
+
+                                List<UUID> participants = keyEchangePacket.getParticipants();
+
+                                int currentRequests = keyEchangePacket.getRequests();
+                                BigInteger currentContent = keyEchangePacket.getContent();
+                                int targetRequests = participants.size() * (participants.size() - 1);
+                                int userIndex = participants.indexOf(userId);
+
+                                System.out.println("absender: " + keyEchangePacket.getOrigin());
+                                System.out.println("fuer: " + keyEchangePacket.getTarget());
+
+                                System.out.println(participants);
+
+                                System.out.println(currentRequests);
+                                System.out.println(targetRequests);
+                                System.out.println(userIndex);
+
+                                // check if package has to be forwarded
+                                if (keyEchangePacket.getRequests() < targetRequests) {
+                                    // forwards package to next participant
+                                    keyEchangePacket.setTarget(participants.get((userIndex + 1) % participants.size()));
+                                    keyEchangePacket.setOrigin(userId);
+                                    keyEchangePacket.setContent(nextKey);
+                                    keyEchangePacket.setRequests(keyEchangePacket.getRequests() + 1);
+
+                                    networkOut.writeObject(keyEchangePacket);
+                                    networkOut.flush();
+                                }
+
+                                nextKey = currentContent.modPow(privateKey, n);
+
+                                // check if participant has finished key exchange
+                                if (currentRequests == (targetRequests - userIndex)) {
+                                    System.out.println(getUsernameFromId(userId) + " -> " + nextKey);
+                                }
+
+                            }
+
+
                         } else if (packet instanceof GetMessagesResponsePacket) {
                             Set<Message> messages = ((GetMessagesResponsePacket) packet).messages;
 

@@ -2,7 +2,6 @@ package vs.chat.client;
 
 import vs.chat.client.exceptions.LoginException;
 import vs.chat.entities.Chat;
-import vs.chat.entities.Message;
 import vs.chat.entities.User;
 
 import java.io.IOException;

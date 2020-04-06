@@ -109,7 +109,7 @@ public class Cmd {
                 }
             }
 
-            System.out.println("\nLogged in as '" + this.api.getUsernameFromId(this.api.getUserId()) + "'");
+            System.out.println("Logged in as '" + this.api.getUsernameFromId(this.api.getUserId()) + "'");
 
             this.api.startPacketListener(this::onCreateChat, this::onGetChatMessages, this::onMessage);
 
