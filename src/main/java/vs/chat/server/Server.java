@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vs.chat.packets.Packet;
-import vs.chat.server.filter.BaseEntityFilter;
 import vs.chat.server.filter.Filter;
 import vs.chat.server.filter.PacketIdFilter;
+import vs.chat.server.listener.BaseEntityBroadcastListener;
 import vs.chat.server.listener.CreateChatListener;
 import vs.chat.server.listener.GetMessagesListener;
 import vs.chat.server.listener.KeyExchangeListener;
@@ -64,7 +64,6 @@ public class Server implements Runnable {
 	private List<Filter> createFilters() {
 		var filters = new ArrayList<Filter>();
 		filters.add(new PacketIdFilter());
-		filters.add(new BaseEntityFilter());
 		return filters;
 	}
 
@@ -76,6 +75,7 @@ public class Server implements Runnable {
 		listeners.add(new MessageListener());
 		listeners.add(new NodeSyncListener());
 		listeners.add(new KeyExchangeListener());
+		listeners.add(new BaseEntityBroadcastListener());
 		return listeners;
 	}
 }
