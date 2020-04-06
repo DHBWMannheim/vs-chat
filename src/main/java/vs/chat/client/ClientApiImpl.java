@@ -175,6 +175,18 @@ public class ClientApiImpl implements ClientApi {
         }
     }
 
+    public void addKey(UUID chatId, BigInteger key) {
+
+    }
+
+    public BigInteger loadKey(UUID chatId) {
+        return null;
+    }
+
+    public void deleteKey(UUID chatId) {
+
+    }
+
     public void exit() throws IOException {
         LogoutPacket logoutPacket = new LogoutPacket();
         this.networkOut.writeObject(logoutPacket);

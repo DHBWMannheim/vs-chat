@@ -6,6 +6,7 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,4 +47,10 @@ public interface ClientApi {
 
     // generate Key for AES
     void setKey(String myKey);
+
+    void addKey(UUID chatId, BigInteger key);
+
+    BigInteger loadKey(UUID chatId);
+
+    void deleteKey(UUID chatId);
 }
