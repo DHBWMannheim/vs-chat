@@ -16,6 +16,11 @@ public class BaseEntity implements Comparable<BaseEntity>, Warehouseable {
 		this.type = type;
 	}
 
+	public BaseEntity(final WarehouseResourceType type, final UUID id) {
+		this.id = id;
+		this.type = type;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		return this.id.equals(obj);
