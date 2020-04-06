@@ -1,5 +1,5 @@
 package vs.chat.packets;
 
-public class NoOpPacket implements Packet {
+public class NoOpPacket extends Packet {
 
 }

@@ -1,7 +1,7 @@
 package vs.chat.server.warehouse;
 
 public enum WarehouseResourceType {
-	USERS("Users"), CHATS("Chats"), MESSAGES("Messages");//TODO Merge Messages with Chats as Chats are only splitter
+	USERS("Users"), CHATS("Chats"), MESSAGES("Messages"), PACKETS("Packets");
 
 	public final String label;
 

@@ -10,6 +10,9 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -17,7 +20,7 @@ import java.util.stream.Stream;
 public class Warehouse {
 
 	private static final String SAVE_FILE_NAME = "warehouse";
-	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();//TODO give all Packets and entities hashcodes
 	private final String saveFileName;
 
 	public Warehouse(final String saveFileIdentifier) {

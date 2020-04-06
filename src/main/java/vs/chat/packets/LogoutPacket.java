@@ -1,5 +1,5 @@
 package vs.chat.packets;
 
-public class LogoutPacket implements Packet {
+public class LogoutPacket extends Packet {
 
 }

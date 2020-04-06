@@ -6,7 +6,7 @@ import java.util.UUID;
 import vs.chat.entities.Chat;
 import vs.chat.entities.User;
 
-public class LoginSyncPacket implements Packet {
+public class LoginSyncPacket extends Packet {
 
 	public UUID userId;
 	public Set<Chat> chats;
