@@ -227,46 +227,45 @@ public class ClientApiImpl implements ClientApi {
                         } else if (packet instanceof KeyEchangePacket) {
 
                             KeyEchangePacket keyEchangePacket = (KeyEchangePacket) packet;
+                            List<UUID> participants = keyEchangePacket.getParticipants();
 
-                            if (keyEchangePacket.getTarget().equals(userId)) {
+                            int currentRequests = keyEchangePacket.getRequests();
+                            BigInteger currentContent = keyEchangePacket.getContent();
+                            int targetRequests = participants.size() * (participants.size() - 1);
+                            int userIndex = participants.indexOf(userId);
 
-                                List<UUID> participants = keyEchangePacket.getParticipants();
+                            int rounds = currentRequests / participants.size();
 
-                                int currentRequests = keyEchangePacket.getRequests();
-                                BigInteger currentContent = keyEchangePacket.getContent();
-                                int targetRequests = participants.size() * (participants.size() - 1);
-                                int userIndex = participants.indexOf(userId);
-
-                                System.out.println("absender: " + keyEchangePacket.getOrigin());
-                                System.out.println("fuer: " + keyEchangePacket.getTarget());
-
-                                System.out.println(participants);
-
-                                System.out.println(currentRequests);
-                                System.out.println(targetRequests);
-                                System.out.println(userIndex);
-
-                                // check if package has to be forwarded
-                                if (keyEchangePacket.getRequests() < targetRequests) {
-                                    // forwards package to next participant
-                                    keyEchangePacket.setTarget(participants.get((userIndex + 1) % participants.size()));
-                                    keyEchangePacket.setOrigin(userId);
-                                    keyEchangePacket.setContent(nextKey);
-                                    keyEchangePacket.setRequests(keyEchangePacket.getRequests() + 1);
-
-                                    networkOut.writeObject(keyEchangePacket);
-                                    networkOut.flush();
-                                }
-
+                            if (keyEchangePacket.getInitiator().equals(userId)) {
                                 nextKey = currentContent.modPow(privateKey, n);
+                            } else {
+                                rounds++;
+                            }
 
-                                // check if participant has finished key exchange
+                            System.out.println("-> Exchanging keys round " + rounds);
+
+                            // check if package has to be forwarded
+                            if (currentRequests < targetRequests) {
+                                // forwards package to next participant
+                                keyEchangePacket.setTarget(participants.get((userIndex + 1) % participants.size()));
+                                keyEchangePacket.setOrigin(userId);
+                                keyEchangePacket.setContent(nextKey);
+                                keyEchangePacket.setRequests(keyEchangePacket.getRequests() + 1);
+
+                                networkOut.writeObject(keyEchangePacket);
+                                networkOut.flush();
+                            }
+
+                            nextKey = currentContent.modPow(privateKey, n);
+
+                            // check if participant has finished key exchange
+                            if (keyEchangePacket.getInitiator().equals(userId)) {
                                 if (currentRequests == (targetRequests - userIndex)) {
                                     System.out.println(getUsernameFromId(userId) + " -> " + nextKey);
                                 }
-
+                            } else if (currentRequests == (targetRequests - (participants.size() - userIndex))) {
+                                System.out.println(getUsernameFromId(userId) + " -> " + nextKey);
                             }
-
 
                         } else if (packet instanceof GetMessagesResponsePacket) {
                             Set<Message> messages = ((GetMessagesResponsePacket) packet).messages;
