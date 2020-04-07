@@ -10,6 +10,7 @@ public class KeyEchangePacket implements Packet {
 	public int requests;
 	public UUID initiator;
 	public List<UUID> participants;
+	public String chatName;
 
 	public UUID target;
 	public UUID origin;
@@ -112,6 +113,14 @@ public class KeyEchangePacket implements Packet {
 
 	public void setOrigin(UUID origin) {
 		this.origin = origin;
+	}
+
+	public String getChatName() {
+		return chatName;
+	}
+
+	public void setChatName(String chatName) {
+		this.chatName = chatName;
 	}
 
 }
