@@ -123,28 +123,27 @@ public class ClientApiImpl implements ClientApi {
         return null;
     }
 
-    public void createChat(String chatName, final UUID... userIds) throws IOException {
+    public void exchangeKeys(String chatName, List<UUID> userIds) throws IOException {
         KeyEchangePacket keyEchangePacket = new KeyEchangePacket();
-        List<UUID> participants = new ArrayList<>();
 
-        participants.add(this.userId);
+        userIds.add(0, this.userId);
 
-        for (UUID participant: userIds) {
-            participants.add(participant);
-        }
-
-        keyEchangePacket.setTarget(participants.get(1));
-        keyEchangePacket.setOrigin(this.userId);
-
+        keyEchangePacket.setTarget(userIds.get(1));
         keyEchangePacket.setContent(this.nextKey);
         keyEchangePacket.setRequests(1);
         keyEchangePacket.setInitiator(this.userId);
-
-
-        keyEchangePacket.setParticipants(participants);
+        keyEchangePacket.setChatName(chatName);
+        keyEchangePacket.setParticipants(userIds);
 
         this.networkOut.writeObject(keyEchangePacket);
         this.networkOut.flush();
+    }
+
+    public void createChat(String chatName, List<UUID> userIds) throws IOException {
+        // TODO implement
+        UUID[] chatUsers = new UUID[userIds.size()];
+        chatUsers = userIds.toArray(chatUsers);
+        System.out.println("creating chat " + chatUsers);
     }
 
     public void sendMessage(String message, UUID chatId) throws IOException {
@@ -222,8 +221,15 @@ public class ClientApiImpl implements ClientApi {
                         Object packet = networkIn.readObject();
 
                         if (packet instanceof Chat) {
-                            chats.add((Chat)packet);
-                            onCreateChat.run((Chat)packet);
+                            Chat newChat = (Chat) packet;
+
+                            UUID chatId = newChat.getId();
+                            BigInteger chatKey = nextKey;
+
+                            // TODO keys speichern
+
+                            chats.add(newChat);
+                            onCreateChat.run(newChat);
                         } else if (packet instanceof KeyEchangePacket) {
 
                             KeyEchangePacket keyEchangePacket = (KeyEchangePacket) packet;
@@ -242,7 +248,7 @@ public class ClientApiImpl implements ClientApi {
                                 rounds++;
                             }
 
-                            System.out.println("-> Exchanging keys round " + rounds);
+                            System.out.println("\n-> Exchanging keys round " + rounds);
 
                             // check if package has to be forwarded
                             if (currentRequests < targetRequests) {
@@ -262,9 +268,12 @@ public class ClientApiImpl implements ClientApi {
                             if (keyEchangePacket.getInitiator().equals(userId)) {
                                 if (currentRequests == (targetRequests - userIndex)) {
                                     System.out.println(getUsernameFromId(userId) + " -> " + nextKey);
+                                    participants.remove(0);
+                                    createChat(keyEchangePacket.getChatName(), participants);
                                 }
                             } else if (currentRequests == (targetRequests - (participants.size() - userIndex))) {
                                 System.out.println(getUsernameFromId(userId) + " -> " + nextKey);
+                                // TODO key speichern
                             }
 
                         } else if (packet instanceof GetMessagesResponsePacket) {

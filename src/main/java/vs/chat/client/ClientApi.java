@@ -6,6 +6,7 @@ import vs.chat.entities.User;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,8 +30,11 @@ public interface ClientApi {
     // gets username of contact id
     String getUsernameFromId(UUID userId);
 
+    // exchange key between clients
+    void exchangeKeys(String chatName, List<UUID> userIds) throws IOException;
+
     // create chats with chat name and contacts (userIds)
-    void createChat(String chatName, final UUID... userIds) throws IOException, ClassNotFoundException;
+    void createChat(String chatName, final List<UUID> userIds) throws IOException, ClassNotFoundException;
 
     // send chat message to user
     void sendMessage(String message, UUID chatId) throws IOException;

@@ -209,10 +209,7 @@ public class Cmd {
                 users.add(user.getId());
             }
 
-            UUID[] userIds = new UUID[users.size()];
-            userIds = users.toArray(userIds);
-
-            this.api.createChat(chatname, userIds);
+            this.api.exchangeKeys(chatname, users);
 
         } catch (IOException e) {
             e.printStackTrace();
