@@ -1,6 +1,9 @@
 package vs.chat.client;
 
 import vs.chat.client.exceptions.LoginException;
+import vs.chat.client.keyfile.Keyfile;
+import vs.chat.client.keyfile.KeyfileResourceType;
+import vs.chat.client.keyfile.PrivateKeyEntity;
 import vs.chat.entities.Chat;
 import vs.chat.entities.Message;
 import vs.chat.entities.User;
@@ -37,6 +40,7 @@ public class ClientApiImpl implements ClientApi {
     private BigInteger g = new BigInteger("29851");
     private BigInteger privateKey;
     private BigInteger nextKey;
+    private Keyfile keyfile;
 
     ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn, BufferedReader userIn) {
         this.networkOut = networkOut;
@@ -70,7 +74,8 @@ public class ClientApiImpl implements ClientApi {
             this.chats = loginSyncPacket.chats;
             this.contacts = loginSyncPacket.users;
 
-            this.privateKey = this.generatePrivateKey();
+            this.keyfile = new Keyfile(username);
+            this.privateKey = generatePrivateKey();
             this.nextKey = this.g.modPow(this.privateKey, this.n);
             System.out.println(this.userId);
             System.out.println("\nGenerated private key: " + this.privateKey);
@@ -196,14 +201,22 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void addKey(UUID chatId, BigInteger key) {
-
+            var pKEntry = new PrivateKeyEntity(chatId, this.privateKey);
+            this.keyfile.get(KeyfileResourceType.PRIVATEKEY).put(chatId, pKEntry);
     }
 
     public BigInteger loadKey(UUID chatId) {
+        var res = keyfile.get(KeyfileResourceType.PRIVATEKEY).values().stream()
+                .filter(u -> ((PrivateKeyEntity) u).equals(chatId)).findFirst();
+        if (res.isPresent()) {
+            PrivateKeyEntity pke = (PrivateKeyEntity) keyfile.get(KeyfileResourceType.PRIVATEKEY).get(chatId);
+            return pke.getPrivateKey();
+        }
         return null;
     }
 
     public void deleteKey(UUID chatId) {
+        keyfile.get(KeyfileResourceType.PRIVATEKEY).remove(chatId);
 
     }
 
@@ -298,5 +311,7 @@ public class ClientApiImpl implements ClientApi {
             }
         }).start();
     }
+
+
 
 }
