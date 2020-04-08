@@ -1,30 +1,31 @@
 package vs.chat.entities;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
-import vs.chat.packets.CreateChatPacket;
-import vs.chat.server.warehouse.Warehouseable;
+import vs.chat.server.warehouse.WarehouseResourceType;
 
-public class Chat extends CreateChatPacket implements Comparable<Chat>, Warehouseable {
+public class Chat extends BaseEntity {
 
-	private final UUID id = UUID.randomUUID();
+	private final String name;
+	private final Set<UUID> users = Collections.synchronizedSet(new TreeSet<>());
 
 	public Chat(final String name, final UUID... userIds) {
-		super(name, userIds);
+		super(WarehouseResourceType.CHATS);
+		this.name = name;
+		for (var id : userIds) {
+			this.users.add(id);
+		}
 	}
 
-	@Override
-	public int compareTo(Chat o) {
-		return this.id.compareTo(o.getId());
+	public Set<UUID> getUsers() {
+		return users;
 	}
 
-	@Override
-	public UUID getId() {
-		return id;
+	public String getName() {
+		return name;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		return this.id.equals(obj);
-	}
 }

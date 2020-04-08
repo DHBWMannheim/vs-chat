@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 public class Warehouse {
 
 	private static final String SAVE_FILE_NAME = "warehouse";
-	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();//TODO give all Packets and entities hashcodes
 	private final String saveFileName;
 
 	public Warehouse(final String saveFileIdentifier) {
