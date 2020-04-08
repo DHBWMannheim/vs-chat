@@ -33,8 +33,8 @@ public class Keyfile {
 			var inputStream = new ObjectInputStream(stream);
 			var object = inputStream.readObject();
 			this.keyfile = (ConcurrentHashMap<KeyfileResourceType, ConcurrentHashMap<UUID, Fileable>>) object;
-			System.out.println("Loaded Keyfile:");
-			this.print();
+			//System.out.println("Loaded Keyfile:");
+			//this.print();
 		}
 
 	}
@@ -47,7 +47,7 @@ public class Keyfile {
 			outputStream.writeObject(keyfile);
 		}
 
-		System.out.println(tempFile.getPath());
+		//System.out.println(tempFile.getPath());
 
 		Files.move(Paths.get(tempFile.getPath()), Paths.get(new File(this.saveFileName + ".dat").getPath()),
 				StandardCopyOption.ATOMIC_MOVE);

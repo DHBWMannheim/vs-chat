@@ -179,7 +179,7 @@ public class ClientApiImpl implements ClientApi {
         try {
             setKey(key);
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            cipher.init(Cipher.ENCRYPT_MODE, this.secretKey);
             return Base64.getEncoder().encodeToString(cipher.doFinal(message.getBytes(StandardCharsets.UTF_8)));
         } catch (Exception e) {
             System.out.println("Error while encrypting: " + e.toString());
@@ -199,13 +199,13 @@ public class ClientApiImpl implements ClientApi {
         return null;
     }
 
+    //Formatting key to SerectKeySpec
     public void setKey(String myKey) {
         MessageDigest sha;
         byte[] key;
-
         try {
             key = myKey.getBytes(StandardCharsets.UTF_8);
-            sha = MessageDigest.getInstance("SHA-1");
+            sha = MessageDigest.getInstance("SHA-256");
             key = sha.digest(key);
             key = Arrays.copyOf(key, KEY_BYTE_LENGTH);
             secretKey = new SecretKeySpec(key, "AES");
