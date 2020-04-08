@@ -31,7 +31,14 @@ public class CreateChatListener implements Listener<CreateChatPacket, BaseEntity
 		var broadcastPacket = new BaseEntityBroadcastPacket();
 		broadcastPacket.baseEntity = newChat;
 		context.getBroadcaster().send(broadcastPacket);
-		return broadcastPacket;
+		
+		for(var user: packet.getUsers()) {
+			var localConnection = context.getConnectionForUserId(user);
+			if (localConnection.isPresent()) {
+				localConnection.get().pushTo(broadcastPacket);
+			}
+		}
+		return null;
 	}
 
 }

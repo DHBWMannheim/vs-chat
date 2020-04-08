@@ -10,7 +10,6 @@ public abstract class Packet implements Warehouseable {
 	private final UUID ID;
 
 	protected Packet() {
-		System.out.println("Creating packets");
 		this.ID = UUID.randomUUID();
 	}
 
