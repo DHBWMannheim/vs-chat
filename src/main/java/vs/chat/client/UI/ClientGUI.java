@@ -4,6 +4,7 @@ import vs.chat.client.ClientApiImpl;
 import vs.chat.client.exceptions.LoginException;
 import vs.chat.entities.Chat;
 import vs.chat.entities.Message;
+import vs.chat.entities.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,9 +13,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.List;
 
 public class ClientGUI {
 
@@ -198,6 +199,112 @@ public class ClientGUI {
         }
     }
 
+    private class CreateChatMouseListener implements MouseListener {
+
+        User user;
+        List<UUID> users = new ArrayList<>();
+        JPanel contactsPanel;
+        JPanel header;
+
+        CreateChatMouseListener(JPanel contactsPanel, JPanel header) {
+            this.contactsPanel = contactsPanel;
+            this.header = header;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent mouseEvent) {
+            JPanel backround = new JPanel(new GridLayout(0, 1));
+            JPanel newChatPanel = new JPanel(new GridLayout(0, 2));
+            JLabel chatNameLabel = new JLabel("Chatname: ");
+            JTextField chatNameField = new JTextField();
+            JLabel numberOfUsers = new JLabel("Number of useres to add: ");
+            JFormattedTextField numberOfUserField = new JFormattedTextField(NumberFormat.getIntegerInstance());
+            JButton okButton = new JButton("ok!");
+            //TODO: Eingabe aus Textfeldern übergeben!
+            okButton.addActionListener(new addUserToChatActionListener("chatNameField.getText()", 3, header, contactsPanel));
+
+            backround.add(header);
+            newChatPanel.add(chatNameLabel);
+            newChatPanel.add(chatNameField);
+            newChatPanel.add(numberOfUsers);
+            newChatPanel.add(numberOfUserField);
+            backround.add(newChatPanel);
+            backround.add(okButton);
+            contactsPanel.removeAll();
+            rootPanel.pack();
+            contactsPanel.add(backround);
+            rootPanel.pack();
+        }
+
+        @Override
+        public void mousePressed(MouseEvent mouseEvent) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent mouseEvent) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent mouseEvent) {
+
+        }
+
+
+        @Override
+        public void mouseExited(MouseEvent mouseEvent) {
+
+        }
+
+    }
+
+    private class addUserToChatActionListener implements ActionListener {
+        User user;
+        List<UUID> users;
+        String chatname;
+        int useramount;
+        JPanel header;
+        JPanel contactsPanel;
+
+        addUserToChatActionListener(String chatname, int useramount, JPanel header, JPanel contactsPanel) {
+            this.chatname = chatname;
+            this.useramount = useramount;
+            this.header = header;
+            this.contactsPanel = contactsPanel;
+            users = new ArrayList<>();
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            JPanel backround = new JPanel(new GridLayout(0, 1));
+            JPanel addUserNamePanel = new JPanel(new GridLayout(0, 2));
+            backround.add(header);
+            for (int i = useramount; i > 0; i--) {
+                JLabel userNameLabel = new JLabel(i + " User (username): ");
+                JTextField userNameField = new JTextField();
+                addUserNamePanel.add(userNameLabel);
+                addUserNamePanel.add(userNameField);
+                //user = api.getContacts().stream().filter(c -> c.getUsername().equals(userNameField.getText())).findAny().orElse(null);
+                //if (user == null) {
+                //    JOptionPane.showMessageDialog(rootPanel, "User not found!");
+                //}
+                //TODO: Replace dummy with user.getId()
+                users.add(UUID.fromString("d4ec0439-d662-4b5c-a056-b9095d5a50be"));
+            }
+
+            JButton okButton = new JButton("ok!");
+            backround.add(addUserNamePanel);
+            backround.add(okButton);
+            contactsPanel.removeAll();
+            rootPanel.pack();
+            contactsPanel.add(backround);
+            rootPanel.pack();
+
+            okButton.addActionListener(new CreateChatInBackendActionListener(chatname, users));
+        }
+    }
+
     private class SendMouseListener implements MouseListener {
 
 
@@ -256,46 +363,36 @@ public class ClientGUI {
             }
             if (api.getUserId() != null) {
                 System.out.println(userName + " " + password);
-                api.startPacketListener(this::onCreateChat, this::onGetMessageHistory, this::onMessage);
+                api.startPacketListener(ClientGUI.this::onCreateChat, ClientGUI.this::onGetMessageHistory, ClientGUI.this::onMessage);
                 rootPanel.getContentPane().removeAll();
                 rootPanel.getContentPane().add(displayRecentConversations());
                 rootPanel.pack();
             }
         }
+    }
 
-        private void onMessage(Message message) {
-            System.out.println("Neue Nachricht geht ein!");
-            JPanel messagePanel = new JPanel(new GridLayout(2, 0));
-            JLabel userName = new JLabel(message.getOrigin().toString());
-            JLabel content = new JLabel(message.getContent());
-            messagePanel.add(userName);
-            messagePanel.add(content);
-            messagePanel.setBorder(BorderFactory.createEtchedBorder());
+    private class CreateChatInBackendActionListener implements ActionListener{
+
+        String chatname;
+        UUID [] userIds;
+        List<UUID> users;
+
+        CreateChatInBackendActionListener(String chatname, List<UUID> users){
+            this.chatname = chatname;
+            this.users = users;
         }
 
-        private void onCreateChat(Chat chat) {
-            System.out.println("Erstelle einen neuen Chat!");
-        }
-
-        private void onGetMessageHistory(Set<Message> messages) {
-            rootPanel.getContentPane().removeAll();
-            rootPanel.getContentPane().add(header(currentChat), BorderLayout.NORTH);
-            JPanel messagePanel = new JPanel(new GridLayout(0,2));
-            for (Message message : messages) {
-                if (message.getOrigin().equals(currentChat.getId())) {
-                    messagePanel.add(new JLabel(message.getContent()));
-                }
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            try {
+                userIds = users.toArray(userIds);
+                api.createChat(chatname, userIds);
+                displayRecentConversations();
+            } catch (IOException | ClassNotFoundException e) {
+                JOptionPane.showMessageDialog(rootPanel, "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut!");
+                e.printStackTrace();
             }
-
-            JScrollPane chatJScrollPane = new JScrollPane();
-            chatJScrollPane.setLayout(new ScrollPaneLayout());
-            chatJScrollPane.setVerticalScrollBar(new JScrollBar());
-            chatJScrollPane.add(messagePanel);
-            rootPanel.add(chatJScrollPane, BorderLayout.CENTER);
-            rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
-            rootPanel.pack();
         }
-
     }
 
     private JFrame rootPanel() {
@@ -332,16 +429,54 @@ public class ClientGUI {
         return loginPanel;
     }
 
+    private void onMessage(Message message) {
+        //TODO: Swing funktioniert nicht!
+        JPanel messagePanel = new JPanel(new GridLayout(2, 0));
+        JLabel userName = new JLabel(message.getOrigin().toString());
+        JLabel content = new JLabel(message.getContent());
+        messagePanel.add(userName);
+        messagePanel.add(content);
+        messagePanel.setBorder(BorderFactory.createEtchedBorder());
+        rootPanel.getContentPane().add(messagePanel);
+        rootPanel.pack();
+    }
+
+    private void onCreateChat(Chat chat) {
+        System.out.println("Erstelle einen neuen Chat!");
+    }
+
+    private void onGetMessageHistory(Set<Message> messages) {
+        //TODO: Swing funktioniert nicht!
+        rootPanel.getContentPane().removeAll();
+        rootPanel.getContentPane().add(header(currentChat), BorderLayout.NORTH);
+        JPanel messagePanel = new JPanel(new GridLayout(0, 2));
+        for (Message message : messages) {
+            System.out.println(message);
+            if (message.getOrigin().equals(currentChat.getId())) {
+                messagePanel.add(new JLabel(message.getContent()));
+            }
+        }
+
+        JScrollPane chatJScrollPane = new JScrollPane();
+        chatJScrollPane.setLayout(new ScrollPaneLayout());
+        chatJScrollPane.setVerticalScrollBar(new JScrollBar());
+        chatJScrollPane.add(messagePanel);
+        rootPanel.add(chatJScrollPane, BorderLayout.CENTER);
+        rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
+        rootPanel.pack();
+    }
+
     public JPanel displayRecentConversations() {
         JPanel chatsPanel = new JPanel(new GridLayout(0, 1));
-        JPanel newChatPanel = new JPanel(new GridLayout(0,2));
+        JPanel newChatPanel = new JPanel(new GridLayout(0, 2));
         JLabel titleLabel = new JLabel("VS-Chat");
         titleLabel.setForeground(Color.WHITE);
         newChatPanel.add(titleLabel);
         JLabel addChatLabel = getImageJLabel("src/main/java/vs/chat/client/UI/icons/add.png", 50, 50);
+        addChatLabel.addMouseListener(new CreateChatMouseListener(chatsPanel, newChatPanel));
         newChatPanel.add(addChatLabel);
         newChatPanel.setBackground(Color.DARK_GRAY);
-        newChatPanel.setMaximumSize(new Dimension(600,100));
+        newChatPanel.setMaximumSize(new Dimension(600, 100));
         chatsPanel.add(newChatPanel);
 
         for (Chat chat : api.getChats()) {
