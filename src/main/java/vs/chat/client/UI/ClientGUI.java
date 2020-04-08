@@ -216,12 +216,13 @@ public class ClientGUI {
             JPanel backround = new JPanel(new GridLayout(0, 1));
             JPanel newChatPanel = new JPanel(new GridLayout(0, 2));
             JLabel chatNameLabel = new JLabel("Chatname: ");
-            JTextField chatNameField = new JTextField();
+            JTextField chatNameField = new JTextField("");
             JLabel numberOfUsers = new JLabel("Number of useres to add: ");
-            JFormattedTextField numberOfUserField = new JFormattedTextField(NumberFormat.getIntegerInstance());
+            JFormattedTextField numberOfUserField = new JFormattedTextField(NumberFormat.getNumberInstance());
             JButton okButton = new JButton("ok!");
             //TODO: Eingabe aus Textfeldern übergeben!
-            okButton.addActionListener(new addUserToChatActionListener("chatNameField.getText()", 3, header, contactsPanel));
+            System.out.println(numberOfUserField.getValue());
+            okButton.addActionListener(new addUserToChatActionListener(chatNameField, numberOfUserField, header, contactsPanel));
 
             backround.add(header);
             newChatPanel.add(chatNameLabel);
@@ -262,14 +263,17 @@ public class ClientGUI {
     private class addUserToChatActionListener implements ActionListener {
         User user;
         List<UUID> users;
-        String chatname;
-        int useramount;
+        JTextField chatnameTextField;
+        JFormattedTextField useramountTextField;
         JPanel header;
         JPanel contactsPanel;
+        String chatname;
+        long useramount;
+        ArrayList<JTextField> addedUsers = new ArrayList<>();
 
-        addUserToChatActionListener(String chatname, int useramount, JPanel header, JPanel contactsPanel) {
-            this.chatname = chatname;
-            this.useramount = useramount;
+        addUserToChatActionListener(JTextField chatnameTextField, JFormattedTextField useramountTextField, JPanel header, JPanel contactsPanel) {
+            this.chatnameTextField = chatnameTextField;
+            this.useramountTextField = useramountTextField;
             this.header = header;
             this.contactsPanel = contactsPanel;
             users = new ArrayList<>();
@@ -277,20 +281,17 @@ public class ClientGUI {
 
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
+            chatname = chatnameTextField.getText();
+            useramount = (long) useramountTextField.getValue();
             JPanel backround = new JPanel(new GridLayout(0, 1));
             JPanel addUserNamePanel = new JPanel(new GridLayout(0, 2));
             backround.add(header);
-            for (int i = useramount; i > 0; i--) {
+            for (long i = useramount; i > 0; i--) {
                 JLabel userNameLabel = new JLabel(i + " User (username): ");
                 JTextField userNameField = new JTextField();
                 addUserNamePanel.add(userNameLabel);
                 addUserNamePanel.add(userNameField);
-                //user = api.getContacts().stream().filter(c -> c.getUsername().equals(userNameField.getText())).findAny().orElse(null);
-                //if (user == null) {
-                //    JOptionPane.showMessageDialog(rootPanel, "User not found!");
-                //}
-                //TODO: Replace dummy with user.getId()
-                users.add(UUID.fromString("d4ec0439-d662-4b5c-a056-b9095d5a50be"));
+                addedUsers.add(userNameField);
             }
 
             JButton okButton = new JButton("ok!");
@@ -301,7 +302,7 @@ public class ClientGUI {
             contactsPanel.add(backround);
             rootPanel.pack();
 
-            okButton.addActionListener(new CreateChatInBackendActionListener(chatname, users));
+            okButton.addActionListener(new CreateChatInBackendActionListener(chatname, addedUsers));
         }
     }
 
@@ -371,23 +372,32 @@ public class ClientGUI {
         }
     }
 
-    private class CreateChatInBackendActionListener implements ActionListener{
+    private class CreateChatInBackendActionListener implements ActionListener {
 
+        User user;
         String chatname;
-        UUID [] userIds;
-        List<UUID> users;
+        ArrayList<JTextField> addedUsers;
+        List<UUID> users = new ArrayList<>();
 
-        CreateChatInBackendActionListener(String chatname, List<UUID> users){
+        CreateChatInBackendActionListener(String chatname, ArrayList<JTextField> addedUsers) {
             this.chatname = chatname;
-            this.users = users;
+            this.addedUsers = addedUsers;
         }
 
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
+            for (JTextField textField : addedUsers){
+                user = api.getContacts().stream().filter(c -> c.getUsername().equals(textField.getText())).findAny().orElse(null);
+            if (user == null) {
+                JOptionPane.showMessageDialog(rootPanel, "User not found!");
+            }
+            users.add(user.getId());
+        }
             try {
+                UUID[] userIds = new UUID[users.size()];
                 userIds = users.toArray(userIds);
+
                 api.createChat(chatname, userIds);
-                displayRecentConversations();
             } catch (IOException | ClassNotFoundException e) {
                 JOptionPane.showMessageDialog(rootPanel, "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut!");
                 e.printStackTrace();
