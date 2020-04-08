@@ -36,11 +36,13 @@ public class ClientApiImpl implements ClientApi {
     private Set<User> contacts;
 
     // 128 bit key generators
-    private BigInteger n = new BigInteger("66259297998496367004492150774417033857");
-    private BigInteger g = new BigInteger("29851");
+    private BigInteger n = new BigInteger("472519676241594742843028470673530546434536231179484264278652790322652242468455759322790539712796667427875735304954885319234836223824156372445676055849097886333321163185313512690790832232447841029440228995256148614159319890452248400198862941601467626712295822230723434471723908233736955864572782461269");
+    private BigInteger g = new BigInteger("4176946703");
     private BigInteger privateKey;
     private BigInteger nextKey;
     private Keyfile keyfile;
+
+    private static int KEY_BYTE_LENGTH = 128;
 
     ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn, BufferedReader userIn) {
         this.networkOut = networkOut;
@@ -105,7 +107,7 @@ public class ClientApiImpl implements ClientApi {
 
     private BigInteger generatePrivateKey() {
         SecureRandom random = new SecureRandom();
-        byte[] bytes = new byte[16];
+        byte[] bytes = new byte[KEY_BYTE_LENGTH];
         random.nextBytes(bytes);
 
         return BigInteger.valueOf(ByteBuffer.wrap(bytes).getLong()).abs();
@@ -205,7 +207,7 @@ public class ClientApiImpl implements ClientApi {
             key = myKey.getBytes(StandardCharsets.UTF_8);
             sha = MessageDigest.getInstance("SHA-1");
             key = sha.digest(key);
-            key = Arrays.copyOf(key, 16);
+            key = Arrays.copyOf(key, KEY_BYTE_LENGTH);
             secretKey = new SecretKeySpec(key, "AES");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
