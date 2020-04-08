@@ -9,7 +9,7 @@ public class PacketIdFilter implements Filter {
 
 	@Override
 	public boolean canActivate(final Packet packet, final ServerContext context, final ConnectionHandler handler) {
-		return context.getWarehouse().get(WarehouseResourceType.PACKETS).containsKey(packet.getId());
+		return !context.getWarehouse().get(WarehouseResourceType.PACKETS).containsKey(packet.getId());
 	}
 
 	@Override
