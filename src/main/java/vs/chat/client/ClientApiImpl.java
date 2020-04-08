@@ -75,6 +75,16 @@ public class ClientApiImpl implements ClientApi {
             this.contacts = loginSyncPacket.users;
 
             this.keyfile = new Keyfile(username);
+            try{
+                keyfile.load();
+            }catch (ClassNotFoundException | IOException e){
+                e.printStackTrace();
+            }
+            try {
+                keyfile.save();
+            }catch (IOException e1){
+                e1.printStackTrace();
+            }
             this.privateKey = generatePrivateKey();
             this.nextKey = this.g.modPow(this.privateKey, this.n);
             System.out.println(this.userId);
@@ -200,8 +210,13 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void addKey(UUID chatId, BigInteger key) {
-            var pKEntry = new PrivateKeyEntity(chatId, this.privateKey);
-            this.keyfile.get(KeyfileResourceType.PRIVATEKEY).put(chatId, pKEntry);
+        var pKEntry = new PrivateKeyEntity(chatId, this.privateKey);
+        this.keyfile.get(KeyfileResourceType.PRIVATEKEY).put(chatId, pKEntry);
+        try {
+            keyfile.save();
+        }catch (IOException e1){
+            e1.printStackTrace();
+        }
     }
 
     public BigInteger loadKey(UUID chatId) {
@@ -209,14 +224,28 @@ public class ClientApiImpl implements ClientApi {
                 .filter(u -> ((PrivateKeyEntity) u).equals(chatId)).findFirst();
         if (res.isPresent()) {
             PrivateKeyEntity pke = (PrivateKeyEntity) keyfile.get(KeyfileResourceType.PRIVATEKEY).get(chatId);
+            try {
+                keyfile.save();
+            }catch (IOException e1){
+                e1.printStackTrace();
+            }
             return pke.getPrivateKey();
+        }
+        try {
+            keyfile.save();
+        }catch (IOException e1){
+            e1.printStackTrace();
         }
         return null;
     }
 
     public void deleteKey(UUID chatId) {
         keyfile.get(KeyfileResourceType.PRIVATEKEY).remove(chatId);
-
+        try {
+            keyfile.save();
+        }catch (IOException e1){
+            e1.printStackTrace();
+        }
     }
 
     public void exit() throws IOException {
@@ -239,7 +268,7 @@ public class ClientApiImpl implements ClientApi {
                             UUID chatId = newChat.getId();
                             BigInteger chatKey = nextKey;
 
-                            // TODO keys speichern
+                            addKey(chatId, chatKey);
 
                             chats.add(newChat);
                             onCreateChat.run(newChat);
