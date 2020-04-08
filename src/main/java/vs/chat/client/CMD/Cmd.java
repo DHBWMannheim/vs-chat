@@ -7,6 +7,7 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -232,6 +233,9 @@ public class Cmd {
             } while (chat == null);
 
             this.api.getChatMessages(chat.getId());
+
+            BigInteger chatKey = this.api.loadKey(chat.getId());
+            System.out.println("Chat id von " + chat.getName() + " ist " + chatKey);
 
             System.out.println("Opened chat '" + chat.getName() + "' (type /quit to exit chat window)\n");
 

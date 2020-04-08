@@ -155,15 +155,18 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void createChat(String chatName, List<UUID> userIds) throws IOException {
-        // TODO implement
         UUID[] chatUsers = new UUID[userIds.size()];
         chatUsers = userIds.toArray(chatUsers);
-        System.out.println("creating chat " + chatUsers);
+
+        CreateChatPacket createChatPacket = new CreateChatPacket(chatName, chatUsers);
+        this.networkOut.writeObject(createChatPacket);
+        this.networkOut.flush();
     }
 
     public void sendMessage(String message, UUID chatId) throws IOException {
         MessagePacket messagePacket = new MessagePacket();
-        messagePacket.content = encryptAES(chatId.toString(), message);
+        String chatKey = loadKey(chatId).toString();
+        messagePacket.content = encryptAES(chatKey, message);
         messagePacket.target = chatId;
 
         this.networkOut.writeObject(messagePacket);
@@ -210,11 +213,11 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void addKey(UUID chatId, BigInteger key) {
-        var pKEntry = new PrivateKeyEntity(chatId, this.privateKey);
+        var pKEntry = new PrivateKeyEntity(chatId, key);
         this.keyfile.get(KeyfileResourceType.PRIVATEKEY).put(chatId, pKEntry);
         try {
             keyfile.save();
-        }catch (IOException e1){
+        } catch (IOException e1){
             e1.printStackTrace();
         }
     }
@@ -226,14 +229,14 @@ public class ClientApiImpl implements ClientApi {
             PrivateKeyEntity pke = (PrivateKeyEntity) keyfile.get(KeyfileResourceType.PRIVATEKEY).get(chatId);
             try {
                 keyfile.save();
-            }catch (IOException e1){
+            } catch (IOException e1){
                 e1.printStackTrace();
             }
             return pke.getPrivateKey();
         }
         try {
             keyfile.save();
-        }catch (IOException e1){
+        } catch (IOException e1){
             e1.printStackTrace();
         }
         return null;
@@ -265,10 +268,7 @@ public class ClientApiImpl implements ClientApi {
                         if (packet instanceof Chat) {
                             Chat newChat = (Chat) packet;
 
-                            UUID chatId = newChat.getId();
-                            BigInteger chatKey = nextKey;
-
-                            addKey(chatId, chatKey);
+                            addKey(newChat.getId(), nextKey);
 
                             chats.add(newChat);
                             onCreateChat.run(newChat);
@@ -315,18 +315,24 @@ public class ClientApiImpl implements ClientApi {
                                 }
                             } else if (currentRequests == (targetRequests - (participants.size() - userIndex))) {
                                 System.out.println(getUsernameFromId(userId) + " -> " + nextKey);
-                                // TODO key speichern
                             }
 
                         } else if (packet instanceof GetMessagesResponsePacket) {
                             Set<Message> messages = ((GetMessagesResponsePacket) packet).messages;
 
-                            messages.forEach(m -> m.setContent(decryptAES(m.getTarget().toString(), m.getContent())));
+                            // load chat key and decrypt message
+                            messages.forEach(message -> {
+                                String chatKey = loadKey(message.getTarget()).toString();
+                                message.setContent(decryptAES(chatKey, message.getContent()));
+                            });
 
                             onChatMessages.run(new TreeSet<>(messages));
                         } else if (packet instanceof Message) {
                             Message message = (Message)packet;
-                            message.content = decryptAES(message.target.toString(), message.getContent());
+
+                            // load chat key and decrypt message
+                            String chatKey = loadKey(message.getTarget()).toString();
+                            message.content = decryptAES(chatKey, message.getContent());
 
                             onMessage.run(message);
                         } else if (packet instanceof LogoutSuccessPacket) {
