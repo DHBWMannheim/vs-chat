@@ -46,7 +46,11 @@ public class ConnectionHandler extends Thread {
 			try {
 				var object = inputStream.readObject();
 				var packet = (Packet) object;
-				this.handlePacket(packet);
+				var canActivate = this.context.getFilters().stream().allMatch(f -> f.canActivate(packet, this.context, this));
+				if (canActivate) {
+					this.handlePacket(packet);
+					this.context.getFilters().stream().forEach(f -> f.postHandle(packet, this.context, this));
+				}
 			} catch (IOException | ClassNotFoundException e) {
 				break;
 			}

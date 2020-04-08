@@ -3,17 +3,17 @@ package vs.chat.entities;
 import java.util.Date;
 import java.util.UUID;
 
-import vs.chat.packets.MessagePacket;
-import vs.chat.server.warehouse.Warehouseable;
+import vs.chat.server.warehouse.WarehouseResourceType;
 
-public class Message extends MessagePacket implements Comparable<Message>, Warehouseable {
+public class Message extends BaseEntity {
 
-	private final UUID id;
+	public UUID target;
+	public String content;
 	private final UUID origin;
 	private final Date receiveTime;
 
 	public Message(final UUID origin) {
-		this.id = UUID.randomUUID();
+		super(WarehouseResourceType.MESSAGES);
 		this.origin = origin;
 		this.receiveTime = new Date();
 	}
@@ -42,21 +42,10 @@ public class Message extends MessagePacket implements Comparable<Message>, Wareh
 		return receiveTime;
 	}
 
-	@Override
-	public UUID getId() {
-		return id;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return this.id.equals(obj);
-	}
-
-	@Override
-	public int compareTo(Message o) {
+	public int compareTo(Message o) {// TODO is this colliding?
 		var compareResult = this.receiveTime.compareTo(o.getReceiveTime());
 		if (compareResult == 0)
-			compareResult = this.id.compareTo(o.id);
+			compareResult = this.getId().compareTo(o.getId());
 		return compareResult;
 	}
 

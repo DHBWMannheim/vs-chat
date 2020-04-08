@@ -1,6 +1,6 @@
 package vs.chat.packets;
 
-public class LoginPacket implements Packet {
+public class LoginPacket extends Packet {
 
 	public String username;
 	public String password;

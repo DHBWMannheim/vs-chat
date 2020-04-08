@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
-public class KeyEchangePacket implements Packet {
+public class KeyEchangePacket extends Packet {
 
 	public BigInteger content;
 	public int requests;

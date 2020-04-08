@@ -21,10 +21,10 @@ Sämtliche der Node bekannten Informationen (Nutzer, Chats, Nachrichten) werden 
 Der Speichervorgang kann je nach System und Warehousegröße längere Zeiten in anspruch nehmen. In dieser Zeit können in der Regel keine weiteren Anfragen verarbeitet werden. Um diese Zeit zu minimieren kümmert sich ein eigener Thread um die Speicherung und speichert das Warehouse in Intervallen.
 Zu beachten ist der Fall, dass eine Node zusammenbricht während der Speichervorgang in Arbeit ist. In diesem Fall würde die node sämtliche Informationen verlieren, da die Speicherdatei korrupt ist. Um dies zu verhindern wird der Speicherstand zunächst in eine Tempdatei geschrieben und nach erfolgreicher speicherung an den Zielort verschoben.
 
-\subsection{Verschlüsselte serverseitige Speicherung der Chats}
+\subsection{Verschlüsselte Übertragung der Chat-Nachrichten}
 //TODO
 
-\subsection{Verschlüsselte Übertragung der Chat-Nachrichten}
+\subsection{Verschlüsselte serverseitige Speicherung der Chats}
 //TODO
 
 %\subsection{3 replizierte Server mit Majority Consensus Strategie}
