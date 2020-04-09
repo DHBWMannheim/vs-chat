@@ -36,13 +36,13 @@ public class ClientApiImpl implements ClientApi {
     private Set<User> contacts;
 
     // 128 bit key generators
-    private BigInteger n = new BigInteger("472519676241594742843028470673530546434536231179484264278652790322652242468455759322790539712796667427875735304954885319234836223824156372445676055849097886333321163185313512690790832232447841029440228995256148614159319890452248400198862941601467626712295822230723434471723908233736955864572782461269");
+    private BigInteger n = new BigInteger("238537765838013785000593286225584128587");
     private BigInteger g = new BigInteger("4176946703");
     private BigInteger privateKey;
     private BigInteger nextKey;
     private Keyfile keyfile;
 
-    private static int KEY_BYTE_LENGTH = 128;
+    private static int KEY_BYTE_LENGTH = 16;
 
     ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn, BufferedReader userIn) {
         this.networkOut = networkOut;
@@ -128,9 +128,9 @@ public class ClientApiImpl implements ClientApi {
                 .collect(Collectors.toSet());
     }
 
-    public String getUsernameFromId(UUID userId) {
+    public String getUsernameFromId(UUID id) {
         User user = this.contacts.stream()
-                        .filter(c -> c.getId() == this.userId)
+                        .filter(c -> c.getId().equals(id))
                         .findAny()
                         .orElse(null);
 
@@ -267,13 +267,26 @@ public class ClientApiImpl implements ClientApi {
                     try {
                         Object packet = networkIn.readObject();
 
-                        if (packet instanceof Chat) {
-                            Chat newChat = (Chat) packet;
+                        if (packet instanceof BaseEntityBroadcastPacket) {
+                            BaseEntityBroadcastPacket base = (BaseEntityBroadcastPacket) packet;
 
-                            addKey(newChat.getId(), nextKey);
+                            if (base.baseEntity instanceof Chat) {
+                                Chat newChat = (Chat) base.baseEntity;
 
-                            chats.add(newChat);
-                            onCreateChat.run(newChat);
+                                addKey(newChat.getId(), nextKey);
+
+                                chats.add(newChat);
+                                onCreateChat.run(newChat);
+                            } else if (base.baseEntity instanceof Message) {
+                                Message message = (Message) base.baseEntity;
+
+                                // load chat key and decrypt message
+                                String chatKey = loadKey(message.getTarget()).toString();
+                                message.content = decryptAES(chatKey, message.getContent());
+
+                                onMessage.run(message);
+                            }
+
                         } else if (packet instanceof KeyEchangePacket) {
 
                             KeyEchangePacket keyEchangePacket = (KeyEchangePacket) packet;
@@ -297,12 +310,15 @@ public class ClientApiImpl implements ClientApi {
                             // check if package has to be forwarded
                             if (currentRequests < targetRequests) {
                                 // forwards package to next participant
-                                keyEchangePacket.setTarget(participants.get((userIndex + 1) % participants.size()));
-                                keyEchangePacket.setOrigin(userId);
-                                keyEchangePacket.setContent(nextKey);
-                                keyEchangePacket.setRequests(keyEchangePacket.getRequests() + 1);
+                                KeyEchangePacket newExchangePacket = new KeyEchangePacket();
+                                newExchangePacket.setTarget(participants.get((userIndex + 1) % participants.size()));
+                                newExchangePacket.setContent(nextKey);
+                                newExchangePacket.setRequests(keyEchangePacket.getRequests() + 1);
+                                newExchangePacket.setInitiator(keyEchangePacket.getInitiator());
+                                newExchangePacket.setParticipants(keyEchangePacket.getParticipants());
+                                newExchangePacket.setChatName(keyEchangePacket.getChatName());
 
-                                networkOut.writeObject(keyEchangePacket);
+                                networkOut.writeObject(newExchangePacket);
                                 networkOut.flush();
                             }
 
@@ -329,14 +345,6 @@ public class ClientApiImpl implements ClientApi {
                             });
 
                             onChatMessages.run(new TreeSet<>(messages));
-                        } else if (packet instanceof Message) {
-                            Message message = (Message)packet;
-
-                            // load chat key and decrypt message
-                            String chatKey = loadKey(message.getTarget()).toString();
-                            message.content = decryptAES(chatKey, message.getContent());
-
-                            onMessage.run(message);
                         } else if (packet instanceof LogoutSuccessPacket) {
                             break;
                         }
@@ -357,7 +365,5 @@ public class ClientApiImpl implements ClientApi {
             }
         }).start();
     }
-
-
 
 }
