@@ -22,11 +22,50 @@ Der Speichervorgang kann je nach System und Warehousegröße längere Zeiten in 
 Zu beachten ist der Fall, dass eine Node zusammenbricht während der Speichervorgang in Arbeit ist. In diesem Fall würde die node sämtliche Informationen verlieren, da die Speicherdatei korrupt ist. Um dies zu verhindern wird der Speicherstand zunächst in eine Tempdatei geschrieben und nach erfolgreicher speicherung an den Zielort verschoben.
 
 \subsection{Verschlüsselte Übertragung der Chat-Nachrichten}
-//TODO
+Um einen sicheren Nachrichtenkanal zu gewährleisten wurde eine 
+Ende-zu-Ende-Verschlüsselung implementiert. Dabei wird beim
+erstellen eines Chats unter allen Teilnehmern ein Diffie-Hellman 
+Schlüsselaustausch durchgeführt, sodass jeder Client denselben 
+Schlüssel für einen Chat besitzt. Diese generierten Schlüssel 
+werden beim Client zur Chat ID lokal gespeichert, sodass der
+Server die Schlüssel nie kennen wird. Somit kann der Client,
+bevor er Nachrichten zum Server sendet den Inhalt mit dem 
+jeweiligen Chat Schlüssel verschlüsseln und ankommenende 
+Nachrichten entschlüsseln.
+
+Um auch Gruppenchats ermöglichen zu können musste der 
+Diffie-Hellman-Schlüsselaustausch entsprechend erweitert werden.
+Dabei gibt es in Gruppen im Gegensatz zu zwei Teilnehmern 
+mehrere Runden. Ein Schlüsselaustausch mit drei Teilnehmern kann
+aus dem untererem Schaubild entnommen werden:
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{dh.png}
+  
+  \caption{Erweiterter Diffie-Hellman}
+  \label{}
+\end{figure}
+
+Wie man erkennen kann werden in der ersten Runde (Schritte 1-3)
+die ersten Teilschlüssel wie im klassischen Diffie-Hellman generiert
+und weitergeschickt. In der zweiten Runde wird mithilfe der Ergebnisse
+der ersten Runde die fertigen Chat Schlüssel berechnet (Schritte 4-9).
+Dieses Verfahren kann mit beliebig vielen Teilnehmern durchgeführt
+werden, jedoch steigt die Anzahl der Runden linear und die Anzahl der 
+Requests quadratisch.
+
+$$ rounds = n - 1 $$
+$$ requests = n \cdot (n - 1) $$
+
+Wobei hier n die Anzahl der Teilnehmer ist.
+
+Da nun alle Chatteilnehmer den gleichen Schlüssel besitzen und dieser 
+lokal gesichert ist können Nachrichten mit einem symetrischen Verfahren
+sicher versendet werden.
 
 \subsection{Verschlüsselte serverseitige Speicherung der Chats}
 //TODO
 
 %\subsection{3 replizierte Server mit Majority Consensus Strategie}
 % Gibt in unserem Ansatz keinen Sinn
-
