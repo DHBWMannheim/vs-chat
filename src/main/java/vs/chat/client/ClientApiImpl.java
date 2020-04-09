@@ -9,13 +9,17 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 import vs.chat.packets.*;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -177,30 +181,28 @@ public class ClientApiImpl implements ClientApi {
 
     public String encryptAES(String key, String message) {
         try {
-            setKey(key);
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, this.secretKey);
+            cipher.init(Cipher.ENCRYPT_MODE, setKey(key));
             return Base64.getEncoder().encodeToString(cipher.doFinal(message.getBytes(StandardCharsets.UTF_8)));
         } catch (Exception e) {
-            System.out.println("Error while encrypting: " + e.toString());
+            e.printStackTrace();
         }
         return null;
     }
 
     public String decryptAES(String key, String ciffre) {
         try {
-            setKey(key);
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
-            cipher.init(Cipher.DECRYPT_MODE, secretKey);
-            return new String(cipher.doFinal(Base64.getDecoder().decode(ciffre)));
+            cipher.init(Cipher.DECRYPT_MODE, setKey(key));
+            return new String(cipher.doFinal(Base64.getDecoder().decode(ciffre.getBytes(StandardCharsets.UTF_8))));
         } catch (Exception e) {
-            System.out.println("Error while decrypting: " + e.toString());
+            e.printStackTrace();
         }
         return null;
     }
 
     //Formatting key to SerectKeySpec
-    public void setKey(String myKey) {
+    public SecretKeySpec setKey(String myKey) {
         MessageDigest sha;
         byte[] key;
         try {
@@ -208,10 +210,11 @@ public class ClientApiImpl implements ClientApi {
             sha = MessageDigest.getInstance("SHA-256");
             key = sha.digest(key);
             key = Arrays.copyOf(key, KEY_BYTE_LENGTH);
-            secretKey = new SecretKeySpec(key, "AES");
+            return new SecretKeySpec(key, "AES");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public void addKey(UUID chatId, BigInteger key) {
@@ -278,13 +281,15 @@ public class ClientApiImpl implements ClientApi {
                                 chats.add(newChat);
                                 onCreateChat.run(newChat);
                             } else if (base.baseEntity instanceof Message) {
-                                Message message = (Message) base.baseEntity;
+                                Message m = (Message) base.baseEntity;
 
-                                // load chat key and decrypt message
-                                String chatKey = loadKey(message.getTarget()).toString();
-                                message.content = decryptAES(chatKey, message.getContent());
+                                Message d = new Message(m.getOrigin(), m.getReceiveTime());
+                                d.setTarget(m.getTarget());
 
-                                onMessage.run(message);
+                                String chatKey = loadKey(m.getTarget()).toString();
+                                d.setContent(decryptAES(chatKey, m.getContent()));
+
+                                onMessage.run(d);
                             }
 
                         } else if (packet instanceof KeyEchangePacket) {
@@ -337,14 +342,19 @@ public class ClientApiImpl implements ClientApi {
 
                         } else if (packet instanceof GetMessagesResponsePacket) {
                             Set<Message> messages = ((GetMessagesResponsePacket) packet).messages;
+                            Set<Message> decrypted = new TreeSet<>();
 
-                            // load chat key and decrypt message
-                            messages.forEach(message -> {
-                                String chatKey = loadKey(message.getTarget()).toString();
-                                message.setContent(decryptAES(chatKey, message.getContent()));
-                            });
+                            for (Message m: messages) {
+                                Message d = new Message(m.getOrigin(), m.getReceiveTime());
+                                d.setTarget(m.getTarget());
 
-                            onChatMessages.run(new TreeSet<>(messages));
+                                String chatKey = loadKey(m.getTarget()).toString();
+                                d.setContent(decryptAES(chatKey, m.getContent()));
+
+                                decrypted.add(d);
+                            }
+
+                            onChatMessages.run(decrypted);
                         } else if (packet instanceof LogoutSuccessPacket) {
                             break;
                         }

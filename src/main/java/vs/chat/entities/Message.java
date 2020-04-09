@@ -18,6 +18,12 @@ public class Message extends BaseEntity {
 		this.receiveTime = new Date();
 	}
 
+	public Message(final UUID origin, final Date receiveTime) {
+		super(WarehouseResourceType.MESSAGES);
+		this.origin = origin;
+		this.receiveTime = receiveTime;
+	}
+
 	public String getContent() {
 		return content;
 	}
