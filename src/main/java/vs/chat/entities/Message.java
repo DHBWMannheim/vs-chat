@@ -42,11 +42,14 @@ public class Message extends BaseEntity {
 		return receiveTime;
 	}
 
-	public int compareTo(Message o) {// TODO is this colliding?
-		var compareResult = this.receiveTime.compareTo(o.getReceiveTime());
-		if (compareResult == 0)
-			compareResult = this.getId().compareTo(o.getId());
-		return compareResult;
+	@Override
+	public int compareTo(final BaseEntity obj) {
+		if (obj instanceof Message) {
+			var compareResult = this.receiveTime.compareTo(((Message) obj).getReceiveTime());
+			if (compareResult != 0)
+				return compareResult;
+		}
+		return super.compareTo(obj);
 	}
 
 }
