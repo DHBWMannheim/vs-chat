@@ -27,7 +27,6 @@ public class ClientGUI {
 
     JFrame rootPanel;
     JTextArea messageInput;
-    boolean inRecentConversationsList = false;
 
     // login, nachrichten senden usw
     private ClientApiImpl api;
@@ -75,7 +74,6 @@ public class ClientGUI {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            inRecentConversationsList = false;
             System.out.println("Ich bin der Listener für : " + chat.getName());
             currentChat = chat;
             try {
@@ -215,7 +213,6 @@ public class ClientGUI {
 
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
-            inRecentConversationsList = false;
             JPanel backround = new JPanel(new GridLayout(0, 1));
             JPanel newChatPanel = new JPanel(new GridLayout(0, 2));
             JLabel chatNameLabel = new JLabel("Chatname: ");
@@ -387,18 +384,15 @@ public class ClientGUI {
 
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            for (JTextField textField : addedUsers){
+            for (JTextField textField : addedUsers) {
                 user = api.getContacts().stream().filter(c -> c.getUsername().equals(textField.getText())).findAny().orElse(null);
-            if (user == null) {
-                JOptionPane.showMessageDialog(rootPanel, "User not found!");
+                if (user == null) {
+                    JOptionPane.showMessageDialog(rootPanel, "User not found!");
+                }
+                users.add(user.getId());
             }
-            users.add(user.getId());
-        }
             try {
-                api.createChat(chatname, users);
-                rootPanel.getContentPane().removeAll();
-                rootPanel.getContentPane().add(displayRecentConversations());
-                rootPanel.pack();
+                api.exchangeKeys(chatname, users);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(rootPanel, "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut!");
                 e.printStackTrace();
@@ -441,6 +435,8 @@ public class ClientGUI {
     }
 
     private void onMessage(Message message) {
+        // wird aufgerufen wenn wir eine Nachricht bekommen!
+        // wird immer aufgerufen wenn der User eingeloggt ist, egal in welchem GUI Step er ist
         //TODO: Swing funktioniert nicht!
         JPanel messagePanel = new JPanel(new GridLayout(2, 0));
         JLabel userName = new JLabel(message.getOrigin().toString());
@@ -453,15 +449,14 @@ public class ClientGUI {
     }
 
     private void onCreateChat(Chat chat) {
-        if (inRecentConversationsList){
-            rootPanel.getContentPane().removeAll();
-            rootPanel.getContentPane().add(displayRecentConversations());
-            rootPanel.pack();
-        }
+        rootPanel.getContentPane().removeAll();
+        rootPanel.getContentPane().add(displayRecentConversations());
+        rootPanel.pack();
         System.out.println("Sie wurden zu einem neuen Chat hinzugefügt");
     }
 
     private void onGetMessageHistory(Set<Message> messages) {
+        //kommt zurück wenn api.getMessages aufgerufen wird!
         //TODO: Swing funktioniert nicht!
         rootPanel.getContentPane().removeAll();
         rootPanel.getContentPane().add(header(currentChat), BorderLayout.NORTH);
@@ -483,7 +478,6 @@ public class ClientGUI {
     }
 
     public JPanel displayRecentConversations() {
-        inRecentConversationsList = true;
         JPanel chatsPanel = new JPanel(new GridLayout(0, 1));
         JPanel newChatPanel = new JPanel(new GridLayout(0, 2));
         JLabel titleLabel = new JLabel("VS-Chat");
