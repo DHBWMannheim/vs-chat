@@ -160,7 +160,7 @@ public class ClientApiImpl implements ClientApi {
         this.networkOut.flush();
     }
 
-    public void createChat(String chatName, List<UUID> userIds) throws IOException {
+    private void createChat(String chatName, List<UUID> userIds) throws IOException {
         UUID[] chatUsers = new UUID[userIds.size()];
         chatUsers = userIds.toArray(chatUsers);
 
