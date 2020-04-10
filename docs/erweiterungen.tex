@@ -28,10 +28,11 @@ erstellen eines Chats unter allen Teilnehmern ein Diffie-Hellman
 Schlüsselaustausch durchgeführt, sodass jeder Client denselben 
 Schlüssel für einen Chat besitzt. Diese generierten Schlüssel 
 werden beim Client zur Chat ID lokal gespeichert, sodass der
-Server die Schlüssel nie kennen wird. Somit kann der Client,
-bevor er Nachrichten zum Server sendet den Inhalt mit dem 
+auch nach einem Neustart weiter den Chat nutzen kann. Somit kann 
+der Client, bevor er Nachrichten zum Server sendet den Inhalt mit dem 
 jeweiligen Chat Schlüssel verschlüsseln und ankommenende 
-Nachrichten entschlüsseln.
+Nachrichten entschlüsseln. Somit wird der Server ausschließlich
+verschlüsselte Nachrichten erhalten auf die er keinen Zugriff hat.
 
 Um auch Gruppenchats ermöglichen zu können musste der 
 Diffie-Hellman-Schlüsselaustausch entsprechend erweitert werden.
@@ -51,6 +52,10 @@ Wie man erkennen kann werden in der ersten Runde (Schritte 1-3)
 die ersten Teilschlüssel wie im klassischen Diffie-Hellman generiert
 und weitergeschickt. In der zweiten Runde wird mithilfe der Ergebnisse
 der ersten Runde die fertigen Chat Schlüssel berechnet (Schritte 4-9).
+Die Größe der Primzahl n beträgt 128bit, wobei die Länge der
+Generatorprimzahl 32bit ist. Somit ergibt sich für den Chat ein 
+Schlüssel von ebenfalls 128bit.
+
 Dieses Verfahren kann mit beliebig vielen Teilnehmern durchgeführt
 werden, jedoch steigt die Anzahl der Runden linear und die Anzahl der 
 Requests quadratisch.
@@ -63,6 +68,8 @@ Wobei hier n die Anzahl der Teilnehmer ist.
 Da nun alle Chatteilnehmer den gleichen Schlüssel besitzen und dieser 
 lokal gesichert ist können Nachrichten mit einem symetrischen Verfahren
 sicher versendet werden.
+
+Für das symmetrische Verfahren wurde die AES Verschlüsselung implementiert.
 
 \subsection{Verschlüsselte serverseitige Speicherung der Chats}
 //TODO
