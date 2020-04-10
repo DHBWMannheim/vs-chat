@@ -27,6 +27,7 @@ public class ClientGUI {
 
     JFrame rootPanel;
     JTextArea messageInput;
+    boolean inRecentConversationsList = false;
 
     // login, nachrichten senden usw
     private ClientApiImpl api;
@@ -74,6 +75,7 @@ public class ClientGUI {
 
         @Override
         public void mouseClicked(MouseEvent e) {
+            inRecentConversationsList = false;
             System.out.println("Ich bin der Listener für : " + chat.getName());
             currentChat = chat;
             try {
@@ -213,6 +215,7 @@ public class ClientGUI {
 
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
+            inRecentConversationsList = false;
             JPanel backround = new JPanel(new GridLayout(0, 1));
             JPanel newChatPanel = new JPanel(new GridLayout(0, 2));
             JLabel chatNameLabel = new JLabel("Chatname: ");
@@ -220,8 +223,6 @@ public class ClientGUI {
             JLabel numberOfUsers = new JLabel("Number of useres to add: ");
             JFormattedTextField numberOfUserField = new JFormattedTextField(NumberFormat.getNumberInstance());
             JButton okButton = new JButton("ok!");
-            //TODO: Eingabe aus Textfeldern übergeben!
-            System.out.println(numberOfUserField.getValue());
             okButton.addActionListener(new addUserToChatActionListener(chatNameField, numberOfUserField, header, contactsPanel));
 
             backround.add(header);
@@ -312,7 +313,7 @@ public class ClientGUI {
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
             try {
-                api.sendMessage(messageInput.toString(), currentChat.getId());
+                api.sendMessage(messageInput.getText(), currentChat.getId());
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -345,25 +346,25 @@ public class ClientGUI {
     }
 
     private class LoginButtonActionListener implements ActionListener {
-        private String userName;
-        private String password;
+        private JTextField usernameField;
+        private JPasswordField userPasswordField;
 
-        public LoginButtonActionListener(String userName, String password) {
-            this.userName = userName;
-            this.password = password;
+        public LoginButtonActionListener(JTextField usernameField, JPasswordField userPasswordField) {
+            this.usernameField = usernameField;
+            this.userPasswordField = userPasswordField;
         }
 
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
 
             try {
-                api.login(userName, password);
+                api.login(usernameField.getText(), new String(userPasswordField.getPassword()));
             } catch (LoginException e) {
                 JOptionPane.showMessageDialog(rootPanel, "Invalid Username or Password");
                 e.printStackTrace();
             }
             if (api.getUserId() != null) {
-                System.out.println(userName + " " + password);
+                System.out.println(usernameField.getText() + " " + new String(userPasswordField.getPassword()));
                 api.startPacketListener(ClientGUI.this::onCreateChat, ClientGUI.this::onGetMessageHistory, ClientGUI.this::onMessage);
                 rootPanel.getContentPane().removeAll();
                 rootPanel.getContentPane().add(displayRecentConversations());
@@ -394,11 +395,11 @@ public class ClientGUI {
             users.add(user.getId());
         }
             try {
-                UUID[] userIds = new UUID[users.size()];
-                userIds = users.toArray(userIds);
-
-                api.createChat(chatname, userIds);
-            } catch (IOException | ClassNotFoundException e) {
+                api.createChat(chatname, users);
+                rootPanel.getContentPane().removeAll();
+                rootPanel.getContentPane().add(displayRecentConversations());
+                rootPanel.pack();
+            } catch (IOException e) {
                 JOptionPane.showMessageDialog(rootPanel, "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut!");
                 e.printStackTrace();
             }
@@ -423,18 +424,18 @@ public class ClientGUI {
         loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
 
         loginPanel.add(new JLabel("Username: "));
-        JTextField usernameField = new JTextField("jan", 20);
+        JTextField usernameField = new JTextField(20);
         usernameField.setMaximumSize(new Dimension(550, 20));
         loginPanel.add(usernameField);
 
         loginPanel.add(new JLabel("Passwort: "));
-        JPasswordField userPasswordField = new JPasswordField("1234", 20);
+        JPasswordField userPasswordField = new JPasswordField(20);
         userPasswordField.setMaximumSize(new Dimension(550, 20));
         loginPanel.add(userPasswordField);
 
         JButton loginButton = new JButton("Login!");
         loginPanel.add(loginButton, BorderLayout.SOUTH);
-        loginButton.addActionListener(new LoginButtonActionListener(usernameField.getText(), new String(userPasswordField.getPassword())));
+        loginButton.addActionListener(new LoginButtonActionListener(usernameField, userPasswordField));
 
         return loginPanel;
     }
@@ -452,7 +453,12 @@ public class ClientGUI {
     }
 
     private void onCreateChat(Chat chat) {
-        System.out.println("Erstelle einen neuen Chat!");
+        if (inRecentConversationsList){
+            rootPanel.getContentPane().removeAll();
+            rootPanel.getContentPane().add(displayRecentConversations());
+            rootPanel.pack();
+        }
+        System.out.println("Sie wurden zu einem neuen Chat hinzugefügt");
     }
 
     private void onGetMessageHistory(Set<Message> messages) {
@@ -477,6 +483,7 @@ public class ClientGUI {
     }
 
     public JPanel displayRecentConversations() {
+        inRecentConversationsList = true;
         JPanel chatsPanel = new JPanel(new GridLayout(0, 1));
         JPanel newChatPanel = new JPanel(new GridLayout(0, 2));
         JLabel titleLabel = new JLabel("VS-Chat");
@@ -569,39 +576,9 @@ public class ClientGUI {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                //TODO: Remove and use API methods when Bugs is fixed
-
-                /*dummyChats = new HashSet<>();
-
-                UUID uuid1 = UUID.randomUUID();
-                UUID uuid2 = UUID.randomUUID();
-                UUID uuid3 = UUID.randomUUID();
-                UUID uuid4 = UUID.randomUUID();
-
-                dummyChats.add(new Chat("dummyChat1", uuid1, uuid2));
-                dummyChats.add(new Chat("dummyChat2", uuid2, uuid3));
-                dummyChats.add(new Chat("dummyChat3", uuid3, uuid4));
-                Message message1 = new Message(dummyChats.stream().filter(c -> c.getName().equals("dummyChat1")).findAny().orElse(null).getId());
-                Message message2 = new Message(dummyChats.stream().filter(c -> c.getName().equals("dummyChat1")).findAny().orElse(null).getId());
-                Message message3 = new Message(dummyChats.stream().filter(c -> c.getName().equals("dummyChat1")).findAny().orElse(null).getId());
-                Message message4 = new Message(dummyChats.stream().filter(c -> c.getName().equals("dummyChat1")).findAny().orElse(null).getId());
-
-                message1.setContent("Nachricht1!!");
-                message2.setContent("Ich bin eine zweite Nachricht!");
-                message3.setContent("hihi");
-                message4.setContent("How much is the fish?");
-
-                dummyMessages = new HashSet<>();
-                dummyMessages.add(message1);
-                dummyMessages.add(message2);
-                dummyMessages.add(message3);
-                dummyMessages.add(message4);
-                 */
                 rootPanel = rootPanel();
                 rootPanel.getContentPane().add(loginPanel());
                 rootPanel.pack();
-
-
             }
         });
 
