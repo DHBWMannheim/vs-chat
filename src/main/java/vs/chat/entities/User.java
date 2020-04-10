@@ -1,20 +1,19 @@
 package vs.chat.entities;
 
-import vs.chat.server.warehouse.Warehouseable;
+import vs.chat.server.warehouse.WarehouseResourceType;
 
 import java.util.UUID;
 
-public class User implements Comparable<User>, Warehouseable {
+public class User extends BaseEntity {
 
-	private final UUID id;
 	private String username;
-	
+
 	public User() {
-		this.id = UUID.randomUUID();
+		super(WarehouseResourceType.USERS);
 	}
-	
+
 	public User(final UUID id, final String username) {
-		this.id = id;
+		super(WarehouseResourceType.USERS, id);
 		this.username = username;
 	}
 
@@ -24,21 +23,6 @@ public class User implements Comparable<User>, Warehouseable {
 
 	public void setUsername(String username) {
 		this.username = username;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return this.id.equals(obj);
-	}
-
-	@Override
-	public UUID getId() {
-		return id;
-	}
-
-	@Override
-	public int compareTo(final User o) {
-		return this.id.compareTo(o.id);
 	}
 
 }

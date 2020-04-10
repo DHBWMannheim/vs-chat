@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-public class CreateChatPacket implements Packet {
+public class CreateChatPacket extends Packet {
 
 	protected final String name;
 	protected final Set<UUID> users = Collections.synchronizedSet(new TreeSet<>());

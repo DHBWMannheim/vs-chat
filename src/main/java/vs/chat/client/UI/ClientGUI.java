@@ -79,7 +79,7 @@ public class ClientGUI {
             try {
                 System.out.println("getting chat messages...");
                 api.getChatMessages(chat.getId());
-            } catch (IOException | ClassNotFoundException ex) {
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }

@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vs.chat.packets.Packet;
+import vs.chat.server.filter.Filter;
+import vs.chat.server.filter.PacketIdFilter;
+import vs.chat.server.listener.BaseEntityBroadcastListener;
+import vs.chat.server.listener.ChatCreationListener;
 import vs.chat.server.listener.CreateChatListener;
 import vs.chat.server.listener.GetMessagesListener;
 import vs.chat.server.listener.KeyExchangeListener;
@@ -26,7 +30,8 @@ public class Server implements Runnable {
 	public Server(final Integer port, final NodeConfig... configs) {
 		this.PORT = port;
 		var listeners = createListener();
-		this.context = new ServerContext(port.toString(), listeners, configs);
+		var filters = createFilters();
+		this.context = new ServerContext(port.toString(), listeners, filters, configs);
 	}
 
 	@Override
@@ -57,14 +62,22 @@ public class Server implements Runnable {
 
 	}
 
+	private List<Filter> createFilters() {
+		var filters = new ArrayList<Filter>();
+		filters.add(new PacketIdFilter());
+		return filters;
+	}
+
 	private List<Listener<? extends Packet, ? extends Packet>> createListener() {
-		List<Listener<? extends Packet, ? extends Packet>> listeners = new ArrayList<>();
+		var listeners = new ArrayList<Listener<? extends Packet, ? extends Packet>>();
 		listeners.add(new CreateChatListener());
 		listeners.add(new GetMessagesListener());
 		listeners.add(new LoginListener());
 		listeners.add(new MessageListener());
 		listeners.add(new NodeSyncListener());
 		listeners.add(new KeyExchangeListener());
+		listeners.add(new BaseEntityBroadcastListener());
+		listeners.add(new ChatCreationListener());
 		return listeners;
 	}
 }

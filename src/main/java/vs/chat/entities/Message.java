@@ -3,19 +3,25 @@ package vs.chat.entities;
 import java.util.Date;
 import java.util.UUID;
 
-import vs.chat.packets.MessagePacket;
-import vs.chat.server.warehouse.Warehouseable;
+import vs.chat.server.warehouse.WarehouseResourceType;
 
-public class Message extends MessagePacket implements Comparable<Message>, Warehouseable {
+public class Message extends BaseEntity {
 
-	private final UUID id;
+	public UUID target;
+	public String content;
 	private final UUID origin;
 	private final Date receiveTime;
 
 	public Message(final UUID origin) {
-		this.id = UUID.randomUUID();
+		super(WarehouseResourceType.MESSAGES);
 		this.origin = origin;
 		this.receiveTime = new Date();
+	}
+
+	public Message(final UUID origin, final Date receiveTime) {
+		super(WarehouseResourceType.MESSAGES);
+		this.origin = origin;
+		this.receiveTime = receiveTime;
 	}
 
 	public String getContent() {
@@ -43,21 +49,13 @@ public class Message extends MessagePacket implements Comparable<Message>, Wareh
 	}
 
 	@Override
-	public UUID getId() {
-		return id;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return this.id.equals(obj);
-	}
-
-	@Override
-	public int compareTo(Message o) {
-		var compareResult = this.receiveTime.compareTo(o.getReceiveTime());
-		if (compareResult == 0)
-			compareResult = this.id.compareTo(o.id);
-		return compareResult;
+	public int compareTo(final BaseEntity obj) {
+		if (obj instanceof Message) {
+			var compareResult = this.receiveTime.compareTo(((Message) obj).getReceiveTime());
+			if (compareResult != 0)
+				return compareResult;
+		}
+		return super.compareTo(obj);
 	}
 
 }
