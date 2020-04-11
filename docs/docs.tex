@@ -87,4 +87,20 @@
         Code walkthrough + kommentieren
         Titlepage überarbeiten
 
+
+
+    \section{TEMP Codewalkthrough}
+    Entrypoint ist der Serverbootstrapper. Dieser erstellt einen neuen Thread mit einem neuen Server. Der Server erstellt die Listener, die die zu empfangenen Packete handeln werden. Anschließend werden die Filter erstellt, die bestimmen, ob ein Packet gehandelt oder ignoriert werden soll (z.B. bei recursiven Broadcasts). Die Listener und die Filter werden in einen ServerContext gepackt, der allen Threads geteilt wird.
+
+    Sobald der ServerContext instanziiert wird, wird das Warehouse geladen. Zunächst wird versucht die Safe-Datei zu laden, scheitert das Laden wird das Warehouse leer instanziiert. Das Warehouse hält sämtliche Daten, die persistiert werden müssen (Messages, Chats, Users und gehandelte PacketIds). Der ServerContext erstellt außerdem den Persister. Der Persister ist ein Thread, der in regelmaßigen Abständen das Warehouse speichert (müsste in einer section schon beschrieben sein). Außerdem wird der Broadcaster erstellt, der die Verbindungen zu anderen Nodes hält und Broadcast-Packete an diese verteilt. //TODO
+    Weitere Variablen sind isCloseRequested, die die "endlos" Schleifen aller Threads steuert und connections. Diese Liste hällt alle Connections zu Clients, die direkt zu dieser Node verbunden sind.
+
+    Der Nodebroadcaster erstellt bei instanziierung je node einen eigenen Thread, der sich um das senden und das neu verbinden kümmert.
+    Packete, die an eine Node gesendet werden soll werden sollen werden vom Broadcaster in die Queue geschrieben und die NodeConnection wird durch eine Semaphore aufgeweckt. Die NodeConnection versucht ein Packet zu senden. Scheitert das senden wird von einer Verbindungstrennung ausgegangen und die Verbindung wird neu verbunden.
+    Zusätzlich besitzt die NodeConnection jeweils einen HeartBeat-Thread. Dieser Thread sendet regelmäßig ein Packet um zu testen, ob die Verbindung noch steht.
+
+    Nachdem nun alle initialisierungs Vorgänge abgeschlossen sind, kann der ServerSocket erstellt werden und clients akzeptiert werden.
+    Der Hauptserver-Thread ist dabei nur zuständig neue Verbindungen entgegenzunehmen. Für jede Verbindung wird ein ConnectionHandler-Thread erstellt, der sämtliche Nachrichten des Clients verarbeitet. Der Handler versucht dabei ein Packet vom Client zu lesen. Die Filter prüfen nun, ob das Packet gehandelt werden darf und wenn ja werden die passenden Handler mit dem Packet aufgerufen und die Filter aktualisieren sich.
+
+
 \end{document}
