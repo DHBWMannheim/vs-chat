@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
-public class KeyEchangePacket extends Packet {
+public class KeyExchangePacket extends Packet {
 
 	public BigInteger content;
 	public int requests;
@@ -36,7 +36,7 @@ public class KeyEchangePacket extends Packet {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		KeyEchangePacket other = (KeyEchangePacket) obj;
+		KeyExchangePacket other = (KeyExchangePacket) obj;
 		if (content == null) {
 			if (other.content != null)
 				return false;
