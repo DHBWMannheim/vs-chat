@@ -8,7 +8,7 @@ import vs.chat.server.ConnectionHandler;
 import vs.chat.server.ServerContext;
 
 public class BaseEntityBroadcastListener implements Listener<BaseEntityBroadcastPacket, NoOpPacket> {
-	//TODO allow only other nodes?
+
 	@Override
 	public NoOpPacket next(final BaseEntityBroadcastPacket packet, final ServerContext context,
 			final ConnectionHandler handler) throws IOException {
