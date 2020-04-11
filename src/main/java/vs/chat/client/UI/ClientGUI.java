@@ -292,7 +292,6 @@ public class ClientGUI {
 
             int i = 0;
             for (Message message : chatMessages) {
-                message.setContent(message.content);
                 testPanel.add(displayNewMessage(message), i++);
                 System.out.println("Entered for in displayMessages: " + i);
             }

@@ -27,7 +27,7 @@ public class GetMessagesListener implements Listener<GetMessagesPacket, GetMessa
 			return null;
 
 		var messages = context.getWarehouse().get(WarehouseResourceType.MESSAGES).values().stream()
-				.map(m -> (Message) m).filter(m -> m.target.equals(chatId)).collect(Collectors.toSet());
+				.map(m -> (Message) m).filter(m -> m.getTarget().equals(chatId)).collect(Collectors.toSet());
 
 		var response = new GetMessagesResponsePacket();
 		response.chatId = chatId;
