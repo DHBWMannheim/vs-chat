@@ -81,16 +81,8 @@ public class ClientApiImpl implements ClientApi {
             this.contacts = loginSyncPacket.users;
 
             this.keyfile = new Keyfile(username);
-            try{
-                keyfile.load();
-            }catch (ClassNotFoundException | IOException e){
-                e.printStackTrace();
-            }
-            try {
-                keyfile.save();
-            }catch (IOException e1){
-                e1.printStackTrace();
-            }
+            keyfile.load();
+            keyfile.save();
             this.privateKey = generatePrivateKey();
             this.nextKey = this.g.modPow(this.privateKey, this.n);
             System.out.println(this.userId);
