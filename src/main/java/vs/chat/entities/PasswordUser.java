@@ -1,10 +1,12 @@
 package vs.chat.entities;
 
+import java.util.Objects;
+
 public class PasswordUser extends User {
 
+	private static final long serialVersionUID = -7555607643359893934L;
 	// private byte[] password;
-	private int password; // TODO prevent this from being send but send -> new dto for id and username for
-							// loginsync
+	private int password;
 
 	public PasswordUser() {
 		super();
@@ -43,5 +45,27 @@ public class PasswordUser extends User {
 		 */
 		return password.hashCode();
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(password);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PasswordUser other = (PasswordUser) obj;
+		return password == other.password;
+	}
+	
+	
 
 }

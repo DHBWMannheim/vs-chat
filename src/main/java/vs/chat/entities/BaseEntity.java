@@ -1,13 +1,14 @@
 package vs.chat.entities;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import vs.chat.server.warehouse.WarehouseResourceType;
 import vs.chat.server.warehouse.Warehouseable;
 
-//TODO filter like packet filter
 public abstract class BaseEntity implements Comparable<BaseEntity>, Warehouseable {
 
+	private static final long serialVersionUID = -7694834516790098602L;
 	private final UUID id;
 	private final WarehouseResourceType type;
 
@@ -22,8 +23,20 @@ public abstract class BaseEntity implements Comparable<BaseEntity>, Warehouseabl
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(id, type);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
-		return this.id.equals(obj);
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BaseEntity other = (BaseEntity) obj;
+		return Objects.equals(id, other.id) && type == other.type;
 	}
 
 	@Override
@@ -39,4 +52,6 @@ public abstract class BaseEntity implements Comparable<BaseEntity>, Warehouseabl
 	public int compareTo(final BaseEntity o) {
 		return this.id.compareTo(o.getId());
 	}
+	
+	
 }

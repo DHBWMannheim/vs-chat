@@ -1,7 +1,7 @@
 package vs.chat.server.warehouse;
 
 public enum WarehouseResourceType {
-	USERS("Users"), CHATS("Chats"), MESSAGES("Messages"), PACKETS("Packets");
+	USERS("Users"), CHATS("Chats"), MESSAGES("Messages");
 
 	public final String label;
 

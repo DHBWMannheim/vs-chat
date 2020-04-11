@@ -25,9 +25,10 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 		newMessage.setTarget(packet.target);
 		newMessage.setContent(packet.content);
 
-		System.out.println("found a new message with target " + newMessage.target);
+		System.out.println("found a new message with target " + newMessage.getTarget());
 
-		var correspondingChat = (Chat) context.getWarehouse().get(WarehouseResourceType.CHATS).get(newMessage.target);
+		var correspondingChat = (Chat) context.getWarehouse().get(WarehouseResourceType.CHATS)
+				.get(newMessage.getTarget());
 		if (correspondingChat == null) {
 			return null;
 		}

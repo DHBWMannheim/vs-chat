@@ -77,16 +77,8 @@ public class ClientApiImpl implements ClientApi {
             this.contacts = loginSyncPacket.users;
 
             this.keyfile = new Keyfile(username);
-            try{
-                keyfile.load();
-            }catch (ClassNotFoundException | IOException e){
-                e.printStackTrace();
-            }
-            try {
-                keyfile.save();
-            }catch (IOException e1){
-                e1.printStackTrace();
-            }
+            keyfile.load();
+            keyfile.save();
             this.privateKey = generatePrivateKey();
             this.nextKey = this.g.modPow(this.privateKey, this.n);
             System.out.println(this.userId);
@@ -141,7 +133,7 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void exchangeKeys(String chatName, List<UUID> userIds, OnTimeout onTimeout) throws IOException, InterruptedException {
-        KeyEchangePacket keyEchangePacket = new KeyEchangePacket();
+        KeyExchangePacket keyEchangePacket = new KeyExchangePacket();
 
         userIds.add(0, this.userId);
 
@@ -164,7 +156,7 @@ public class ClientApiImpl implements ClientApi {
         }
     }
 
-    public void createChat(String chatName, List<UUID> userIds) throws IOException {
+    private void createChat(String chatName, List<UUID> userIds) throws IOException {
         UUID[] chatUsers = new UUID[userIds.size()];
         chatUsers = userIds.toArray(chatUsers);
 
@@ -297,9 +289,9 @@ public class ClientApiImpl implements ClientApi {
                                 onMessage.run(d);
                             }
 
-                        } else if (packet instanceof KeyEchangePacket) {
+                        } else if (packet instanceof KeyExchangePacket) {
 
-                            KeyEchangePacket keyEchangePacket = (KeyEchangePacket) packet;
+                            KeyExchangePacket keyEchangePacket = (KeyExchangePacket) packet;
                             List<UUID> participants = keyEchangePacket.getParticipants();
 
                             int currentRequests = keyEchangePacket.getRequests();
@@ -320,7 +312,7 @@ public class ClientApiImpl implements ClientApi {
                             // check if package has to be forwarded
                             if (currentRequests < targetRequests) {
                                 // forwards package to next participant
-                                KeyEchangePacket newExchangePacket = new KeyEchangePacket();
+                                KeyExchangePacket newExchangePacket = new KeyExchangePacket();
                                 newExchangePacket.setTarget(participants.get((userIndex + 1) % participants.size()));
                                 newExchangePacket.setContent(nextKey);
                                 newExchangePacket.setRequests(keyEchangePacket.getRequests() + 1);

@@ -35,9 +35,6 @@ public interface ClientApi {
     // exchange key between clients
     void exchangeKeys(String chatName, List<UUID> userIds, OnTimeout onTimeout) throws IOException, InterruptedException;
 
-    // create chats with chat name and contacts (userIds)
-    void createChat(String chatName, final List<UUID> userIds) throws IOException, ClassNotFoundException;
-
     // send chat message to user
     void sendMessage(String message, UUID chatId) throws IOException;
 
