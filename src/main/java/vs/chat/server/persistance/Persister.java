@@ -25,7 +25,6 @@ public class Persister extends Thread {
 				System.out.println("Save completed :)");
 				Thread.sleep(SAVE_INTERVAL);
 			} catch (IOException | InterruptedException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}

@@ -22,8 +22,8 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 		}
 
 		Message newMessage = new Message(handler.getConnectedToUserId().get());
-		newMessage.setTarget(packet.target);
-		newMessage.setContent(packet.content);
+		newMessage.setTarget(packet.getTarget());
+		newMessage.setContent(packet.getContent());
 
 		System.out.println("found a new message with target " + newMessage.getTarget());
 
@@ -34,8 +34,7 @@ public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
 		}
 		context.getWarehouse().get(WarehouseResourceType.MESSAGES).put(newMessage.getId(), newMessage);
 
-		var broadcastPacket = new BaseEntityBroadcastPacket();
-		broadcastPacket.baseEntity = newMessage;
+		var broadcastPacket = new BaseEntityBroadcastPacket(newMessage);
 		for (var user : correspondingChat.getUsers()) {
 			var localConnection = context.getConnectionForUserId(user);
 			if (localConnection.isPresent()) {

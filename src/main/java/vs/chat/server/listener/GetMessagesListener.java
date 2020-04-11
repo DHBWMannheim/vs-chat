@@ -21,7 +21,7 @@ public class GetMessagesListener implements Listener<GetMessagesPacket, GetMessa
 		if (currentUser.isEmpty())
 			return null;
 
-		var chatId = packet.chatId;
+		var chatId = packet.getChatId();
 		var chat = (Chat) context.getWarehouse().get(WarehouseResourceType.CHATS).get(chatId);
 		if (!chat.getUsers().contains(currentUser.get()))
 			return null;
@@ -29,10 +29,7 @@ public class GetMessagesListener implements Listener<GetMessagesPacket, GetMessa
 		var messages = context.getWarehouse().get(WarehouseResourceType.MESSAGES).values().stream()
 				.map(m -> (Message) m).filter(m -> m.getTarget().equals(chatId)).collect(Collectors.toSet());
 
-		var response = new GetMessagesResponsePacket();
-		response.chatId = chatId;
-		response.messages = messages;
-		return response;
+		return new GetMessagesResponsePacket(chatId, messages);
 	}
 
 }

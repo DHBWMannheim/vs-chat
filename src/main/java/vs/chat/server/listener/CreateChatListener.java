@@ -21,18 +21,19 @@ public class CreateChatListener implements Listener<CreateChatPacket, BaseEntity
 			return null;
 
 		packet.getUsers().add(currentUser.get());
+		
+		var knownUsers = context.getWarehouse().get(WarehouseResourceType.USERS);
+		var filteredUsers = packet.getUsers().stream().filter(u -> knownUsers.containsKey(u)).toArray(UUID[]::new);
+		
 
-		UUID[] myArray = new UUID[packet.getUsers().size()];
-		packet.getUsers().toArray(myArray);
-		Chat newChat = new Chat(packet.getName(), myArray);
+		Chat newChat = new Chat(packet.getName(), filteredUsers);
 
 		context.getWarehouse().get(WarehouseResourceType.CHATS).put(newChat.getId(), newChat);
 
-		var broadcastPacket = new BaseEntityBroadcastPacket();
-		broadcastPacket.baseEntity = newChat;
+		var broadcastPacket = new BaseEntityBroadcastPacket(newChat);
 		context.getBroadcaster().send(broadcastPacket);
 		
-		for(var user: packet.getUsers()) {
+		for(var user: filteredUsers) {
 			var localConnection = context.getConnectionForUserId(user);
 			if (localConnection.isPresent()) {
 				localConnection.get().pushTo(broadcastPacket);

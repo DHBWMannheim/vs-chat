@@ -23,9 +23,9 @@ public class LoginListener implements Listener<LoginPacket, Packet> {
 		System.out.println("Invoked LoginListener");
 
 		var res = context.getWarehouse().get(WarehouseResourceType.USERS).values().stream()
-				.filter(u -> ((PasswordUser) u).getUsername().equals(packet.username)).findFirst();
+				.filter(u -> ((PasswordUser) u).getUsername().equals(packet.getUsername())).findFirst();
 		if (res.isPresent()) {
-			if (!((PasswordUser) res.get()).hasPassword(packet.password)) {
+			if (!((PasswordUser) res.get()).hasPassword(packet.getPassword())) {
 				return new NoOpPacket();
 			} else {
 				var id = res.get().getId();
@@ -36,29 +36,26 @@ public class LoginListener implements Listener<LoginPacket, Packet> {
 			System.out.println("writing new user");
 			var user = new PasswordUser();
 			var id = user.getId();
-			user.setUsername(packet.username);
-			user.setPassword(packet.password);
+			user.setUsername(packet.getUsername());
+			user.setPassword(packet.getPassword());
 
 			context.getWarehouse().get(WarehouseResourceType.USERS).put(id, user);
 			System.out.println("created user with id:" + id);
-			
-			var broadcastPacket = new BaseEntityBroadcastPacket();
-			broadcastPacket.baseEntity = user;
-			
+
+			var broadcastPacket = new BaseEntityBroadcastPacket(user);
+
 			context.getBroadcaster().send(broadcastPacket);
 			handler.setConnectedToUserId(id);
 		}
-		var syncPacket = new LoginSyncPacket();
-		syncPacket.userId = handler.getConnectedToUserId().get();
-		syncPacket.chats = context.getWarehouse().get(WarehouseResourceType.CHATS).values().stream()
-				.map(chat -> (Chat) chat).filter(chat -> chat.getUsers().contains(syncPacket.userId))
+
+		var chats = context.getWarehouse().get(WarehouseResourceType.CHATS).values().stream().map(chat -> (Chat) chat)
+				.filter(chat -> chat.getUsers().contains(handler.getConnectedToUserId().get()))
 				.collect(Collectors.toSet());
-		syncPacket.users = context.getWarehouse().get(WarehouseResourceType.USERS).values().stream().map(user -> {
+		var users = context.getWarehouse().get(WarehouseResourceType.USERS).values().stream().map(user -> {
 			var u = (PasswordUser) user;
 			return new User(u.getId(), u.getUsername());
 		}).collect(Collectors.toSet());
-
-		return syncPacket;
+		return new LoginSyncPacket(handler.getConnectedToUserId().get(), chats, users);
 	}
 
 }
