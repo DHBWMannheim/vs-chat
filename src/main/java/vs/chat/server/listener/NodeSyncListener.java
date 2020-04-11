@@ -9,7 +9,7 @@ import vs.chat.server.ServerContext;
 import vs.chat.server.warehouse.WarehouseResourceType;
 
 public class NodeSyncListener implements Listener<NodeSyncPacket, NoOpPacket> {
-
+	//TODO allow this only from other nodes?
 	@Override
 	public NoOpPacket next(final NodeSyncPacket packet, final ServerContext context, final ConnectionHandler handler)
 			throws IOException {

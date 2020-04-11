@@ -145,7 +145,7 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void exchangeKeys(String chatName, List<UUID> userIds) throws IOException {
-        KeyEchangePacket keyEchangePacket = new KeyEchangePacket();
+        KeyExchangePacket keyEchangePacket = new KeyExchangePacket();
 
         userIds.add(0, this.userId);
 
@@ -292,9 +292,9 @@ public class ClientApiImpl implements ClientApi {
                                 onMessage.run(d);
                             }
 
-                        } else if (packet instanceof KeyEchangePacket) {
+                        } else if (packet instanceof KeyExchangePacket) {
 
-                            KeyEchangePacket keyEchangePacket = (KeyEchangePacket) packet;
+                            KeyExchangePacket keyEchangePacket = (KeyExchangePacket) packet;
                             List<UUID> participants = keyEchangePacket.getParticipants();
 
                             int currentRequests = keyEchangePacket.getRequests();
@@ -315,7 +315,7 @@ public class ClientApiImpl implements ClientApi {
                             // check if package has to be forwarded
                             if (currentRequests < targetRequests) {
                                 // forwards package to next participant
-                                KeyEchangePacket newExchangePacket = new KeyEchangePacket();
+                                KeyExchangePacket newExchangePacket = new KeyExchangePacket();
                                 newExchangePacket.setTarget(participants.get((userIndex + 1) % participants.size()));
                                 newExchangePacket.setContent(nextKey);
                                 newExchangePacket.setRequests(keyEchangePacket.getRequests() + 1);
