@@ -9,17 +9,13 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 import vs.chat.packets.*;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -33,8 +29,6 @@ public class ClientApiImpl implements ClientApi {
     private ObjectInputStream networkIn;
     private BufferedReader userIn;
 
-    private static SecretKeySpec secretKey;
-
     private UUID userId;
     private Set<Chat> chats;
     private Set<User> contacts;
@@ -45,6 +39,8 @@ public class ClientApiImpl implements ClientApi {
     private BigInteger privateKey;
     private BigInteger nextKey;
     private Keyfile keyfile;
+
+    private boolean creatingChat = false;
 
     private static int KEY_BYTE_LENGTH = 16;
 
@@ -144,7 +140,7 @@ public class ClientApiImpl implements ClientApi {
         return null;
     }
 
-    public void exchangeKeys(String chatName, List<UUID> userIds) throws IOException {
+    public void exchangeKeys(String chatName, List<UUID> userIds, OnTimeout onTimeout) throws IOException, InterruptedException {
         KeyEchangePacket keyEchangePacket = new KeyEchangePacket();
 
         userIds.add(0, this.userId);
@@ -158,6 +154,14 @@ public class ClientApiImpl implements ClientApi {
 
         this.networkOut.writeObject(keyEchangePacket);
         this.networkOut.flush();
+        this.creatingChat = true;
+
+        Thread.sleep(5000);
+
+        if (this.creatingChat) {
+            this.creatingChat = false;
+            onTimeout.run();
+        }
     }
 
     public void createChat(String chatName, List<UUID> userIds) throws IOException {
@@ -274,6 +278,7 @@ public class ClientApiImpl implements ClientApi {
                             BaseEntityBroadcastPacket base = (BaseEntityBroadcastPacket) packet;
 
                             if (base.baseEntity instanceof Chat) {
+                                creatingChat = false;
                                 Chat newChat = (Chat) base.baseEntity;
 
                                 addKey(newChat.getId(), nextKey);
