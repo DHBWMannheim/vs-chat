@@ -92,6 +92,14 @@
     \section{TEMP Codewalkthrough}
     Entrypoint ist der Serverbootstrapper. Dieser erstellt einen neuen Thread mit einem neuen Server. Der Server erstellt die Listener, die die zu empfangenen Packete handeln werden. Anschließend werden die Filter erstellt, die bestimmen, ob ein Packet gehandelt oder ignoriert werden soll (z.B. bei recursiven Broadcasts). Die Listener und die Filter werden in einen ServerContext gepackt, der allen Threads geteilt wird.
 
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{VS-Server-Context.png}
+        
+        \caption{Server-Context Aufbau}
+        \label{}
+    \end{figure}
+
     Sobald der ServerContext instanziiert wird, wird das Warehouse geladen. Zunächst wird versucht die Safe-Datei zu laden, scheitert das Laden wird das Warehouse leer instanziiert. Das Warehouse hält sämtliche Daten, die persistiert werden müssen (Messages, Chats, Users und gehandelte PacketIds). Der ServerContext erstellt außerdem den Persister. Der Persister ist ein Thread, der in regelmaßigen Abständen das Warehouse speichert (müsste in einer section schon beschrieben sein). Außerdem wird der Broadcaster erstellt, der die Verbindungen zu anderen Nodes hält und Broadcast-Packete an diese verteilt.
     Weitere Variablen sind isCloseRequested, die die "endlos" Schleifen aller Threads steuert und connections. Diese Liste hällt alle Connections zu Clients, die direkt zu dieser Node verbunden sind.
 
