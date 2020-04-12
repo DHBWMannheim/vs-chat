@@ -408,6 +408,7 @@ public class ClientGUI {
         frame.setLayout(new BorderLayout());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setMinimumSize(new Dimension(400, 600));
+        frame.setMaximumSize(new Dimension(400, 700));
         frame.setVisible(true);
         frame.setResizable(false);
         frame.pack();
@@ -455,6 +456,8 @@ public class ClientGUI {
         rootPanel.getContentPane().add(header(currentChat), BorderLayout.NORTH);
 
         JPanel messagePanel = new JPanel(new GridLayout(0, 1));
+        JPanel[] messagePanels = new JPanel[messages.size()];
+        int i = 0;
 
         for (Message message : messages) {
             JPanel messageContentPanel = new JPanel();
@@ -467,13 +470,37 @@ public class ClientGUI {
                 messageContentPanel.setBorder(BorderFactory.createEtchedBorder());
                 messageContentPanel.setBackground(new Color(120, 120, 120));
             }
-            messagePanel.add(messageContentPanel);
+            messageContentPanel.setPreferredSize(new Dimension(300,40));
+            messageContentPanel.setMinimumSize(new Dimension(300, 20));
+            messagePanels[i++] = messageContentPanel;
         }
-        JPanel helpPanel = new JPanel(new BorderLayout());
-        helpPanel.setPreferredSize(new Dimension(300,300));
-        helpPanel.add(new JScrollPane(messagePanel), BorderLayout.CENTER);
 
-        rootPanel.add(helpPanel, BorderLayout.CENTER);
+        JPanel JChatBox = new JPanel();
+        JChatBox.setLayout(new BoxLayout(JChatBox, BoxLayout.Y_AXIS));
+
+        Dimension defDim = new Dimension(300,600);
+
+        for(int j = 0;j < messagePanels.length;j++){
+            JChatBox.add(messagePanels[j]);
+        }
+
+        JScrollPane JChatPane = new JScrollPane(JChatBox);
+
+        JScrollBar jScrollBar = new JScrollBar();
+
+        JChatPane.setVerticalScrollBar(jScrollBar);
+
+        JChatPane.setMaximumSize(defDim);
+        JChatPane.setMinimumSize(defDim);
+        JChatPane.setPreferredSize(defDim);
+        JChatPane.setSize(defDim);
+        JChatPane.revalidate();
+
+        //JPanel helpPanel = new JPanel(new BorderLayout());
+        // helpPanel.setPreferredSize(new Dimension(300,300));
+        // helpPanel.add(new JScrollPane(messagePanel), BorderLayout.CENTER);
+
+        rootPanel.add(JChatPane, BorderLayout.CENTER);
         rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
         rootPanel.pack();
     }
