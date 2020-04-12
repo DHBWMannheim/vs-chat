@@ -455,6 +455,7 @@ public class ClientGUI {
         rootPanel.getContentPane().add(header(currentChat), BorderLayout.NORTH);
 
         JPanel messagePanel = new JPanel(new GridLayout(0, 1));
+
         for (Message message : messages) {
             JPanel messageContentPanel = new JPanel();
             messageContentPanel.setLayout(new BorderLayout());
@@ -468,13 +469,11 @@ public class ClientGUI {
             }
             messagePanel.add(messageContentPanel);
         }
+        JPanel helpPanel = new JPanel(new BorderLayout());
+        helpPanel.setPreferredSize(new Dimension(300,300));
+        helpPanel.add(new JScrollPane(messagePanel), BorderLayout.CENTER);
 
-        JScrollPane chatJScrollPane = new JScrollPane(messagePanel);
-        chatJScrollPane.setLayout(new ScrollPaneLayout());
-        chatJScrollPane.setVerticalScrollBar(new JScrollBar());
-
-
-        rootPanel.add(chatJScrollPane, BorderLayout.CENTER);
+        rootPanel.add(helpPanel, BorderLayout.CENTER);
         rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
         rootPanel.pack();
     }
