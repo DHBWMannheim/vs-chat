@@ -28,331 +28,336 @@ import java.util.stream.Collectors;
 
 public class ClientApiImpl implements ClientApi {
 
-	private Socket socket;
-	private ObjectOutputStream networkOut;
-	private ObjectInputStream networkIn;
-	private BufferedReader userIn;
+    private Socket socket;
+    private ObjectOutputStream networkOut;
+    private ObjectInputStream networkIn;
+    private BufferedReader userIn;
 
-	private static SecretKeySpec secretKey;
+    private static SecretKeySpec secretKey;
 
-	private UUID userId;
-	private Set<Chat> chats;
-	private Set<User> contacts;
+    private UUID userId;
+    private Set<Chat> chats;
+    private Set<User> contacts;
 
-	// 128 bit key generators
-	private BigInteger n = new BigInteger("238537765838013785000593286225584128587");
-	private BigInteger g = new BigInteger("4176946703");
-	private BigInteger privateKey;
-	private BigInteger nextKey;
-	private Keyfile keyfile;
+    // 128 bit key generators
+    private BigInteger n = new BigInteger("238537765838013785000593286225584128587");
+    private BigInteger g = new BigInteger("4176946703");
+    private BigInteger privateKey;
+    private BigInteger nextKey;
+    private Keyfile keyfile;
 
-	private static int KEY_BYTE_LENGTH = 16;
+    private static int KEY_BYTE_LENGTH = 16;
 
-	ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn, BufferedReader userIn) {
-		this.networkOut = networkOut;
-		this.networkIn = networkIn;
-		this.socket = socket;
-		this.userIn = userIn;
-	}
+    ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn, BufferedReader userIn) {
+        this.networkOut = networkOut;
+        this.networkIn = networkIn;
+        this.socket = socket;
+        this.userIn = userIn;
+    }
 
-	public BufferedReader getUserIn() {
-		return this.userIn;
-	}
+    public BufferedReader getUserIn() {
+        return this.userIn;
+    }
 
-	public void login(String username, String password) throws LoginException {
-		try {
-			LoginPacket loginPacket = new LoginPacket(username, password);
+    public void login(String username, String password) throws LoginException {
+        try {
+            LoginPacket loginPacket = new LoginPacket(username, password);
 
-			this.networkOut.writeObject(loginPacket);
-			this.networkOut.flush();
+            this.networkOut.writeObject(loginPacket);
+            this.networkOut.flush();
 
-			Object response = this.networkIn.readObject();
+            Object response = this.networkIn.readObject();
 
-			if (response instanceof NoOpPacket) {
-				throw new LoginException();
-			}
+            if (response instanceof NoOpPacket) {
+                throw new LoginException();
+            }
 
-			LoginSyncPacket loginSyncPacket = (LoginSyncPacket) response;
+            LoginSyncPacket loginSyncPacket = (LoginSyncPacket)response;
 
-			this.userId = loginSyncPacket.userId;
-			this.chats = loginSyncPacket.chats;
-			this.contacts = loginSyncPacket.users;
+            this.userId = loginSyncPacket.userId;
+            this.chats = loginSyncPacket.chats;
+            this.contacts = loginSyncPacket.users;
 
-			this.keyfile = new Keyfile(username);
-			try {
-				keyfile.load();
-			} catch (ClassNotFoundException | IOException e) {
-				e.printStackTrace();
-			}
-			try {
-				keyfile.save();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			this.privateKey = generatePrivateKey();
-			this.nextKey = this.g.modPow(this.privateKey, this.n);
-			System.out.println(this.userId);
-			System.out.println("\nGenerated private key: " + this.privateKey);
+            this.keyfile = new Keyfile(username);
+            keyfile.load();
+            keyfile.save();
+            this.privateKey = generatePrivateKey();
+            this.nextKey = this.g.modPow(this.privateKey, this.n);
+            System.out.println(this.userId);
+            System.out.println("\nGenerated private key: " + this.privateKey);
 
-		} catch (IOException | ClassNotFoundException e) {
-			throw new LoginException();
-		}
-	}
+        } catch (IOException | ClassNotFoundException e) {
+            throw new LoginException();
+        }
+    }
 
-	public UUID getUserId() {
-		return this.userId;
-	}
+    public UUID getUserId() {
+        return this.userId;
+    }
 
-	public Set<Chat> getChats() {
-		return this.chats;
-	}
+    public Set<Chat> getChats() {
+        return this.chats;
+    }
 
-	private BigInteger generatePrivateKey() {
-		SecureRandom random = new SecureRandom();
-		byte[] bytes = new byte[KEY_BYTE_LENGTH];
-		random.nextBytes(bytes);
+    private BigInteger generatePrivateKey() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[KEY_BYTE_LENGTH];
+        random.nextBytes(bytes);
 
-		return BigInteger.valueOf(ByteBuffer.wrap(bytes).getLong()).abs();
-	}
+        return BigInteger.valueOf(ByteBuffer.wrap(bytes).getLong()).abs();
+    }
 
-	public void getChatMessages(UUID chatId) throws IOException {
-		GetMessagesPacket getMessagesPacket = new GetMessagesPacket(chatId);
+    public void getChatMessages(UUID chatId) throws IOException {
+        GetMessagesPacket getMessagesPacket = new GetMessagesPacket(chatId);
 
-		this.networkOut.writeObject(getMessagesPacket);
-		this.networkOut.flush();
-	}
+        this.networkOut.writeObject(getMessagesPacket);
+        this.networkOut.flush();
+    }
 
-	public Set<User> getContacts() {
-		return this.contacts.stream().filter(c -> c.getId() != this.userId).collect(Collectors.toSet());
-	}
+    public Set<User> getContacts() {
+        return this.contacts
+                .stream()
+                .filter(c -> c.getId() != this.userId)
+                .collect(Collectors.toSet());
+    }
 
-	public String getUsernameFromId(UUID id) {
-		User user = this.contacts.stream().filter(c -> c.getId().equals(id)).findAny().orElse(null);
+    public String getUsernameFromId(UUID id) {
+        User user = this.contacts.stream()
+                        .filter(c -> c.getId().equals(id))
+                        .findAny()
+                        .orElse(null);
 
-		if (user != null) {
-			return user.getUsername();
-		}
-		return null;
-	}
+        if (user != null) {
+            return user.getUsername();
+        }
+        return null;
+    }
 
-	public void exchangeKeys(String chatName, List<UUID> userIds) throws IOException {
-		userIds.add(0, this.userId);
-		KeyExchangePacket keyEchangePacket = new KeyExchangePacket(this.nextKey, 1, this.userId, userIds, chatName,
-				userIds.get(1));
+    public void exchangeKeys(String chatName, List<UUID> userIds) throws IOException {
+    	userIds.add(0, this.userId);
+        KeyExchangePacket keyEchangePacket = new KeyExchangePacket(
+        		this.nextKey,
+        		1,
+        		this.userId,
+        		userIds,
+        		chatName,
+        		userIds.get(1));
 
-		this.networkOut.writeObject(keyEchangePacket);
-		this.networkOut.flush();
-	}
+        this.networkOut.writeObject(keyEchangePacket);
+        this.networkOut.flush();
+    }
 
-	private void createChat(String chatName, List<UUID> userIds) throws IOException {
-		UUID[] chatUsers = new UUID[userIds.size()];
-		chatUsers = userIds.toArray(chatUsers);
+    private void createChat(String chatName, List<UUID> userIds) throws IOException {
+        UUID[] chatUsers = new UUID[userIds.size()];
+        chatUsers = userIds.toArray(chatUsers);
 
-		CreateChatPacket createChatPacket = new CreateChatPacket(chatName, chatUsers);
-		this.networkOut.writeObject(createChatPacket);
-		this.networkOut.flush();
-	}
+        CreateChatPacket createChatPacket = new CreateChatPacket(chatName, chatUsers);
+        this.networkOut.writeObject(createChatPacket);
+        this.networkOut.flush();
+    }
 
-	public void sendMessage(String message, UUID chatId) throws IOException {
-		String chatKey = loadKey(chatId).toString();
-		MessagePacket messagePacket = new MessagePacket(chatId, encryptAES(chatKey, message));
+    public void sendMessage(String message, UUID chatId) throws IOException {
+    	String chatKey = loadKey(chatId).toString();
+        MessagePacket messagePacket = new MessagePacket(chatId, encryptAES(chatKey, message));
 
-		this.networkOut.writeObject(messagePacket);
-		this.networkOut.flush();
-	}
+        this.networkOut.writeObject(messagePacket);
+        this.networkOut.flush();
+    }
 
-	public String encryptAES(String key, String message) {
-		try {
-			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-			cipher.init(Cipher.ENCRYPT_MODE, setKey(key));
-			return Base64.getEncoder().encodeToString(cipher.doFinal(message.getBytes(StandardCharsets.UTF_8)));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+    public String encryptAES(String key, String message) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, setKey(key));
+            return Base64.getEncoder().encodeToString(cipher.doFinal(message.getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-	public String decryptAES(String key, String ciffre) {
-		try {
-			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
-			cipher.init(Cipher.DECRYPT_MODE, setKey(key));
-			return new String(cipher.doFinal(Base64.getDecoder().decode(ciffre.getBytes(StandardCharsets.UTF_8))));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+    public String decryptAES(String key, String ciffre) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, setKey(key));
+            return new String(cipher.doFinal(Base64.getDecoder().decode(ciffre.getBytes(StandardCharsets.UTF_8))));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-	// Formatting key to SerectKeySpec
-	public SecretKeySpec setKey(String myKey) {
-		MessageDigest sha;
-		byte[] key;
-		try {
-			key = myKey.getBytes(StandardCharsets.UTF_8);
-			sha = MessageDigest.getInstance("SHA-256");
-			key = sha.digest(key);
-			key = Arrays.copyOf(key, KEY_BYTE_LENGTH);
-			return new SecretKeySpec(key, "AES");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+    //Formatting key to SerectKeySpec
+    public SecretKeySpec setKey(String myKey) {
+        MessageDigest sha;
+        byte[] key;
+        try {
+            key = myKey.getBytes(StandardCharsets.UTF_8);
+            sha = MessageDigest.getInstance("SHA-256");
+            key = sha.digest(key);
+            key = Arrays.copyOf(key, KEY_BYTE_LENGTH);
+            return new SecretKeySpec(key, "AES");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-	public void addKey(UUID chatId, BigInteger key) {
-		var pKEntry = new PrivateKeyEntity(chatId, key);
-		this.keyfile.get(KeyfileResourceType.PRIVATEKEY).put(chatId, pKEntry);
-		try {
-			keyfile.save();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	}
+    public void addKey(UUID chatId, BigInteger key) {
+        var pKEntry = new PrivateKeyEntity(chatId, key);
+        this.keyfile.get(KeyfileResourceType.PRIVATEKEY).put(chatId, pKEntry);
+        try {
+            keyfile.save();
+        } catch (IOException e1){
+            e1.printStackTrace();
+        }
+    }
 
-	public BigInteger loadKey(UUID chatId) {
-		var res = keyfile.get(KeyfileResourceType.PRIVATEKEY).values().stream()
-				.filter(u -> ((PrivateKeyEntity) u).equals(chatId)).findFirst();
-		if (res.isPresent()) {
-			PrivateKeyEntity pke = (PrivateKeyEntity) keyfile.get(KeyfileResourceType.PRIVATEKEY).get(chatId);
-			try {
-				keyfile.save();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			return pke.getPrivateKey();
-		}
-		try {
-			keyfile.save();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		return null;
-	}
+    public BigInteger loadKey(UUID chatId) {
+        var res = keyfile.get(KeyfileResourceType.PRIVATEKEY).values().stream()
+                .filter(u -> ((PrivateKeyEntity) u).equals(chatId)).findFirst();
+        if (res.isPresent()) {
+            PrivateKeyEntity pke = (PrivateKeyEntity) keyfile.get(KeyfileResourceType.PRIVATEKEY).get(chatId);
+            try {
+                keyfile.save();
+            } catch (IOException e1){
+                e1.printStackTrace();
+            }
+            return pke.getPrivateKey();
+        }
+        try {
+            keyfile.save();
+        } catch (IOException e1){
+            e1.printStackTrace();
+        }
+        return null;
+    }
 
-	public void deleteKey(UUID chatId) {
-		keyfile.get(KeyfileResourceType.PRIVATEKEY).remove(chatId);
-		try {
-			keyfile.save();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	}
+    public void deleteKey(UUID chatId) {
+        keyfile.get(KeyfileResourceType.PRIVATEKEY).remove(chatId);
+        try {
+            keyfile.save();
+        }catch (IOException e1){
+            e1.printStackTrace();
+        }
+    }
 
-	public void exit() throws IOException {
-		LogoutPacket logoutPacket = new LogoutPacket();
-		this.networkOut.writeObject(logoutPacket);
-		this.networkOut.flush();
-	}
+    public void exit() throws IOException {
+        LogoutPacket logoutPacket = new LogoutPacket();
+        this.networkOut.writeObject(logoutPacket);
+        this.networkOut.flush();
+    }
 
-	public void startPacketListener(OnCreateChat onCreateChat, OnGetChatMessages onChatMessages, OnMessage onMessage) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						Object packet = networkIn.readObject();
+    public void startPacketListener(OnCreateChat onCreateChat, OnGetChatMessages onChatMessages, OnMessage onMessage) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Object packet = networkIn.readObject();
 
-						if (packet instanceof BaseEntityBroadcastPacket) {
-							BaseEntityBroadcastPacket base = (BaseEntityBroadcastPacket) packet;
+                        if (packet instanceof BaseEntityBroadcastPacket) {
+                            BaseEntityBroadcastPacket base = (BaseEntityBroadcastPacket) packet;
 
-							if (base.getBaseEntity() instanceof Chat) {
-								Chat newChat = (Chat) base.getBaseEntity();
+                            if (base.getBaseEntity() instanceof Chat) {
+                                Chat newChat = (Chat) base.getBaseEntity();
 
-								addKey(newChat.getId(), nextKey);
+                                addKey(newChat.getId(), nextKey);
 
-								chats.add(newChat);
-								onCreateChat.run(newChat);
-							} else if (base.getBaseEntity() instanceof Message) {
-								Message m = (Message) base.getBaseEntity();
+                                chats.add(newChat);
+                                onCreateChat.run(newChat);
+                            } else if (base.getBaseEntity() instanceof Message) {
+                                Message m = (Message) base.getBaseEntity();
 
-								Message d = new Message(m.getOrigin(), m.getReceiveTime());
-								d.setTarget(m.getTarget());
+                                Message d = new Message(m.getOrigin(), m.getReceiveTime());
+                                d.setTarget(m.getTarget());
 
-								String chatKey = loadKey(m.getTarget()).toString();
-								d.setContent(decryptAES(chatKey, m.getContent()));
+                                String chatKey = loadKey(m.getTarget()).toString();
+                                d.setContent(decryptAES(chatKey, m.getContent()));
 
-								onMessage.run(d);
-							}
+                                onMessage.run(d);
+                            }
 
-						} else if (packet instanceof KeyExchangePacket) {
+                        } else if (packet instanceof KeyExchangePacket) {
 
-							KeyExchangePacket keyEchangePacket = (KeyExchangePacket) packet;
-							List<UUID> participants = keyEchangePacket.getParticipants();
+                            KeyExchangePacket keyEchangePacket = (KeyExchangePacket) packet;
+                            List<UUID> participants = keyEchangePacket.getParticipants();
 
-							int currentRequests = keyEchangePacket.getRequests();
-							BigInteger currentContent = keyEchangePacket.getContent();
-							int targetRequests = participants.size() * (participants.size() - 1);
-							int userIndex = participants.indexOf(userId);
+                            int currentRequests = keyEchangePacket.getRequests();
+                            BigInteger currentContent = keyEchangePacket.getContent();
+                            int targetRequests = participants.size() * (participants.size() - 1);
+                            int userIndex = participants.indexOf(userId);
 
-							int rounds = currentRequests / participants.size();
+                            int rounds = currentRequests / participants.size();
 
-							if (keyEchangePacket.getInitiator().equals(userId)) {
-								nextKey = currentContent.modPow(privateKey, n);
-							} else {
-								rounds++;
-							}
+                            if (keyEchangePacket.getInitiator().equals(userId)) {
+                                nextKey = currentContent.modPow(privateKey, n);
+                            } else {
+                                rounds++;
+                            }
 
-							System.out.println("\n-> Exchanging keys round " + rounds);
+                            System.out.println("\n-> Exchanging keys round " + rounds);
 
-							// check if package has to be forwarded
-							if (currentRequests < targetRequests) {
-								// forwards package to next participant
-								KeyExchangePacket newExchangePacket = new KeyExchangePacket(nextKey,
-										keyEchangePacket.getRequests() + 1, keyEchangePacket.getInitiator(),
-										keyEchangePacket.getParticipants(), keyEchangePacket.getChatName(),
-										participants.get((userIndex + 1) % participants.size()));
+                            // check if package has to be forwarded
+                            if (currentRequests < targetRequests) {
+                                // forwards package to next participant
+                                KeyExchangePacket newExchangePacket = new KeyExchangePacket(
+                                		nextKey,
+                                		keyEchangePacket.getRequests() + 1,
+                                		keyEchangePacket.getInitiator(),
+                                		keyEchangePacket.getParticipants(),
+                                		keyEchangePacket.getChatName(),
+                                		participants.get((userIndex + 1) % participants.size()));
+                                networkOut.writeObject(newExchangePacket);
+                                networkOut.flush();
+                            }
 
-								networkOut.writeObject(newExchangePacket);
-								networkOut.flush();
-							}
+                            nextKey = currentContent.modPow(privateKey, n);
 
-							nextKey = currentContent.modPow(privateKey, n);
+                            // check if participant has finished key exchange
+                            if (keyEchangePacket.getInitiator().equals(userId)) {
+                                if (currentRequests == (targetRequests - userIndex)) {
+                                    System.out.println(getUsernameFromId(userId) + " -> " + nextKey);
+                                    participants.remove(0);
+                                    createChat(keyEchangePacket.getChatName(), participants);
+                                }
+                            } else if (currentRequests == (targetRequests - (participants.size() - userIndex))) {
+                                System.out.println(getUsernameFromId(userId) + " -> " + nextKey);
+                            }
 
-							// check if participant has finished key exchange
-							if (keyEchangePacket.getInitiator().equals(userId)) {
-								if (currentRequests == (targetRequests - userIndex)) {
-									System.out.println(getUsernameFromId(userId) + " -> " + nextKey);
-									participants.remove(0);
-									createChat(keyEchangePacket.getChatName(), participants);
-								}
-							} else if (currentRequests == (targetRequests - (participants.size() - userIndex))) {
-								System.out.println(getUsernameFromId(userId) + " -> " + nextKey);
-							}
+                        } else if (packet instanceof GetMessagesResponsePacket) {
+                            Set<Message> messages = ((GetMessagesResponsePacket) packet).getMessages();
+                            Set<Message> decrypted = new TreeSet<>();
 
-						} else if (packet instanceof GetMessagesResponsePacket) {
-							Set<Message> messages = ((GetMessagesResponsePacket) packet).getMessages();
-							Set<Message> decrypted = new TreeSet<>();
+                            for (Message m: messages) {
+                                Message d = new Message(m.getOrigin(), m.getReceiveTime());
+                                d.setTarget(m.getTarget());
 
-							for (Message m : messages) {
-								Message d = new Message(m.getOrigin(), m.getReceiveTime());
-								d.setTarget(m.getTarget());
+                                String chatKey = loadKey(m.getTarget()).toString();
+                                d.setContent(decryptAES(chatKey, m.getContent()));
 
-								String chatKey = loadKey(m.getTarget()).toString();
-								d.setContent(decryptAES(chatKey, m.getContent()));
+                                decrypted.add(d);
+                            }
 
-								decrypted.add(d);
-							}
+                            onChatMessages.run(decrypted);
+                        } else if (packet instanceof LogoutSuccessPacket) {
+                            break;
+                        }
+                    } catch (IOException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
 
-							onChatMessages.run(decrypted);
-						} else if (packet instanceof LogoutSuccessPacket) {
-							break;
-						}
-					} catch (IOException | ClassNotFoundException e) {
-						e.printStackTrace();
-					}
-				}
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-				try {
-					socket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+                System.out.println("Logged out");
+                System.exit(0);
 
-				System.out.println("Logged out");
-				System.exit(0);
-
-			}
-		}).start();
-	}
+            }
+        }).start();
+    }
 
 }

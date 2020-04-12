@@ -28,13 +28,13 @@ public class Keyfile {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void load() throws FileNotFoundException, IOException, ClassNotFoundException {
+	public void load(){
 		try (var stream = new FileInputStream(this.saveFileName + ".dat")) {
 			var inputStream = new ObjectInputStream(stream);
 			var object = inputStream.readObject();
 			this.keyfile = (ConcurrentHashMap<KeyfileResourceType, ConcurrentHashMap<UUID, Fileable>>) object;
-			//System.out.println("Loaded Keyfile:");
-			//this.print();
+		}catch (ClassNotFoundException | IOException e) {
+			System.out.println("Couldn't load save file. Generate new File.");
 		}
 
 	}
@@ -45,9 +45,9 @@ public class Keyfile {
 		try (var stream = new FileOutputStream(tempFile)) {
 			var outputStream = new ObjectOutputStream(stream);
 			outputStream.writeObject(keyfile);
+		} catch (IOException e){
+			System.out.println("Error while saving keyfile!");
 		}
-
-		//System.out.println(tempFile.getPath());
 
 		Files.move(Paths.get(tempFile.getPath()), Paths.get(new File(this.saveFileName + ".dat").getPath()),
 				StandardCopyOption.ATOMIC_MOVE);
