@@ -481,9 +481,11 @@ public class ClientGUI {
 
     public JPanel displayRecentConversations() {
         JPanel chatsPanel = new JPanel(new GridLayout(0, 1));
-        JPanel newChatPanel = new JPanel(new GridLayout(0, 2));
+        JPanel newChatPanel = new JPanel(new GridLayout(0, 3));
+        JLabel emptyLabel = new JLabel();
         JLabel titleLabel = new JLabel("VS-Chat");
         titleLabel.setForeground(Color.WHITE);
+        newChatPanel.add(emptyLabel);
         newChatPanel.add(titleLabel);
         JLabel addChatLabel = getImageJLabel("src/main/java/vs/chat/client/UI/icons/add.png", 50, 50);
         addChatLabel.addMouseListener(new CreateChatMouseListener(chatsPanel, newChatPanel));
