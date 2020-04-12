@@ -7,8 +7,9 @@ import java.util.UUID;
 
 public class CreateChatPacket extends Packet {
 
-	protected final String name;
-	protected final Set<UUID> users = Collections.synchronizedSet(new TreeSet<>());
+	private static final long serialVersionUID = 6427674782435562886L;
+	private final String name;
+	private final Set<UUID> users = Collections.synchronizedSet(new TreeSet<>());
 
 	public CreateChatPacket(final String name, final UUID... userIds) {
 		this.name = name;

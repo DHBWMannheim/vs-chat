@@ -21,14 +21,9 @@ import vs.chat.packets.NodeSyncPacket;
 public class Warehouse {
 
 	private static final String SAVE_FILE_NAME = "warehouse";
-	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();// TODO
-																																	// give
-																																	// all
-																																	// Packets
-																																	// and
-																																	// entities
-	private Set<UUID> packetIds = Collections.synchronizedSet(new TreeSet<>());
 	private final String saveFileName;
+	private ConcurrentHashMap<WarehouseResourceType, ConcurrentHashMap<UUID, Warehouseable>> warehouse = new ConcurrentHashMap<>();
+	private Set<UUID> packetIds = Collections.synchronizedSet(new TreeSet<>());
 
 	public Warehouse(final String saveFileIdentifier) {
 		Stream.of(WarehouseResourceType.values()).forEach(type -> warehouse.put(type, new ConcurrentHashMap<>()));

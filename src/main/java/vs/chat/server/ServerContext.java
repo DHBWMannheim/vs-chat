@@ -43,10 +43,9 @@ public class ServerContext {
 	}
 
 	void close() throws IOException, InterruptedException {
-		this.isCloseRequested.set(true);// TODO call this somewhare for a clean exit, currently unreachable
+		this.isCloseRequested.set(true);
 		System.out.println("awaiting close");
-		for (var connection : this.connections) {// TODO this does not work as every connection is still waiting of a
-													// readObject, //TODO join broadcaster
+		for (var connection : this.connections) {
 			connection.join();
 		}
 		for (var listener : this.listeners) {

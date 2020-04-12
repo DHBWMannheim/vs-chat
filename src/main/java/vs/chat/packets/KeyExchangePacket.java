@@ -2,30 +2,34 @@ package vs.chat.packets;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class KeyExchangePacket extends Packet {
 
-	public BigInteger content;
-	public int requests;
-	public UUID initiator;
-	public List<UUID> participants;
-	public String chatName;
+	private static final long serialVersionUID = -5028251640865142447L;
+	private final BigInteger content;
+	private final int requests;
+	private final UUID initiator;
+	private final List<UUID> participants;
+	private final String chatName;
 
-	public UUID target;
-	public UUID origin;
+	private final UUID target;
+	private UUID origin;
+
+	public KeyExchangePacket(BigInteger content, int requests, UUID initiator, List<UUID> participants, String chatName,
+			UUID target) {
+		this.content = content;
+		this.requests = requests;
+		this.initiator = initiator;
+		this.participants = participants;
+		this.chatName = chatName;
+		this.target = target;
+	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((content == null) ? 0 : content.hashCode());
-		result = prime * result + ((initiator == null) ? 0 : initiator.hashCode());
-		result = prime * result + ((origin == null) ? 0 : origin.hashCode());
-		result = prime * result + ((participants == null) ? 0 : participants.hashCode());
-		result = prime * result + requests;
-		result = prime * result + ((target == null) ? 0 : target.hashCode());
-		return result;
+		return Objects.hash(chatName, content, initiator, origin, participants, requests, target);
 	}
 
 	@Override
@@ -37,74 +41,30 @@ public class KeyExchangePacket extends Packet {
 		if (getClass() != obj.getClass())
 			return false;
 		KeyExchangePacket other = (KeyExchangePacket) obj;
-		if (content == null) {
-			if (other.content != null)
-				return false;
-		} else if (!content.equals(other.content))
-			return false;
-		if (initiator == null) {
-			if (other.initiator != null)
-				return false;
-		} else if (!initiator.equals(other.initiator))
-			return false;
-		if (origin == null) {
-			if (other.origin != null)
-				return false;
-		} else if (!origin.equals(other.origin))
-			return false;
-		if (participants == null) {
-			if (other.participants != null)
-				return false;
-		} else if (!participants.equals(other.participants))
-			return false;
-		if (requests != other.requests)
-			return false;
-		if (target == null) {
-			if (other.target != null)
-				return false;
-		} else if (!target.equals(other.target))
-			return false;
-		return true;
+		return Objects.equals(chatName, other.chatName) && Objects.equals(content, other.content)
+				&& Objects.equals(initiator, other.initiator) && Objects.equals(origin, other.origin)
+				&& Objects.equals(participants, other.participants) && requests == other.requests
+				&& Objects.equals(target, other.target);
 	}
 
 	public BigInteger getContent() {
 		return content;
 	}
 
-	public void setContent(BigInteger content) {
-		this.content = content;
-	}
-
 	public int getRequests() {
 		return requests;
-	}
-
-	public void setRequests(int requests) {
-		this.requests = requests;
 	}
 
 	public UUID getInitiator() {
 		return initiator;
 	}
 
-	public void setInitiator(UUID initiator) {
-		this.initiator = initiator;
-	}
-
 	public List<UUID> getParticipants() {
 		return participants;
 	}
 
-	public void setParticipants(List<UUID> participants) {
-		this.participants = participants;
-	}
-
 	public UUID getTarget() {
 		return target;
-	}
-
-	public void setTarget(UUID target) {
-		this.target = target;
 	}
 
 	public UUID getOrigin() {
@@ -117,10 +77,6 @@ public class KeyExchangePacket extends Packet {
 
 	public String getChatName() {
 		return chatName;
-	}
-
-	public void setChatName(String chatName) {
-		this.chatName = chatName;
 	}
 
 }

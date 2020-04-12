@@ -14,7 +14,7 @@ public class ChatCreationListener implements Listener<BaseEntityBroadcastPacket,
 	public NoOpPacket next(final BaseEntityBroadcastPacket packet, final ServerContext context,
 			final ConnectionHandler handler) throws IOException {
 
-		var entity = packet.baseEntity;
+		var entity = packet.getBaseEntity();
 		if (entity instanceof Chat) {
 			var chat = (Chat) entity;
 			for(var user: chat.getUsers()) {
