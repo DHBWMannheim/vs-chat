@@ -7,7 +7,6 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -71,7 +70,6 @@ public class ClientGUI {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            System.out.println("Ich bin der Listener für : " + chat.getName());
             currentChat = chat;
             try {
                 System.out.println("getting chat messages...");
@@ -358,7 +356,6 @@ public class ClientGUI {
                 e.printStackTrace();
             }
             if (api.getUserId() != null) {
-                System.out.println(usernameField.getText() + " " + new String(userPasswordField.getPassword()));
                 api.startPacketListener(ClientGUI.this::onCreateChat, ClientGUI.this::onGetMessageHistory, ClientGUI.this::onMessage);
                 rootPanel.getContentPane().removeAll();
                 rootPanel.getContentPane().add(displayRecentConversations());
@@ -459,7 +456,6 @@ public class ClientGUI {
 
         JPanel messagePanel = new JPanel(new GridLayout(0, 1));
         for (Message message : messages) {
-            System.out.println(message.getContent());
             JPanel messageContentPanel = new JPanel();
             messageContentPanel.setLayout(new BorderLayout());
             if (message.getOrigin().equals(api.getUserId())){
@@ -509,7 +505,6 @@ public class ClientGUI {
     }
 
     private JPanel header(Chat chat) {
-        //dummyChats.stream().filter(c -> c.getName().equals("dummyChat1")).findAny().orElse(null).getName() : Abfrage eines Chats aus allen Chats.
         JPanel headerPanel = new JPanel(new GridLayout(0, 3));
         JLabel chatName = new JLabel(chat.getName());
 
