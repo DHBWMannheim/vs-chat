@@ -465,11 +465,14 @@ public class ClientGUI {
                 messageContentPanel.setBackground(new Color(158, 200, 145));
             }else {
                 messageContentPanel.add(new JLabel(message.getContent()),BorderLayout.WEST);
-                messageContentPanel.setBorder(BorderFactory.createEtchedBorder());
                 messageContentPanel.setBackground(new Color(120, 120, 120));
             }
+            messageContentPanel.setBorder(BorderFactory.createEtchedBorder());
             messageContentPanel.setPreferredSize(new Dimension(300,40));
-            messageContentPanel.setMinimumSize(new Dimension(300, 20));
+            messageContentPanel.setMinimumSize(new Dimension(300, 40));
+            messageContentPanel.setMaximumSize(new Dimension(400, 40));
+            messageContentPanel.setSize(new Dimension(400,40));
+            messageContentPanel.revalidate();
             messagePanels[i++] = messageContentPanel;
         }
 
