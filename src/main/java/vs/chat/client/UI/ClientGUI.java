@@ -7,6 +7,7 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,10 +19,6 @@ import java.util.*;
 import java.util.List;
 
 public class ClientGUI {
-
-    // dummyData gets set in startGui(), to be replaced by data fetched by api
-    Set<Message> dummyMessages;
-    Set<Chat> dummyChats;
 
     Chat currentChat;
 
@@ -435,17 +432,11 @@ public class ClientGUI {
     }
 
     private void onMessage(Message message) {
-        // wird aufgerufen wenn wir eine Nachricht bekommen!
-        // wird immer aufgerufen wenn der User eingeloggt ist, egal in welchem GUI Step er ist
-        //TODO: Swing funktioniert nicht!
-        JPanel messagePanel = new JPanel(new GridLayout(2, 0));
-        JLabel userName = new JLabel(message.getOrigin().toString());
-        JLabel content = new JLabel(message.getContent());
-        messagePanel.add(userName);
-        messagePanel.add(content);
-        messagePanel.setBorder(BorderFactory.createEtchedBorder());
-        rootPanel.getContentPane().add(messagePanel);
-        rootPanel.pack();
+        try {
+            api.getChatMessages(currentChat.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void onCreateChat(Chat chat) {
@@ -456,22 +447,30 @@ public class ClientGUI {
     }
 
     private void onGetMessageHistory(Set<Message> messages) {
-        //kommt zurück wenn api.getMessages aufgerufen wird!
-        //TODO: Swing funktioniert nicht!
         rootPanel.getContentPane().removeAll();
         rootPanel.getContentPane().add(header(currentChat), BorderLayout.NORTH);
-        JPanel messagePanel = new JPanel(new GridLayout(0, 2));
+
+        JPanel messagePanel = new JPanel(new GridLayout(0, 1));
         for (Message message : messages) {
-            System.out.println(message);
-            if (message.getOrigin().equals(currentChat.getId())) {
-                messagePanel.add(new JLabel(message.getContent()));
+            System.out.println(message.getContent());
+            JPanel messageContentPanel = new JPanel();
+            messageContentPanel.setLayout(new BorderLayout());
+            if (message.getOrigin().equals(api.getUserId())){
+                messageContentPanel.add(new JLabel(message.getContent()),BorderLayout.EAST);
+                messageContentPanel.setBackground(new Color(158, 200, 145));
+            }else {
+                messageContentPanel.add(new JLabel(message.getContent()),BorderLayout.WEST);
+                messageContentPanel.setBorder(BorderFactory.createEtchedBorder());
+                messageContentPanel.setBackground(new Color(120, 120, 120));
             }
+            messagePanel.add(messageContentPanel);
         }
 
-        JScrollPane chatJScrollPane = new JScrollPane();
+        JScrollPane chatJScrollPane = new JScrollPane(messagePanel);
         chatJScrollPane.setLayout(new ScrollPaneLayout());
         chatJScrollPane.setVerticalScrollBar(new JScrollBar());
-        chatJScrollPane.add(messagePanel);
+
+
         rootPanel.add(chatJScrollPane, BorderLayout.CENTER);
         rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
         rootPanel.pack();
@@ -531,13 +530,6 @@ public class ClientGUI {
         sendLabel.addMouseListener(new SendMouseListener());
 
         return footerPanel;
-    }
-
-    private JPanel messageInput(String message) {
-        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JLabel nachricht = new JLabel(message);
-        inputPanel.add(nachricht);
-        return inputPanel;
     }
 
     public JPanel renderEmojiPanel() {
