@@ -36,10 +36,8 @@ public class ClientGUI {
 
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
-            JPanel recentConversations = displayRecentConversations();
-            recentConversations.setVisible(true);
             rootPanel.getContentPane().removeAll();
-            rootPanel.getContentPane().add(recentConversations, BorderLayout.CENTER);
+            rootPanel.getContentPane().add(displayRecentConversations());
             rootPanel.pack();
         }
 
@@ -408,6 +406,7 @@ public class ClientGUI {
         frame.setLayout(new BorderLayout());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setMinimumSize(new Dimension(400, 600));
+        frame.setMaximumSize(new Dimension(400, 700));
         frame.setVisible(true);
         frame.setResizable(false);
         frame.pack();
@@ -455,6 +454,9 @@ public class ClientGUI {
         rootPanel.getContentPane().add(header(currentChat), BorderLayout.NORTH);
 
         JPanel messagePanel = new JPanel(new GridLayout(0, 1));
+        JPanel[] messagePanels = new JPanel[messages.size()];
+        int i = 0;
+
         for (Message message : messages) {
             JPanel messageContentPanel = new JPanel();
             messageContentPanel.setLayout(new BorderLayout());
@@ -466,15 +468,37 @@ public class ClientGUI {
                 messageContentPanel.setBorder(BorderFactory.createEtchedBorder());
                 messageContentPanel.setBackground(new Color(120, 120, 120));
             }
-            messagePanel.add(messageContentPanel);
+            messageContentPanel.setPreferredSize(new Dimension(300,40));
+            messageContentPanel.setMinimumSize(new Dimension(300, 20));
+            messagePanels[i++] = messageContentPanel;
         }
 
-        JScrollPane chatJScrollPane = new JScrollPane(messagePanel);
-        chatJScrollPane.setLayout(new ScrollPaneLayout());
-        chatJScrollPane.setVerticalScrollBar(new JScrollBar());
+        JPanel JChatBox = new JPanel();
+        JChatBox.setLayout(new BoxLayout(JChatBox, BoxLayout.Y_AXIS));
 
+        Dimension defDim = new Dimension(300,600);
 
-        rootPanel.add(chatJScrollPane, BorderLayout.CENTER);
+        for(int j = 0;j < messagePanels.length;j++){
+            JChatBox.add(messagePanels[j]);
+        }
+
+        JScrollPane JChatPane = new JScrollPane(JChatBox);
+
+        JScrollBar jScrollBar = new JScrollBar();
+
+        JChatPane.setVerticalScrollBar(jScrollBar);
+
+        JChatPane.setMaximumSize(defDim);
+        JChatPane.setMinimumSize(defDim);
+        JChatPane.setPreferredSize(defDim);
+        JChatPane.setSize(defDim);
+        JChatPane.revalidate();
+
+        //JPanel helpPanel = new JPanel(new BorderLayout());
+        // helpPanel.setPreferredSize(new Dimension(300,300));
+        // helpPanel.add(new JScrollPane(messagePanel), BorderLayout.CENTER);
+
+        rootPanel.add(JChatPane, BorderLayout.CENTER);
         rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
         rootPanel.pack();
     }
@@ -482,11 +506,12 @@ public class ClientGUI {
     public JPanel displayRecentConversations() {
         JPanel chatsPanel = new JPanel(new GridLayout(0, 1));
         JPanel newChatPanel = new JPanel(new GridLayout(0, 3));
-        JLabel emptyLabel = new JLabel();
         JLabel titleLabel = new JLabel("VS-Chat");
         titleLabel.setForeground(Color.WHITE);
-        newChatPanel.add(emptyLabel);
-        newChatPanel.add(titleLabel);
+        JLabel backLabel = getImageJLabel("src/main/java/vs/chat/client/UI/icons/backwhite.png", 40, 40);
+        newChatPanel.add(backLabel);
+        backLabel.addMouseListener(new BackMouseListener());
+        newChatPanel.add(titleLabel, Component.CENTER_ALIGNMENT);
         JLabel addChatLabel = getImageJLabel("src/main/java/vs/chat/client/UI/icons/add.png", 50, 50);
         addChatLabel.addMouseListener(new CreateChatMouseListener(chatsPanel, newChatPanel));
         newChatPanel.add(addChatLabel);
@@ -510,7 +535,7 @@ public class ClientGUI {
         JPanel headerPanel = new JPanel(new GridLayout(0, 3));
         JLabel chatName = new JLabel(chat.getName());
 
-        JLabel getBackToRecentContacts = getImageJLabel("src/main/java/vs/chat/client/UI/icons/back.png", 60, 35);
+        JLabel getBackToRecentContacts = getImageJLabel("src/main/java/vs/chat/client/UI/icons/back.png", 35, 35);
         getBackToRecentContacts.addMouseListener(new BackMouseListener());
         headerPanel.add(getBackToRecentContacts);
         headerPanel.add(chatName);
