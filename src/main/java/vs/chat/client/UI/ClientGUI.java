@@ -36,10 +36,8 @@ public class ClientGUI {
 
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
-            JPanel recentConversations = displayRecentConversations();
-            recentConversations.setVisible(true);
             rootPanel.getContentPane().removeAll();
-            rootPanel.getContentPane().add(recentConversations, BorderLayout.CENTER);
+            rootPanel.getContentPane().add(displayRecentConversations());
             rootPanel.pack();
         }
 
@@ -508,11 +506,12 @@ public class ClientGUI {
     public JPanel displayRecentConversations() {
         JPanel chatsPanel = new JPanel(new GridLayout(0, 1));
         JPanel newChatPanel = new JPanel(new GridLayout(0, 3));
-        JLabel emptyLabel = new JLabel();
         JLabel titleLabel = new JLabel("VS-Chat");
         titleLabel.setForeground(Color.WHITE);
-        newChatPanel.add(emptyLabel);
-        newChatPanel.add(titleLabel);
+        JLabel backLabel = getImageJLabel("src/main/java/vs/chat/client/UI/icons/backwhite.png", 40, 40);
+        newChatPanel.add(backLabel);
+        backLabel.addMouseListener(new BackMouseListener());
+        newChatPanel.add(titleLabel, Component.CENTER_ALIGNMENT);
         JLabel addChatLabel = getImageJLabel("src/main/java/vs/chat/client/UI/icons/add.png", 50, 50);
         addChatLabel.addMouseListener(new CreateChatMouseListener(chatsPanel, newChatPanel));
         newChatPanel.add(addChatLabel);
@@ -536,7 +535,7 @@ public class ClientGUI {
         JPanel headerPanel = new JPanel(new GridLayout(0, 3));
         JLabel chatName = new JLabel(chat.getName());
 
-        JLabel getBackToRecentContacts = getImageJLabel("src/main/java/vs/chat/client/UI/icons/back.png", 60, 35);
+        JLabel getBackToRecentContacts = getImageJLabel("src/main/java/vs/chat/client/UI/icons/back.png", 35, 35);
         getBackToRecentContacts.addMouseListener(new BackMouseListener());
         headerPanel.add(getBackToRecentContacts);
         headerPanel.add(chatName);
