@@ -11,7 +11,6 @@ import vs.chat.packets.Packet;
 import vs.chat.server.filter.Filter;
 import vs.chat.server.filter.PacketIdFilter;
 import vs.chat.server.listener.BaseEntityBroadcastListener;
-import vs.chat.server.listener.ChatCreationListener;
 import vs.chat.server.listener.CreateChatListener;
 import vs.chat.server.listener.GetMessagesListener;
 import vs.chat.server.listener.KeyExchangeListener;
@@ -77,7 +76,6 @@ public class Server implements Runnable {
 		listeners.add(new NodeSyncListener());
 		listeners.add(new KeyExchangeListener());
 		listeners.add(new BaseEntityBroadcastListener());
-		listeners.add(new ChatCreationListener());
 		return listeners;
 	}
 }

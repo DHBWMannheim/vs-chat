@@ -6,15 +6,15 @@ import vs.chat.entities.Chat;
 import vs.chat.entities.Message;
 import vs.chat.packets.BaseEntityBroadcastPacket;
 import vs.chat.packets.MessagePacket;
-import vs.chat.packets.NoOpPacket;
+import vs.chat.packets.Packet;
 import vs.chat.server.ConnectionHandler;
 import vs.chat.server.ServerContext;
 import vs.chat.server.warehouse.WarehouseResourceType;
 
-public class MessageListener implements Listener<MessagePacket, NoOpPacket> {
+public class MessageListener implements Listener<MessagePacket, Packet> {
 
 	@Override
-	public NoOpPacket next(final MessagePacket packet, final ServerContext context, final ConnectionHandler handler)
+	public Packet next(final MessagePacket packet, final ServerContext context, final ConnectionHandler handler)
 			throws IOException {
 
 		if (handler.getConnectedToUserId().isEmpty()) {
