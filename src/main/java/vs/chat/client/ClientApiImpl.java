@@ -9,17 +9,13 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 import vs.chat.packets.*;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -33,8 +29,6 @@ public class ClientApiImpl implements ClientApi {
     private ObjectInputStream networkIn;
     private BufferedReader userIn;
 
-    private static SecretKeySpec secretKey;
-
     private UUID userId;
     private Set<Chat> chats;
     private Set<User> contacts;
@@ -45,6 +39,8 @@ public class ClientApiImpl implements ClientApi {
     private BigInteger privateKey;
     private BigInteger nextKey;
     private Keyfile keyfile;
+
+    private boolean creatingChat = false;
 
     private static int KEY_BYTE_LENGTH = 16;
 
@@ -61,9 +57,7 @@ public class ClientApiImpl implements ClientApi {
 
     public void login(String username, String password) throws LoginException {
         try {
-            LoginPacket loginPacket = new LoginPacket();
-            loginPacket.username = username;
-            loginPacket.password = password;
+            LoginPacket loginPacket = new LoginPacket(username, password);
 
             this.networkOut.writeObject(loginPacket);
             this.networkOut.flush();
@@ -81,16 +75,8 @@ public class ClientApiImpl implements ClientApi {
             this.contacts = loginSyncPacket.users;
 
             this.keyfile = new Keyfile(username);
-            try{
-                keyfile.load();
-            }catch (ClassNotFoundException | IOException e){
-                e.printStackTrace();
-            }
-            try {
-                keyfile.save();
-            }catch (IOException e1){
-                e1.printStackTrace();
-            }
+            keyfile.load();
+            keyfile.save();
             this.privateKey = generatePrivateKey();
             this.nextKey = this.g.modPow(this.privateKey, this.n);
             System.out.println(this.userId);
@@ -118,8 +104,7 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void getChatMessages(UUID chatId) throws IOException {
-        GetMessagesPacket getMessagesPacket = new GetMessagesPacket();
-        getMessagesPacket.chatId = chatId;
+        GetMessagesPacket getMessagesPacket = new GetMessagesPacket(chatId);
 
         this.networkOut.writeObject(getMessagesPacket);
         this.networkOut.flush();
@@ -144,20 +129,27 @@ public class ClientApiImpl implements ClientApi {
         return null;
     }
 
-    public void exchangeKeys(String chatName, List<UUID> userIds) throws IOException {
-        KeyEchangePacket keyEchangePacket = new KeyEchangePacket();
+    public void exchangeKeys(String chatName, List<UUID> userIds, OnTimeout onTimeout) throws IOException, InterruptedException {
+    	userIds.add(0, this.userId);
+    	KeyExchangePacket keyEchangePacket = new KeyExchangePacket(
+    		this.nextKey,
+    		1,
+    		this.userId,
+    		userIds,
+    		chatName,
+    		userIds.get(1));
 
-        userIds.add(0, this.userId);
-
-        keyEchangePacket.setTarget(userIds.get(1));
-        keyEchangePacket.setContent(this.nextKey);
-        keyEchangePacket.setRequests(1);
-        keyEchangePacket.setInitiator(this.userId);
-        keyEchangePacket.setChatName(chatName);
-        keyEchangePacket.setParticipants(userIds);
 
         this.networkOut.writeObject(keyEchangePacket);
         this.networkOut.flush();
+        this.creatingChat = true;
+
+        Thread.sleep(5000);
+
+        if (this.creatingChat) {
+            this.creatingChat = false;
+            onTimeout.run();
+        }
     }
 
     private void createChat(String chatName, List<UUID> userIds) throws IOException {
@@ -170,10 +162,8 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void sendMessage(String message, UUID chatId) throws IOException {
-        MessagePacket messagePacket = new MessagePacket();
-        String chatKey = loadKey(chatId).toString();
-        messagePacket.content = encryptAES(chatKey, message);
-        messagePacket.target = chatId;
+    	String chatKey = loadKey(chatId).toString();
+        MessagePacket messagePacket = new MessagePacket(chatId, encryptAES(chatKey, message));
 
         this.networkOut.writeObject(messagePacket);
         this.networkOut.flush();
@@ -273,15 +263,18 @@ public class ClientApiImpl implements ClientApi {
                         if (packet instanceof BaseEntityBroadcastPacket) {
                             BaseEntityBroadcastPacket base = (BaseEntityBroadcastPacket) packet;
 
-                            if (base.baseEntity instanceof Chat) {
-                                Chat newChat = (Chat) base.baseEntity;
+
+                            if (base.getBaseEntity() instanceof Chat) {
+                                creatingChat = false;
+                                Chat newChat = (Chat) base.getBaseEntity();
+
 
                                 addKey(newChat.getId(), nextKey);
 
                                 chats.add(newChat);
                                 onCreateChat.run(newChat);
-                            } else if (base.baseEntity instanceof Message) {
-                                Message m = (Message) base.baseEntity;
+                            } else if (base.getBaseEntity() instanceof Message) {
+                                Message m = (Message) base.getBaseEntity();
 
                                 Message d = new Message(m.getOrigin(), m.getReceiveTime());
                                 d.setTarget(m.getTarget());
@@ -292,9 +285,9 @@ public class ClientApiImpl implements ClientApi {
                                 onMessage.run(d);
                             }
 
-                        } else if (packet instanceof KeyEchangePacket) {
+                        } else if (packet instanceof KeyExchangePacket) {
 
-                            KeyEchangePacket keyEchangePacket = (KeyEchangePacket) packet;
+                            KeyExchangePacket keyEchangePacket = (KeyExchangePacket) packet;
                             List<UUID> participants = keyEchangePacket.getParticipants();
 
                             int currentRequests = keyEchangePacket.getRequests();
@@ -315,14 +308,13 @@ public class ClientApiImpl implements ClientApi {
                             // check if package has to be forwarded
                             if (currentRequests < targetRequests) {
                                 // forwards package to next participant
-                                KeyEchangePacket newExchangePacket = new KeyEchangePacket();
-                                newExchangePacket.setTarget(participants.get((userIndex + 1) % participants.size()));
-                                newExchangePacket.setContent(nextKey);
-                                newExchangePacket.setRequests(keyEchangePacket.getRequests() + 1);
-                                newExchangePacket.setInitiator(keyEchangePacket.getInitiator());
-                                newExchangePacket.setParticipants(keyEchangePacket.getParticipants());
-                                newExchangePacket.setChatName(keyEchangePacket.getChatName());
-
+                                KeyExchangePacket newExchangePacket = new KeyExchangePacket(
+                                		nextKey,
+                                		keyEchangePacket.getRequests() + 1,
+                                		keyEchangePacket.getInitiator(),
+                                		keyEchangePacket.getParticipants(),
+                                		keyEchangePacket.getChatName(),
+                                		participants.get((userIndex + 1) % participants.size()));
                                 networkOut.writeObject(newExchangePacket);
                                 networkOut.flush();
                             }
@@ -341,7 +333,7 @@ public class ClientApiImpl implements ClientApi {
                             }
 
                         } else if (packet instanceof GetMessagesResponsePacket) {
-                            Set<Message> messages = ((GetMessagesResponsePacket) packet).messages;
+                            Set<Message> messages = ((GetMessagesResponsePacket) packet).getMessages();
                             Set<Message> decrypted = new TreeSet<>();
 
                             for (Message m: messages) {

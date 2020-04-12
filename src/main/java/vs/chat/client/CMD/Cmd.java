@@ -176,6 +176,10 @@ public class Cmd {
         System.out.println("---------");
     }
 
+    private void onTimeout() {
+        System.out.println("Chat konnte nicht erstellt werden!");
+    }
+
     private void createChat() {
         try {
             System.out.print("Chatname: ");
@@ -210,9 +214,9 @@ public class Cmd {
                 users.add(user.getId());
             }
 
-            this.api.exchangeKeys(chatname, users);
+            this.api.exchangeKeys(chatname, users, this::onTimeout);
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

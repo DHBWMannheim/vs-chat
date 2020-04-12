@@ -4,9 +4,9 @@ import vs.chat.packets.NoOpPacket;
 
 public class NodeHeartBeatThread extends Thread {
 
-	private boolean isCloseRequested = false;
-	private final NodeConnection out;
 	private final static int BEAT_RATE = 1000;
+	private final NodeConnection out;
+	private boolean isCloseRequested = false;
 
 	public NodeHeartBeatThread(final NodeConnection nodeConnection) {
 		this.out = nodeConnection;

@@ -33,7 +33,7 @@ public interface ClientApi {
     String getUsernameFromId(UUID userId);
 
     // exchange key between clients
-    void exchangeKeys(String chatName, List<UUID> userIds) throws IOException;
+    void exchangeKeys(String chatName, List<UUID> userIds, OnTimeout onTimeout) throws IOException, InterruptedException;
 
     // send chat message to user
     void sendMessage(String message, UUID chatId) throws IOException;

@@ -31,7 +31,6 @@ public class NodeBroadcaster {
 			try {
 				node.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

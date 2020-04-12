@@ -389,11 +389,18 @@ public class ClientGUI {
                 users.add(user.getId());
             }
             try {
-                api.exchangeKeys(chatname, users);
-            } catch (IOException e) {
+                api.exchangeKeys(chatname, users, this::onTimeout);
+            } catch (IOException | InterruptedException e) {
                 JOptionPane.showMessageDialog(rootPanel, "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut!");
                 e.printStackTrace();
             }
+        }
+
+        private void onTimeout() {
+            JOptionPane.showMessageDialog(rootPanel, "Chat konnte nicht erstellt werden. Einer der Nutzer ist offline. Bitte versuchen Sie es später erneut!");
+            rootPanel.getContentPane().removeAll();
+            rootPanel.getContentPane().add(displayRecentConversations());
+            rootPanel.pack();
         }
     }
 

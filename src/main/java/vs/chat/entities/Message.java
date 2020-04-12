@@ -1,14 +1,16 @@
 package vs.chat.entities;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 import vs.chat.server.warehouse.WarehouseResourceType;
 
 public class Message extends BaseEntity {
 
-	public UUID target;
-	public String content;
+	private static final long serialVersionUID = 4948796217378008473L;
+	private UUID target;
+	private String content;
 	private final UUID origin;
 	private final Date receiveTime;
 
@@ -56,6 +58,27 @@ public class Message extends BaseEntity {
 				return compareResult;
 		}
 		return super.compareTo(obj);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(content, origin, receiveTime, target);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Message other = (Message) obj;
+		return Objects.equals(content, other.content) && Objects.equals(origin, other.origin)
+				&& Objects.equals(receiveTime, other.receiveTime) && Objects.equals(target, other.target);
 	}
 
 }

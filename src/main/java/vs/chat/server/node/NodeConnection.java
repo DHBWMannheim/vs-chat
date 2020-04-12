@@ -6,7 +6,6 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
-import vs.chat.packets.NodeSyncPacket;
 import vs.chat.packets.Packet;
 import vs.chat.server.ServerContext;
 
@@ -18,7 +17,6 @@ public class NodeConnection extends Thread {
 
 	private Socket currentSocket;
 	private ObjectOutputStream out;
-//	private ObjectInputStream in;
 
 	private final ConcurrentLinkedQueue<Packet> sendQueue = new ConcurrentLinkedQueue<>();
 	private final Semaphore runSemaphore = new Semaphore(0);
@@ -57,7 +55,7 @@ public class NodeConnection extends Thread {
 		}
 	}
 
-	void close() throws IOException {// TODO syncornize to have out flushed
+	synchronized void close() throws IOException {
 		if (null != this.bodyGuard)
 			this.bodyGuard.close();
 		if (null != this.currentSocket)
@@ -70,29 +68,29 @@ public class NodeConnection extends Thread {
 	}
 
 	private void reconnect() {
-		System.err.println("Attempting reconnect");
-		try {
-			this.close();
-			this.currentSocket = new Socket(this.hostname, this.port);
-			this.out = new ObjectOutputStream(this.currentSocket.getOutputStream());
-			this.bodyGuard = new NodeHeartBeatThread(this);
-			this.bodyGuard.start();
+		var couldConnect = false;
+		while (!couldConnect) {
+			System.err.println("Attempting reconnect");
+			try {
+				this.close();
+				this.currentSocket = new Socket(this.hostname, this.port);
+				this.out = new ObjectOutputStream(this.currentSocket.getOutputStream());
+				this.bodyGuard = new NodeHeartBeatThread(this);
+				this.bodyGuard.start();
 
-			var nodeSyncPacket = new NodeSyncPacket();
-			nodeSyncPacket.warehouse = this.context.getWarehouse().get();
-			this.send(nodeSyncPacket);
+				this.send(this.context.getWarehouse().createNodeSyncPacket());
 
-//			this.in = new ObjectInputStream(this.currentSocket.getInputStream());
-			System.out.println("connected");
-		} catch (IOException e) {
-			e.printStackTrace();
-			this.reconnect();//TODO replace this with while
+				System.out.println("connected");
+				couldConnect = true;
+			} catch (IOException e) {
+				System.out.println("Failed to reconnect");
+			}
 		}
+
 	}
 
 	public ServerContext getContext() {
 		return context;
 	}
-	
-	
+
 }
