@@ -55,13 +55,6 @@ public class NodeConnection extends Thread {
 		}
 	}
 
-	synchronized void close() throws IOException {
-		if (null != this.bodyGuard)
-			this.bodyGuard.close();
-		if (null != this.currentSocket)
-			this.currentSocket.close();
-	}
-
 	public void send(final Packet packet) {
 		this.sendQueue.add(packet);
 		this.runSemaphore.release();
@@ -89,6 +82,13 @@ public class NodeConnection extends Thread {
 
 	}
 
+	synchronized void close() throws IOException {
+		if (null != this.bodyGuard)
+			this.bodyGuard.close();
+		if (null != this.currentSocket)
+			this.currentSocket.close();
+	}
+	
 	public ServerContext getContext() {
 		return context;
 	}

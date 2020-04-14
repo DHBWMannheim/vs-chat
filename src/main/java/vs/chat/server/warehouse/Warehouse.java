@@ -61,10 +61,9 @@ public class Warehouse {
 		} catch (ClassNotFoundException | IOException e) {
 			System.out.println("Couldn't load save file.");
 		}
-
 	}
 
-	public synchronized void save() throws IOException { // Muss dies besser syncronisiert werden?
+	public synchronized void save() throws IOException {
 		File tempFile = File.createTempFile(this.saveFileName, ".tmp");
 		try (var stream = new FileOutputStream(tempFile)) {
 			var outputStream = new ObjectOutputStream(stream);

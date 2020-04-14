@@ -8,6 +8,5 @@ public class ServerBootstrapper {
 		var server = new Server(9876);//new NodeConfig("localhost", 9877)
 		var mainThread = new Thread(server);
 		mainThread.start();
-
 	}
 }
