@@ -8,7 +8,6 @@
     \includegraphics[width=\textwidth]{architecture.png}
     
     \caption{Architektur}
-    \label{}
 \end{figure}
 
 \author{Matthias Vonend}
@@ -97,7 +96,7 @@ Dennoch können grundsätzlich die folgende Fehlerfälle eintretten:
         ob eine Verbindung noch existiert. Zu diesem Zweck existiert ein Heartbeat, der periodisch
         die Nachbarnodes anpingt und so prüft, ob die Verbindung noch existiert.
 \end{enumerate}
-Wie gerade beschrieben führen alle beteiligten stehts eine synchronisation durch wodurch diese immer den kompletten Informationsbestand besitzen.
+Wie gerade beschrieben führen alle beteiligten stets eine synchronisation durch wodurch diese immer den kompletten Informationsbestand besitzen. Die Replikationskontrolle wird nach der Write-All-Available Strategie umgesetzt. Ein Client schickt eine Nachricht an einen Server, der versucht alle zu ihm verbundenen Nodes aktuell zu halten indem er die Nachricht oder die Änderung an alle verfügbaren Nodes weiterleitet.
 
 Eine Veränderung des Datenbestandes muss dem entsprechend an alle anderen Nodes weiter gegeben werden.
 Dadurch sind alle Server gleichwertige Servern.
