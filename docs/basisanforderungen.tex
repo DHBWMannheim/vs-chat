@@ -11,6 +11,7 @@
     \label{}
 \end{figure}
 
+\author{Matthias Vonend}
 \subsection{Chatfunktionalität}
 Damit ein Chat ablaufen kann, muss zunächst eine Verbindung zu einem Server aufgebaut werden.
 Dazu wählt der Client zunächst einen zufälligen Server aus und versucht sich zu verbinden.
@@ -27,6 +28,7 @@ Empfängt eine Node eine Nachricht, egal ob von einem Client oder von einer ande
 überprüft diese, ob die Nachricht für einen ihr bekannten Client bestimmt war und sendet diese gegebenenfalls an diesen.
 
 //TODO Nach einer erfolgreichen Anmeldung kann der Nutzer
+\author{Jan Grübener, Troy Keßler, Patrick Mischka, Michael Angermeier}
 \subsection{Clientfunktionalitäten}
 Nach einer erfolgreichen Anmeldung kann der Nutzer zwischen verschiedenen Funktionen auswählen.
 \begin{enumerate}
@@ -63,9 +65,11 @@ bekommt der Benutzer wieder eine Meldung. Am Anfang eines Chats wird immer darau
 verlassen werden kann. Danach werden alle Nachrichten, die in diesem Chat bereits geschrieben wurden, geladen.
 Anschließend kann der Benutzer Nachrichten verschicken und empfangen.
 
+\author{Matthias Vonend, Aaron Schweig, Troy Keßler}
 \subsection{Fehlerbehandlung}
 Aus den Anforderungen geht hervor, dass es mindestens zwei Server geben muss, die sämtliche Informationen des
 Chatsystems besitzen müssen. Bricht eine Node zusammen muss dementsprechend eine andere Node dessen Aufgabe übernehmen.
+
 \subsubsection{Client}
 //TODO Troy
 

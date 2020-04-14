@@ -10,6 +10,52 @@
 
 \usepackage{color}
 
+%\PassOptionsToPackage{bookmarksopen,
+%pdfstartview={Fit},
+%colorlinks=true,
+%linkcolor=blue,
+%urlcolor=blue,
+%citecolor=blue,
+%plainpages=false,
+%pdfpagelabels}{hyperref}
+\makeatletter
+\g@addto@macro{\maketitle}{\def\author#1{\def\@author{#1}}}
+\newcommand*{\extendsectlevel}[1]{%
+  \expandafter\newcommand\expandafter*\csname saved@#1\endcsname{}%
+  \expandafter\let\csname saved@#1\expandafter\endcsname\csname #1\endcsname
+  \expandafter\renewcommand\expandafter*\csname #1\endcsname{%
+    \expandafter\let\csname author@#1\endcsname\@author
+    \@ifstar
+      {\csname star@#1\endcsname}%
+      {\@dblarg{\csname opt@#1\endcsname}}%
+  }%
+  \expandafter\newcommand\expandafter*\csname star@#1\endcsname[1]{%
+    \csname saved@#1\endcsname*{##1%
+      \expandafter\ifx\csname author@#1\endcsname\@empty\else
+        \hfill\linebreak{\normalsize
+          \textmd{\textit{\csname author@#1\endcsname}}}%
+      \fi
+    }%
+  }%
+  \expandafter\newcommand\expandafter*\csname opt@#1\endcsname[2][]{%
+    \csname saved@#1\endcsname[{##1%
+      \expandafter\ifx\csname author@#1\endcsname\@empty\else
+%        \enskip\textmd{\textit{(\csname author@#1\endcsname)}}%
+% >>> UN/COMMENT the above line to enable/disable author names in the TOC
+      \fi
+    }]{##2%
+      \expandafter\ifx\csname author@#1\endcsname\@empty\else
+            \\ 
+            \normalsize
+            \textmd{\textit{\csname author@#1\endcsname}}
+      \fi
+    }
+  }
+}
+\extendsectlevel{section}
+\extendsectlevel{subsection}
+\makeatother
+
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
@@ -71,24 +117,28 @@
 
     % TODO add information about git
 
+    \author{}
     \section{Basisanforderungen}
         \input{basisanforderungen.tex}
+    \author{}
     \section{Erweiterungen}
         \input{erweiterungen.tex}
     \clearpage
+    \author{}
     \section{Anhang}
         \input{anhang.tex} % Per section? -> problematic ref
 
 
     \section{TODOS}
-        Das doc schreiben duh :P
         Konfliktvermeidung ansprechen -> Datenbanken vergleich mit UUID als Fremdschlüssel
         UUIDs erwähnen
         Code walkthrough + kommentieren
         Titlepage überarbeiten
+        Write-All-Available
+        Java 11
+        Code-Listings
 
-
-
+    \author{}
     \section{TEMP Codewalkthrough}
     Entrypoint ist der Serverbootstrapper. Dieser erstellt einen neuen Thread mit einem neuen Server. Der Server erstellt die Listener, die die zu empfangenen Packete handeln werden. Anschließend werden die Filter erstellt, die bestimmen, ob ein Packet gehandelt oder ignoriert werden soll (z.B. bei recursiven Broadcasts). Die Listener und die Filter werden in einen ServerContext gepackt, der allen Threads geteilt wird.
 
