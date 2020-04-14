@@ -1,8 +1,5 @@
 % !TEX root = ./docs.tex
 
-
-
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{architecture.png}
@@ -39,7 +36,7 @@ Nach einer erfolgreichen Anmeldung kann der Nutzer zwischen verschiedenen Funkti
     \item exit
 \end{enumerate}
 \paragraph{Funktion: help}
-Diese Funktion ist nur im Command-Line-Client implementiert und gibt dem Nutzer einen Überblick
+Diese Funktion ist nur im Commandline-Client implementiert und gibt dem Nutzer einen Überblick
 über alle möglichen Funktionen, die er aufrufen kann. Alle Funktionen sind in ein paar Worten beschrieben,
 sodass der Benutzer gleich weiß, was diese Funktion genau macht.
 \paragraph{Funktion: chats}
@@ -99,8 +96,4 @@ Dennoch können grundsätzlich die folgende Fehlerfälle eintretten:
 Wie gerade beschrieben führen alle beteiligten stets eine synchronisation durch wodurch diese immer den kompletten Informationsbestand besitzen. Die Replikationskontrolle wird nach der Write-All-Available Strategie umgesetzt. Ein Client schickt eine Nachricht an einen Server, der versucht alle zu ihm verbundenen Nodes aktuell zu halten indem er die Nachricht oder die Änderung an alle verfügbaren Nodes weiterleitet.
 
 Eine Veränderung des Datenbestandes muss dem entsprechend an alle anderen Nodes weiter gegeben werden.
-Dadurch sind alle Server gleichwertige Servern.
-
-
-
-
+Dadurch sind alle Server gleichwertige.

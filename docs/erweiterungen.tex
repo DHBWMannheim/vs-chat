@@ -25,7 +25,6 @@ Sämtliche der Node bekannten Informationen (Nutzer, Chats, Nachrichten) werden 
 
 Der Speichervorgang kann je nach System und Warehousegröße längere Zeiten in anspruch nehmen. In dieser Zeit können in der Regel keine weiteren Anfragen verarbeitet werden. Um diese Zeit zu minimieren kümmert sich ein eigener Thread um die Speicherung und speichert das Warehouse in Intervallen.
 Zu beachten ist der Fall, dass eine Node zusammenbricht während der Speichervorgang in Arbeit ist. In diesem Fall würde die node sämtliche Informationen verlieren, da die Speicherdatei korrupt ist. Um dies zu verhindern wird der Speicherstand zunächst in eine Tempdatei geschrieben und nach erfolgreicher speicherung an den Zielort verschoben.
-//TODO update this section to include packet ids
 
 \author{Troy Keßler, Michael Angermeier}
 \subsection{Verschlüsselte Übertragung der Chat-Nachrichten}\label{encryption}
@@ -42,7 +41,7 @@ Nachrichten entschlüsseln. Somit wird der Server ausschließlich
 verschlüsselte Nachrichten erhalten auf die er keinen Zugriff hat.
 
 Um auch Gruppenchats ermöglichen zu können musste der 
-Diffie-Hellman- Schlüsselaustausch entsprechend erweitert werden.
+Diffie-Hellman-Schlüsselaustausch entsprechend erweitert werden.
 Dabei gibt es in Gruppen im Gegensatz zu zwei Teilnehmern 
 mehrere Runden. Ein Schlüsselaustausch mit drei Teilnehmern kann
 aus dem untererem Schaubild entnommen werden:
@@ -73,11 +72,11 @@ $$ requests = n \cdot (n - 1) $$
 Wobei hier n die Anzahl der Teilnehmer ist.
 
 Da nun alle Chatteilnehmer den gleichen Schlüssel besitzen und dieser 
-lokal gesichert ist können Nachrichten mit einem symetrischen Verfahren
+lokal gesichert ist können Nachrichten mit einem symmetrischen Verfahren
 sicher versendet werden.
 
 Für das symmetrische Verfahren wurde die AES Verschlüsselung implementiert.
 
 \author{Troy Keßler}
 \subsection{Verschlüsselte serverseitige Speicherung der Chats}
-Durch die in \ref{encryption} beschriebene Ende-zu-Ende Verschlüsselung liegen dem Server die Nachrichten nie in Klartextform vor sondern stehts in der verschlüsselten Form. Wie bereits in \ref{persistance} erwähnt werden alle Nachrichten im Warehouse gespeichert und das gesamte Warehouse wird abgespeichert. So liegen auch in der Speicherdatei die Nachrichten niemals in Klartextform vor.
+Durch die in \ref{encryption} beschriebene Ende-zu-Ende Verschlüsselung liegen dem Server die Nachrichten nie in Klartextform vor sondern stets in der verschlüsselten Form. Wie bereits in \ref{persistance} erwähnt werden alle Nachrichten im Warehouse gespeichert und das gesamte Warehouse wird abgespeichert. So liegen auch in der Speicherdatei die Nachrichten niemals in Klartextform vor.
