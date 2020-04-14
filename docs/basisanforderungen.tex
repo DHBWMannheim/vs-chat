@@ -71,12 +71,13 @@ Chatsystems besitzen müssen. Bricht eine Node zusammen muss dementsprechend ein
 
 \subsubsection{Client}
 //TODO Troy
+//TODO Fat Client
 
 Im Fehlerfall scheitert das Senden einer Nachricht an den Server. In diesem Fall versucht sich der Client mit
 einer anderen Node zu verbinden und sendet die Nachricht erneut.
 
 \subsubsection{Server}
-Serverseitig können verschiedene Fehler auftretten. VIele Fehler werden bereits durch das TCP-Protokoll verhindert.
+Serverseitig können verschiedene Fehler auftretten. Viele Fehler werden bereits durch das TCP-Protokoll verhindert (z.B. mehrfach Zustellung, fehlerhafte Übermittlung).
 Dennoch können grundsätzlich die folgende Fehlerfälle eintretten:
 \begin{enumerate}
     \item Nachricht des Clients kann nicht korrekt empfangen/gesendet werden\\
@@ -85,13 +86,12 @@ Dennoch können grundsätzlich die folgende Fehlerfälle eintretten:
         Alle für den Client relevanten Nachrichten werden dann zu diesem übertragen und der Client muss
         neue Informationen zurück übertragen
     \item Nachrichten einer Nachbarnode können nicht korrekt empfangen/gesendet werden\\
-        Ähnlich zur Clientverbindung muss der Server davon ausgehen dass die Verbindung zusammengebrochen ist.
+        Die Server sind als Peer-to-Peer Server aufgebaut. Demnach müssen ähnlich zur Clientverbindung der Server davon ausgehen dass die Verbindung zusammengebrochen ist.
         Allerdings ist der Server hier selbst dafür zuständig sich erneut zu verbinden. Sämtliche Nachrichten,
         die an eine Node gesendet werden müssen werden in einer Queue aufbewahrt und nacheinander gesendet.
         Scheitert die Verbindung, so bleibt die Queue unverändert und wird nach einem erneuten Verbinden
         weiter abgearbeitet. Es wird solange versucht zu verbinden, bis eine Verbindung zustande gekommen ist.
-        Sobald eine Verbindung wieder aufgebaut wurde synchronisieren sich die Nodes um wieder einen vollständigen
-        Informationsstand zu besitzen.
+        Sobald eine Verbindung wieder aufgebaut wurde synchronisieren sich die Nodes um wieder einen vollständigen Informationsstand zu besitzen. So kommen die Server auch mit Netzwerkpatitionierungen klar. Werden die Server getrennt sind die Client immernoch in der Lage Nachrichten an ihre jeweiligen Server zu schicken und sobald die Verbindung zwischen den Servern wieder aufgebaut werden konnte gleichen sich diese an.
         Sind keine Nachrichten zu senden, hat die Node keine Möglichkeit festzustellen,
         ob eine Verbindung noch existiert. Zu diesem Zweck existiert ein Heartbeat, der periodisch
         die Nachbarnodes anpingt und so prüft, ob die Verbindung noch existiert.

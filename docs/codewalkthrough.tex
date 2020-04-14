@@ -18,7 +18,7 @@ Bei der Implementierung wird Java 11 eingesetzt.
     Sobald der ServerContext instanziiert wird, wird das Warehouse geladen. Zunächst wird versucht die Safe-Datei zu laden, scheitert das Laden wird das Warehouse leer instanziiert. Das Warehouse hält sämtliche Daten, die persistiert werden müssen (z.\,B. Messages, Chats, Users). Der ServerContext erstellt außerdem den Persister. Der Persister ist ein Thread, der in regelmaßigen Abständen das Warehouse speichert (müsste in ener section schon beschrieben sein). Außerdem wird der Broadcaster erstellt, der die Verbindungen zu anderen Nodes hält und empfangene Nachrichten an diese verteilt.
     Weitere Variablen sind isCloseRequested, die die "endlos" Schleifen aller Threads steuert und connections. Diese Liste hällt alle Connections zu Clients, die direkt zu dieser Node verbunden sind.
 
-    Der Nodebroadcaster erstellt bei instanziierung je node einen eigenen Thread, der sich um das senden und das neu verbinden kümmert.
+    Der Nodebroadcaster erstellt bei Instanziierung je node einen eigenen Thread, der sich um das senden und das neu verbinden kümmert.
     Nachrichten, die an eine Node gesendet werden soll werden sollen werden vom Broadcaster in die Queue geschrieben und die NodeConnection wird durch eine Semaphore aufgeweckt. Die NodeConnection versucht eine Nachricht zu senden. Scheitert das senden wird von einer Verbindungstrennung ausgegangen und die Verbindung wird neu verbunden.
     Zusätzlich besitzt die NodeConnection jeweils einen HeartBeat-Thread. Dieser Thread sendet regelmäßig einen Ping um zu testen, ob die Verbindung noch steht.
 

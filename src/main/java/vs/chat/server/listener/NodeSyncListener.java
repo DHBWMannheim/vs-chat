@@ -14,16 +14,16 @@ public class NodeSyncListener implements Listener<NodeSyncPacket, NoOpPacket> {
 	public NoOpPacket next(final NodeSyncPacket packet, final ServerContext context, final ConnectionHandler handler)
 			throws IOException {
 		var needsBroadcast = false;
-		for (var type : WarehouseResourceType.values()) {
-			for (var id : packet.packetIds) {
-				if (!context.getWarehouse().knowsPacket(id)) {
-					context.getWarehouse().savePacket(id);
-					needsBroadcast = true;
-				}
+		for (var id : packet.packetIds) {
+			if (!context.getWarehouse().knowsPacket(id)) {
+				context.getWarehouse().savePacket(id);
+				needsBroadcast = true;
 			}
+		}
+		for (var type : WarehouseResourceType.values()) {
 			for (var entry : packet.warehouse.get(type).entrySet()) {
 				if (null == context.getWarehouse().get(type).get(entry.getKey())) {
-					context.getWarehouse().get(type).put(entry.getKey(), entry.getValue());
+					context.getWarehouse().get(type).put(entry.getKey(), entry.getValue());//BaseEntityBroadcast
 					needsBroadcast = true;
 				}
 			}
