@@ -283,6 +283,11 @@ public class ClientApiImpl implements ClientApi {
                                 d.setContent(decryptAES(chatKey, m.getContent()));
 
                                 onMessage.run(d);
+                            } else if (base.getBaseEntity() instanceof User) {
+                                User u = (User) base.getBaseEntity();
+                                contacts.add(u);
+                                System.out.println("Added new User '" + u.getUsername() + "'");
+                                System.out.print(">");
                             }
 
                         } else if (packet instanceof KeyExchangePacket) {
