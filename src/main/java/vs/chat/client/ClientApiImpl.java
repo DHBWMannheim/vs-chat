@@ -77,11 +77,8 @@ public class ClientApiImpl implements ClientApi {
             this.keyfile = new Keyfile(username);
             keyfile.load();
             keyfile.save();
-            this.privateKey = generatePrivateKey();
-            this.nextKey = this.g.modPow(this.privateKey, this.n);
-            System.out.println(this.userId);
-            System.out.println("\nGenerated private key: " + this.privateKey);
 
+            System.out.println(this.userId);
         } catch (IOException | ClassNotFoundException e) {
             throw new LoginException();
         }
@@ -95,12 +92,14 @@ public class ClientApiImpl implements ClientApi {
         return this.chats;
     }
 
-    private BigInteger generatePrivateKey() {
+    private void generatePrivateKey() {
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[KEY_BYTE_LENGTH];
         random.nextBytes(bytes);
 
-        return BigInteger.valueOf(ByteBuffer.wrap(bytes).getLong()).abs();
+        this.privateKey = BigInteger.valueOf(ByteBuffer.wrap(bytes).getLong()).abs();
+        this.nextKey = this.g.modPow(this.privateKey, this.n);
+        System.out.println("\nGenerated private key: " + this.privateKey);
     }
 
     public void getChatMessages(UUID chatId) throws IOException {
@@ -130,6 +129,7 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void exchangeKeys(String chatName, List<UUID> userIds, OnTimeout onTimeout) throws IOException, InterruptedException {
+        this.generatePrivateKey();
     	userIds.add(0, this.userId);
     	KeyExchangePacket keyEchangePacket = new KeyExchangePacket(
     		this.nextKey,
