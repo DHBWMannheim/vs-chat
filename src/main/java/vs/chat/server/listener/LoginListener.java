@@ -43,12 +43,12 @@ public class LoginListener implements Listener<LoginPacket, Packet> {
 			System.out.println("created user with id:" + id);
 
 			var broadcastPacket = new BaseEntityBroadcastPacket(user);
-			
+
 			var b = new BaseEntityBroadcastPacket(new User(user.getId(), user.getUsername()));
 			for (var others : context.getWarehouse().get(WarehouseResourceType.USERS).keySet()) {
-				var localConnection = context.getConnectionForUserId(others);
-				if (localConnection.isPresent()) {
-					localConnection.get().pushTo(b);
+				var localConnections = context.getConnectionForUserId(others);
+				for (var connection : localConnections) {
+					connection.pushTo(b);
 				}
 			}
 
@@ -62,8 +62,8 @@ public class LoginListener implements Listener<LoginPacket, Packet> {
 		var users = context.getWarehouse().get(WarehouseResourceType.USERS).values().stream().map(user -> {
 			var u = (PasswordUser) user;
 			return new User(u.getId(), u.getUsername());
-		}).collect(Collectors.toSet());		
-		
+		}).collect(Collectors.toSet());
+
 		return new LoginSyncPacket(handler.getConnectedToUserId().get(), chats, users);
 	}
 

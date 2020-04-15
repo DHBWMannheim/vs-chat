@@ -36,9 +36,9 @@ public class MessageListener implements Listener<MessagePacket, Packet> {
 
 		var broadcastPacket = new BaseEntityBroadcastPacket(newMessage);
 		for (var user : correspondingChat.getUsers()) {
-			var localConnection = context.getConnectionForUserId(user);
-			if (localConnection.isPresent()) {
-				localConnection.get().pushTo(broadcastPacket);
+			var localConnections = context.getConnectionForUserId(user);
+			for (var connection : localConnections) {
+				connection.pushTo(broadcastPacket);
 			}
 		}
 		context.getBroadcaster().send(broadcastPacket);
