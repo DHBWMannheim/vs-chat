@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import vs.chat.packets.Packet;
 import vs.chat.server.filter.Filter;
@@ -71,9 +70,9 @@ public class ServerContext {
 		return connections;
 	}
 
-	public List<ConnectionHandler> getConnectionForUserId(final UUID id) {
+	public Optional<ConnectionHandler> getConnectionForUserId(final UUID id) {
 		return this.connections.stream().filter(connection -> connection.getConnectedToUserId().isPresent()
-				&& connection.getConnectedToUserId().get().equals(id)).collect(Collectors.toList());
+				&& connection.getConnectedToUserId().get().equals(id)).findFirst();
 	}
 
 	public Warehouse getWarehouse() {

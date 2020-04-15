@@ -20,9 +20,9 @@ public class KeyExchangeListener implements Listener<KeyExchangePacket, Packet> 
 			return null;
 		}
 
-		var localConnections = context.getConnectionForUserId(packet.getTarget());
-		for (var connection : localConnections) {
-			connection.pushTo(packet);
+		var localConnection = context.getConnectionForUserId(packet.getTarget());
+		if (localConnection.isPresent()) {
+			localConnection.get().pushTo(packet);
 		}
 		context.getBroadcaster().send(packet);
 		return null;

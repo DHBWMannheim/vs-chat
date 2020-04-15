@@ -43,9 +43,9 @@ public class BaseEntityBroadcastListener implements Listener<BaseEntityBroadcast
 			}
 
 			for (var user : distributionUser) {
-				var localConnections = context.getConnectionForUserId(user);
-				for (var connection : localConnections) {
-					connection.pushTo(distributionPacket);
+				var localConnection = context.getConnectionForUserId(user);
+				if (localConnection.isPresent()) {
+					localConnection.get().pushTo(distributionPacket);
 				}
 			}
 		}
