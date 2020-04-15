@@ -40,11 +40,16 @@ jeweiligen Chat Schlüssel verschlüsseln und ankommenende
 Nachrichten entschlüsseln. Somit wird der Server ausschließlich
 verschlüsselte Nachrichten erhalten auf die er keinen Zugriff hat.
 
+Die öffentlichen Schlüssel wurden dabei für jeden Client festgeschrieben.
+Nach jedem Login und nach erstellen eines Chats generiert der Client
+einen neuen 128bit Schlüssel und löscht den alten um die Sicherheit
+zu erhöhen.
+
 Um auch Gruppenchats ermöglichen zu können musste der 
 Diffie-Hellman-Schlüsselaustausch entsprechend erweitert werden.
 Dabei gibt es in Gruppen im Gegensatz zu zwei Teilnehmern 
 mehrere Runden. Ein Schlüsselaustausch mit drei Teilnehmern kann
-aus dem untererem Schaubild entnommen werden:
+aus Abbildung 2 entnommen werden.
 
 \begin{figure}[h]
   \centering
@@ -73,11 +78,33 @@ $$ requests = n \cdot (n - 1) $$
 
 Wobei hier n die Anzahl der Teilnehmer ist.
 
-Da nun alle Chatteilnehmer den gleichen Schlüssel besitzen und dieser 
-lokal gesichert ist können Nachrichten mit einem symmetrischen Verfahren
-sicher versendet werden.
+Aus implementierungssicht braucht der Initiator dieses
+Schlüsselaustauschs eine Endbedingung, sodass er nachdem
+die Schlüssel unter allen Teilnehmern ausgetauscht wurden 
+den Chat erstellen kann. Der Initiator dieses Schlüsselaustauschs 
+kann nun mit dem Bedingung
 
-Für das symmetrische Verfahren wurde die AES Verschlüsselung implementiert.
+$$ currentRequests = (targetRequests - userIndex) $$
+
+prüfen, ob der Schlüsselaustausch vollständig durchgeführt wurde. Dabei steht 
+$ currentRequests $ für die Anzahl, wie oft das Packet schon weitergeleitet
+wurde, diese wird beim versenden immer inkrementiert. $ targetRequests $
+ist die Anzahl der theoretischen Requests die gesendet werden müssen, diese
+beträgt wie oben definiert immer $ n \cdot (n - 1) $. $ userIndex $ steht
+für die Position im Schlüsselaustausch, der Initiator ist der erste, sodass
+diese bei ihm immer 0 ist. Im obigen Beispiel wäre also die Endbedingung
+erfüllt wenn der Initiator ein Packet erhält, welches schon sechs mal 
+weitergeleitet wurde.
+
+$$ 6 = (3 * (3 - 1)) - 0 $$
+
+Für alle anderen Clients gilt eine leicht abgeänderte Endbedingung.
+
+Da nun alle Chatteilnehmer den gleichen Schlüssel besitzen, dieser 
+lokal gesichert, und der Chat erstellt ist können Nachrichten mit 
+einem symmetrischen Verfahren sicher versendet werden. Für dieses 
+symmetrische Verfahren wurde die AES Verschlüsselung gewählt und
+implementiert.
 
 \author{Troy Keßler}
 \subsection{Verschlüsselte serverseitige Speicherung der Chats}
