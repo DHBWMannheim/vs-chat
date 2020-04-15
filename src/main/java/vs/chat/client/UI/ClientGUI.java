@@ -7,11 +7,9 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.*;
@@ -145,11 +143,11 @@ public class ClientGUI {
             this.footerPanel = footerPanel;
             this.emojiPanel = new JPanel();
 
-
+            /*
             emojiAppendFooterPanel = new JPanel(new BorderLayout());
             emojiAppendFooterPanel.add(footerPanel, BorderLayout.SOUTH);
             emojiAppendFooterPanel.add(emojiPanel, BorderLayout.NORTH);
-
+            */
             counter = 0;
         }
 
@@ -302,16 +300,7 @@ public class ClientGUI {
 
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
-            try {
-                api.sendMessage(messageInput.getText(), currentChat.getId());
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-
-
-            System.out.println("Nachricht gesendet!");
-            messageInput.selectAll();
-            messageInput.replaceSelection("");
+            sendMessage();
         }
 
         @Override
@@ -449,30 +438,84 @@ public class ClientGUI {
         System.out.println("Sie wurden zu einem neuen Chat hinzugefügt");
     }
 
+    private void sendMessage(){
+        try {
+            api.sendMessage(messageInput.getText(), currentChat.getId());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+
+        System.out.println("Nachricht gesendet!");
+        messageInput.selectAll();
+        messageInput.replaceSelection("");
+    }
+
     private void onGetMessageHistory(Set<Message> messages) {
         rootPanel.getContentPane().removeAll();
         rootPanel.getContentPane().add(header(currentChat), BorderLayout.NORTH);
 
-        JPanel messagePanel = new JPanel(new GridLayout(0, 1));
+        // JPanel messagePanel = new JPanel(new GridLayout(0, 1));
         JPanel[] messagePanels = new JPanel[messages.size()];
         int i = 0;
 
         for (Message message : messages) {
             JPanel messageContentPanel = new JPanel();
             messageContentPanel.setLayout(new BorderLayout());
-            if (message.getOrigin().equals(api.getUserId())){
-                messageContentPanel.add(new JLabel(message.getContent()),BorderLayout.EAST);
-                messageContentPanel.setBackground(new Color(158, 200, 145));
-            }else {
-                messageContentPanel.add(new JLabel(message.getContent()),BorderLayout.WEST);
-                messageContentPanel.setBackground(new Color(120, 120, 120));
+
+            // Keylistener e.getKeyCode() == KeyEvent.VK_ENTER, in eingabe methode
+
+
+            String unformattedMessage = message.getContent();
+
+            int stringLength = unformattedMessage.length();
+            int countLines = (stringLength / 40) + 1;
+
+            String[] formattedMessage = new String[countLines];
+
+            JPanel formattedMessagePanel = new JPanel();
+            formattedMessagePanel.setLayout(new BoxLayout(formattedMessagePanel,BoxLayout.Y_AXIS));
+
+            int panelHeight = 40 + countLines * 8;
+
+
+            for(int z = 0;z < countLines;z++){
+                if(unformattedMessage.length() - z*40< 40){
+                    formattedMessage[z] = unformattedMessage.substring((z*40)).strip();
+
+
+                }else {
+                    formattedMessage[z] = unformattedMessage.substring(((z * 40)), ((z * 40) + 40)).strip();
+
+                }
+                formattedMessagePanel.add(new JLabel(formattedMessage[z]));
             }
+
+
+            if (message.getOrigin().equals(api.getUserId())){
+
+                formattedMessagePanel.setBackground(new Color(158, 200, 145));
+                messageContentPanel.add(formattedMessagePanel,BorderLayout.EAST);
+                messageContentPanel.setBackground(new Color(158, 200, 145));
+
+            }else {
+                messageContentPanel.add(new JLabel(api.getUsernameFromId(message.getOrigin())), BorderLayout.NORTH);
+                panelHeight += 12;
+                formattedMessagePanel.setBackground(new Color(120, 120, 120));
+                messageContentPanel.add(formattedMessagePanel, BorderLayout.SOUTH);
+                messageContentPanel.setBackground(new Color(120, 120, 120));
+
+            }
+
+
             messageContentPanel.setBorder(BorderFactory.createEtchedBorder());
-            messageContentPanel.setPreferredSize(new Dimension(300,40));
-            messageContentPanel.setMinimumSize(new Dimension(300, 40));
-            messageContentPanel.setMaximumSize(new Dimension(400, 40));
-            messageContentPanel.setSize(new Dimension(400,40));
+            messageContentPanel.setPreferredSize(new Dimension(300,panelHeight));
+            messageContentPanel.setMinimumSize(new Dimension(300, panelHeight));
+            messageContentPanel.setMaximumSize(new Dimension(400, panelHeight));
+            messageContentPanel.setSize(new Dimension(400,panelHeight));
             messageContentPanel.revalidate();
+
+
             messagePanels[i++] = messageContentPanel;
         }
 
@@ -487,15 +530,17 @@ public class ClientGUI {
 
         JScrollPane JChatPane = new JScrollPane(JChatBox);
 
-        JScrollBar jScrollBar = new JScrollBar();
-
-        JChatPane.setVerticalScrollBar(jScrollBar);
-
         JChatPane.setMaximumSize(defDim);
         JChatPane.setMinimumSize(defDim);
         JChatPane.setPreferredSize(defDim);
         JChatPane.setSize(defDim);
         JChatPane.revalidate();
+
+
+        JScrollBar jScrollBar = new JScrollBar();
+        jScrollBar.setUnitIncrement(25);
+
+        JChatPane.setVerticalScrollBar(jScrollBar);
 
         //JPanel helpPanel = new JPanel(new BorderLayout());
         // helpPanel.setPreferredSize(new Dimension(300,300));
@@ -504,12 +549,14 @@ public class ClientGUI {
         rootPanel.add(JChatPane, BorderLayout.CENTER);
         rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
         rootPanel.pack();
+
+        jScrollBar.setValue(jScrollBar.getMaximum());
     }
 
     public JPanel displayRecentConversations() {
         JPanel chatsPanel = new JPanel(new GridLayout(0, 1));
         JPanel newChatPanel = new JPanel(new GridLayout(0, 3));
-        JLabel titleLabel = new JLabel("VS-Chat");
+        JLabel titleLabel = new JLabel("VS-Chat : " + api.getUsernameFromId(api.getUserId()));
         titleLabel.setForeground(Color.WHITE);
         JLabel backLabel = getImageJLabel("src/main/java/vs/chat/client/UI/icons/backwhite.png", 40, 40);
         newChatPanel.add(backLabel);
@@ -551,6 +598,7 @@ public class ClientGUI {
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         messageInput = new JTextArea(2, 27);
         messageInput.setLineWrap(true);
+
         JLabel emojiJLabel = getImageJLabel("src/main/java/vs/chat/client/UI/icons/emoji.png", 30, 30);
         JLabel sendLabel = getImageJLabel("src/main/java/vs/chat/client/UI/icons/send.png", 30, 30);
         footerPanel.add(emojiJLabel);
@@ -560,6 +608,24 @@ public class ClientGUI {
 
         emojiJLabel.addMouseListener(new OpenEmojiPanelMouseListener(footerPanel));
         sendLabel.addMouseListener(new SendMouseListener());
+        messageInput.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                    sendMessage();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
 
         return footerPanel;
     }
