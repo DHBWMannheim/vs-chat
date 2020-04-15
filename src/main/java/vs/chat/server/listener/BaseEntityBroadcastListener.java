@@ -25,27 +25,28 @@ public class BaseEntityBroadcastListener implements Listener<BaseEntityBroadcast
 		if (!exists) {
 			context.getWarehouse().get(entity.getType()).put(entity.getId(), entity);
 			context.getBroadcaster().send(packet);
-		}
 
-		var distributionPacket = packet;
-		Set<UUID> distributionUser = null;
+			var distributionPacket = packet;
+			Set<UUID> distributionUser = null;
 
-		if (entity instanceof Chat) {
-			var chat = (Chat) entity;
-			distributionUser = chat.getUsers();
-		} else if (entity instanceof Message) {
-			var message = (Message) entity;
-			distributionUser = ((Chat) context.getWarehouse().get(WarehouseResourceType.CHATS).get(message.getTarget()))
-					.getUsers();
-		} else if (entity instanceof User) {
-			distributionUser = context.getWarehouse().get(WarehouseResourceType.USERS).keySet();
-			distributionPacket = new BaseEntityBroadcastPacket(new User(entity.getId(), ((User) entity).getUsername()));
-		}
+			if (entity instanceof Chat) {
+				var chat = (Chat) entity;
+				distributionUser = chat.getUsers();
+			} else if (entity instanceof Message) {
+				var message = (Message) entity;
+				distributionUser = ((Chat) context.getWarehouse().get(WarehouseResourceType.CHATS)
+						.get(message.getTarget())).getUsers();
+			} else if (entity instanceof User) {
+				distributionUser = context.getWarehouse().get(WarehouseResourceType.USERS).keySet();
+				distributionPacket = new BaseEntityBroadcastPacket(
+						new User(entity.getId(), ((User) entity).getUsername()));
+			}
 
-		for (var user : distributionUser) {
-			var localConnection = context.getConnectionForUserId(user);
-			if (localConnection.isPresent()) {
-				localConnection.get().pushTo(distributionPacket);
+			for (var user : distributionUser) {
+				var localConnection = context.getConnectionForUserId(user);
+				if (localConnection.isPresent()) {
+					localConnection.get().pushTo(distributionPacket);
+				}
 			}
 		}
 
