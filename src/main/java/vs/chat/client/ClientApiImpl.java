@@ -270,6 +270,7 @@ public class ClientApiImpl implements ClientApi {
 
 
                                 addKey(newChat.getId(), nextKey);
+                                nextKey = g.modPow(privateKey, n);
 
                                 chats.add(newChat);
                                 onCreateChat.run(newChat);

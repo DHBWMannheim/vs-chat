@@ -16,7 +16,7 @@ public class Cmd {
 
     private ClientApiImpl api;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
-    private boolean isChatOpen = false;
+    private UUID chatOpen = null;
 
     public Cmd(ClientApiImpl api) {
         this.api = api;
@@ -84,9 +84,10 @@ public class Cmd {
     }
 
     private void onMessage(Message message) {
-        if (this.isChatOpen) {
-            System.out.println(this.api.getUsernameFromId(message.getOrigin()) + ": " + dateFormat.format(message.getReceiveTime()) + " -> " + message.getContent());
-
+        if (this.chatOpen != null) {
+            if (this.chatOpen.equals(message.getTarget())) {
+                System.out.println(this.api.getUsernameFromId(message.getOrigin()) + ": " + dateFormat.format(message.getReceiveTime()) + " -> " + message.getContent());
+            }
         } else {
             System.out.println("1 Neue Nachricht von " + this.api.getUsernameFromId(message.getOrigin()));
             System.out.print("> ");
@@ -224,7 +225,6 @@ public class Cmd {
     private void openChat() {
         try {
             Chat chat;
-            this.isChatOpen = true;
 
             do {
                 System.out.print("Chatname: ");
@@ -235,6 +235,8 @@ public class Cmd {
                     System.out.println("Chat not found!");
                 }
             } while (chat == null);
+
+            this.chatOpen = chat.getId();
 
             BigInteger chatKey = this.api.loadKey(chat.getId());
             System.out.println("Chat id von " + chat.getName() + " ist " + chatKey);
@@ -253,7 +255,7 @@ public class Cmd {
                 this.api.sendMessage(message, chat.getId());
             }
 
-            this.isChatOpen = false;
+            this.chatOpen = null;
 
         } catch (IOException e) {
             e.printStackTrace();

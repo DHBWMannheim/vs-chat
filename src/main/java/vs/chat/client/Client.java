@@ -12,7 +12,7 @@ public class Client {
 	private static int PORT = 9876;
 
 	public static void main(String[] args){
-		String hostname = "localhost";
+		String hostname = "ermodo.ddns.net";
 		ObjectOutputStream objectOut;
 		Socket socket;
 
