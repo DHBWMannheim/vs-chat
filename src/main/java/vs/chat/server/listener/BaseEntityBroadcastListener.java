@@ -26,7 +26,7 @@ public class BaseEntityBroadcastListener implements Listener<BaseEntityBroadcast
 			context.getWarehouse().get(entity.getType()).put(entity.getId(), entity);
 			context.getBroadcaster().send(packet);
 		}
-		
+
 		var distributionPacket = packet;
 		Set<UUID> distributionUser = null;
 
@@ -35,13 +35,14 @@ public class BaseEntityBroadcastListener implements Listener<BaseEntityBroadcast
 			distributionUser = chat.getUsers();
 		} else if (entity instanceof Message) {
 			var message = (Message) entity;
-			distributionUser = ((Chat)context.getWarehouse().get(WarehouseResourceType.CHATS).get(message.getTarget())).getUsers();
+			distributionUser = ((Chat) context.getWarehouse().get(WarehouseResourceType.CHATS).get(message.getTarget()))
+					.getUsers();
 		} else if (entity instanceof User) {
 			distributionUser = context.getWarehouse().get(WarehouseResourceType.USERS).keySet();
 			distributionPacket = new BaseEntityBroadcastPacket(new User(entity.getId(), ((User) entity).getUsername()));
 		}
-		
-		for (var user :distributionUser) {
+
+		for (var user : distributionUser) {
 			var localConnection = context.getConnectionForUserId(user);
 			if (localConnection.isPresent()) {
 				localConnection.get().pushTo(distributionPacket);

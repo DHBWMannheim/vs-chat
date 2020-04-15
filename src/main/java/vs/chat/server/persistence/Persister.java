@@ -1,4 +1,4 @@
-package vs.chat.server.persistance;
+package vs.chat.server.persistence;
 
 import java.io.IOException;
 

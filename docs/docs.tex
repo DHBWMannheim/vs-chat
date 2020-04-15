@@ -10,6 +10,52 @@
 
 \usepackage{color}
 
+%\PassOptionsToPackage{bookmarksopen,
+%pdfstartview={Fit},
+%colorlinks=true,
+%linkcolor=blue,
+%urlcolor=blue,
+%citecolor=blue,
+%plainpages=false,
+%pdfpagelabels}{hyperref}
+\makeatletter
+\g@addto@macro{\maketitle}{\def\author#1{\def\@author{#1}}}
+\newcommand*{\extendsectlevel}[1]{%
+  \expandafter\newcommand\expandafter*\csname saved@#1\endcsname{}%
+  \expandafter\let\csname saved@#1\expandafter\endcsname\csname #1\endcsname
+  \expandafter\renewcommand\expandafter*\csname #1\endcsname{%
+    \expandafter\let\csname author@#1\endcsname\@author
+    \@ifstar
+      {\csname star@#1\endcsname}%
+      {\@dblarg{\csname opt@#1\endcsname}}%
+  }%
+  \expandafter\newcommand\expandafter*\csname star@#1\endcsname[1]{%
+    \csname saved@#1\endcsname*{##1%
+      \expandafter\ifx\csname author@#1\endcsname\@empty\else
+        \hfill\linebreak{\normalsize
+          \textmd{\textit{\csname author@#1\endcsname}}}%
+      \fi
+    }%
+  }%
+  \expandafter\newcommand\expandafter*\csname opt@#1\endcsname[2][]{%
+    \csname saved@#1\endcsname[{##1%
+      \expandafter\ifx\csname author@#1\endcsname\@empty\else
+%        \enskip\textmd{\textit{(\csname author@#1\endcsname)}}%
+% >>> UN/COMMENT the above line to enable/disable author names in the TOC
+      \fi
+    }]{##2%
+      \expandafter\ifx\csname author@#1\endcsname\@empty\else
+            \\ 
+            \normalsize
+            \textmd{\textit{\csname author@#1\endcsname}}
+      \fi
+    }
+  }
+}
+\extendsectlevel{section}
+\extendsectlevel{subsection}
+\makeatother
+
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
@@ -33,7 +79,7 @@
   showspaces=false,
   showstringspaces=false,
   showtabs=false,
-  stepnumber=5,
+  stepnumber=2,
   stringstyle=\color{mymauve},
   tabsize=2,
   title=\lstname
@@ -71,74 +117,26 @@
 
     % TODO add information about git
 
+    \author{}
     \section{Basisanforderungen}
         \input{basisanforderungen.tex}
+    \author{}
     \section{Erweiterungen}
         \input{erweiterungen.tex}
     \clearpage
-    \section{Anhang}
-        \input{anhang.tex} % Per section? -> problematic ref
+    \author{}
+    \section{Codewalkthrough}
+        \input{codewalkthrough.tex}
 
 
-    \section{TODOS}
-        Das doc schreiben duh :P
-        Konfliktvermeidung ansprechen -> Datenbanken vergleich mit UUID als Fremdschlüssel
-        UUIDs erwähnen
-        Code walkthrough + kommentieren
-        Titlepage überarbeiten
-
-
-
-    \section{TEMP Codewalkthrough}
-    Entrypoint ist der Serverbootstrapper. Dieser erstellt einen neuen Thread mit einem neuen Server. Der Server erstellt die Listener, die die zu empfangenen Packete handeln werden. Anschließend werden die Filter erstellt, die bestimmen, ob ein Packet gehandelt oder ignoriert werden soll (z.B. bei recursiven Broadcasts). Die Listener und die Filter werden in einen ServerContext gepackt, der allen Threads geteilt wird.
-
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=\textwidth]{VS-Server-Context.png}
-        
-        \caption{Server-Context Aufbau}
-        \label{}
-    \end{figure}
-
-    Sobald der ServerContext instanziiert wird, wird das Warehouse geladen. Zunächst wird versucht die Safe-Datei zu laden, scheitert das Laden wird das Warehouse leer instanziiert. Das Warehouse hält sämtliche Daten, die persistiert werden müssen (Messages, Chats, Users und gehandelte PacketIds). Der ServerContext erstellt außerdem den Persister. Der Persister ist ein Thread, der in regelmaßigen Abständen das Warehouse speichert (müsste in einer section schon beschrieben sein). Außerdem wird der Broadcaster erstellt, der die Verbindungen zu anderen Nodes hält und Broadcast-Packete an diese verteilt.
-    Weitere Variablen sind isCloseRequested, die die "endlos" Schleifen aller Threads steuert und connections. Diese Liste hällt alle Connections zu Clients, die direkt zu dieser Node verbunden sind.
-
-    Der Nodebroadcaster erstellt bei instanziierung je node einen eigenen Thread, der sich um das senden und das neu verbinden kümmert.
-    Packete, die an eine Node gesendet werden soll werden sollen werden vom Broadcaster in die Queue geschrieben und die NodeConnection wird durch eine Semaphore aufgeweckt. Die NodeConnection versucht ein Packet zu senden. Scheitert das senden wird von einer Verbindungstrennung ausgegangen und die Verbindung wird neu verbunden.
-    Zusätzlich besitzt die NodeConnection jeweils einen HeartBeat-Thread. Dieser Thread sendet regelmäßig ein Packet um zu testen, ob die Verbindung noch steht.
-
-    Nachdem nun alle initialisierungs Vorgänge abgeschlossen sind, kann der ServerSocket erstellt werden und clients akzeptiert werden.
-    Der Hauptserver-Thread ist dabei nur zuständig neue Verbindungen entgegenzunehmen. Für jede Verbindung wird ein ConnectionHandler-Thread erstellt, der sämtliche Nachrichten des Clients verarbeitet. Der Handler versucht dabei ein Packet vom Client zu lesen. Die Filter prüfen nun, ob das Packet gehandelt werden darf und wenn ja werden die passenden Handler mit dem Packet aufgerufen und die Filter aktualisieren sich.
-
-
-    Filter:
-    \begin{itemize}
-        \item PacketIdFilter\\
-            Der PacketId-Filter testet, ob ein Packet mit der Id bereits gesehen wurde. Nur wenn die Id neu ist darf das Packet gehandelt werden um recursive Broadcasts zu vermeiden. Bereits gesehene Packete werden im Warehouse mit gespeichert. Im seltenen Fall, dass die Node genau zwischen den Listenern und dem aktualisieren der Filter abstürzt kann es vorkommen, dass die gespeicherten packet ids nicht konsistenz zum Nutzdatenbestand sind. Hier könnte ein Transaktionsprotokoll implementiert werden. Da aber die Wahrscheinlichkeit dieses Fehlers äußerst gering ist wird hier darauf verzichtet.
-    \end{itemize}
    
 
+    
 
-    Listener:
-    \begin{itemize}
-        \item BaseEntityBroadcastListener\\
-            Der Listener behandelt BaseEntityBroadcastPackete, die ausgestrahlt werden, sobald ein neuer Nutzer, ein neuer Chat oder eine neue Nachricht erstellt wird. Die empfangene Entität wird in das Warehouse aufgenommen und weiter gesendet, falls es dieser Node neu war.
-            Nachdem ein Chat erstellt wurde müssen die Clients, die an diesem Chat teilnehmen informiert werden. Da jede Node nur die direkt zu ihr verbundenen Clients kennt, muss jede Node prüfen ob sie einen teilnehmenden Client kennt und diesen informieren. Ähnliches gilt für neue Nutzer.
-        \item CreateChatListener\\
-            Dieser Listener erstellt Chats anhand von einem CreateChatPacket. Sofern das Packet von einem Nutzer kommt wird ein neuer Chat mit allen Teilnehmern und dem Absender erstellt und weiter verteilt.
-        \item GetMessageListener\\
-            Mithilfe eines GetMessagePackets können alle Nachrichten abgefragt werden, die in einem Chat gesendet wurden.
-        \item KeyExchangeListener\\
-            Dieser Listener leitet KeyExchangePackete von einem Client an andere Clients weiter (gegebenenfalls über andere Nodes).
-        \item LoginListener\\
-            Der LoginListener kümmert sich um die Authentifizierung eines Clients. Er prüft ob ein Nutzer besteht und falls ja wird das Passwort geprüft. Existiert noch kein Nutzer wird ein passender Nutzer erstellt. Anschließend wird der Client auf den neuesten Stand gebracht indem ein LoginSyncPacket an den Client gesendet wird. Dieses enthält die User id des aktuellen Nutzers, die anderen registrierten Nutzer und alle Chats, an dem der Client teilnimmt. Außerdem wird die Information der Connection gesetzt, zu welchem Client sie verbunden ist um ein gezieltes Senden zu ermöglichen (wie z.B. beim KeyExchange oder bei Messages).
-        \item MessageListener\\
-            Messages, die vom Client an einen Chat gesendet werden werden von diesem Listener bearbeitet. Der Listener kümmert sich dabei auch um die Verteilung der Nachrichten an alle anderen Chatteilnehmer.
-        \item NodeSyncListener\\
-            Wie in Fehlerbehandlung beschrieben müssen Nodes auf dem neuesten Stand gezogen werden, falls diese ausgefallen waren. Bei einem Reconnect wird ein NodeSyncPacket mit den aktuellen Informationen an die neu startende Node gesendet. Dieser Listener verarbeitet diese Packete indem er prüft ob eine Änderung vorliegt und wenn ja diese übernimmt und broadcastet. Theoretisch kann es sein, dass ein Nutzer sich anmeldet bevor die Node ihre Syncronisation abgeschlossen hat. Dieser Fehlerfall wird aber ignoriert, da die Syncronisationszeit und die Ausfallwahrscheinlichkeit einer Node als zu gering eingestuft wird.
-    \end{itemize}
-
-
-    Sollen hier andere Packete auch erkärt werden? Also Logout, GetMessageResponsePacket, NoOp, ...?
+    \section{TODOS}
+    Code walkthrough + kommentieren
+    Titlepage überarbeiten
+    
+    Code-Listings
     
 \end{document}

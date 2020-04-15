@@ -1,16 +1,13 @@
 % !TEX root = ./docs.tex
 
-
-
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{architecture.png}
     
     \caption{Architektur}
-    \label{}
 \end{figure}
 
+\author{Matthias Vonend}
 \subsection{Chatfunktionalität}
 Damit ein Chat ablaufen kann, muss zunächst eine Verbindung zu einem Server aufgebaut werden.
 Dazu wählt der Client zunächst einen zufälligen Server aus und versucht sich zu verbinden.
@@ -27,6 +24,7 @@ Empfängt eine Node eine Nachricht, egal ob von einem Client oder von einer ande
 überprüft diese, ob die Nachricht für einen ihr bekannten Client bestimmt war und sendet diese gegebenenfalls an diesen.
 
 //TODO Nach einer erfolgreichen Anmeldung kann der Nutzer
+\author{Jan Grübener, Troy Keßler, Patrick Mischka, Michael Angermeier}
 \subsection{Clientfunktionalitäten}
 Nach einer erfolgreichen Anmeldung kann der Nutzer zwischen verschiedenen Funktionen auswählen.
 \begin{enumerate}
@@ -38,7 +36,7 @@ Nach einer erfolgreichen Anmeldung kann der Nutzer zwischen verschiedenen Funkti
     \item exit
 \end{enumerate}
 \paragraph{Funktion: help}
-Diese Funktion ist nur im Command-Line-Client implementiert und gibt dem Nutzer einen Überblick
+Diese Funktion ist nur im Commandline-Client implementiert und gibt dem Nutzer einen Überblick
 über alle möglichen Funktionen, die er aufrufen kann. Alle Funktionen sind in ein paar Worten beschrieben,
 sodass der Benutzer gleich weiß, was diese Funktion genau macht.
 \paragraph{Funktion: chats}
@@ -63,17 +61,20 @@ bekommt der Benutzer wieder eine Meldung. Am Anfang eines Chats wird immer darau
 verlassen werden kann. Danach werden alle Nachrichten, die in diesem Chat bereits geschrieben wurden, geladen.
 Anschließend kann der Benutzer Nachrichten verschicken und empfangen.
 
+\author{Matthias Vonend, Aaron Schweig, Troy Keßler}
 \subsection{Fehlerbehandlung}
 Aus den Anforderungen geht hervor, dass es mindestens zwei Server geben muss, die sämtliche Informationen des
 Chatsystems besitzen müssen. Bricht eine Node zusammen muss dementsprechend eine andere Node dessen Aufgabe übernehmen.
+
 \subsubsection{Client}
 //TODO Troy
+//TODO Fat Client
 
 Im Fehlerfall scheitert das Senden einer Nachricht an den Server. In diesem Fall versucht sich der Client mit
 einer anderen Node zu verbinden und sendet die Nachricht erneut.
 
 \subsubsection{Server}
-Serverseitig können verschiedene Fehler auftretten. VIele Fehler werden bereits durch das TCP-Protokoll verhindert.
+Serverseitig können verschiedene Fehler auftretten. Viele Fehler werden bereits durch das TCP-Protokoll verhindert (z.B. mehrfach Zustellung, fehlerhafte Übermittlung).
 Dennoch können grundsätzlich die folgende Fehlerfälle eintretten:
 \begin{enumerate}
     \item Nachricht des Clients kann nicht korrekt empfangen/gesendet werden\\
@@ -82,22 +83,17 @@ Dennoch können grundsätzlich die folgende Fehlerfälle eintretten:
         Alle für den Client relevanten Nachrichten werden dann zu diesem übertragen und der Client muss
         neue Informationen zurück übertragen
     \item Nachrichten einer Nachbarnode können nicht korrekt empfangen/gesendet werden\\
-        Ähnlich zur Clientverbindung muss der Server davon ausgehen dass die Verbindung zusammengebrochen ist.
+        Die Server sind als Peer-to-Peer Server aufgebaut. Demnach müssen ähnlich zur Clientverbindung der Server davon ausgehen dass die Verbindung zusammengebrochen ist.
         Allerdings ist der Server hier selbst dafür zuständig sich erneut zu verbinden. Sämtliche Nachrichten,
         die an eine Node gesendet werden müssen werden in einer Queue aufbewahrt und nacheinander gesendet.
         Scheitert die Verbindung, so bleibt die Queue unverändert und wird nach einem erneuten Verbinden
         weiter abgearbeitet. Es wird solange versucht zu verbinden, bis eine Verbindung zustande gekommen ist.
-        Sobald eine Verbindung wieder aufgebaut wurde synchronisieren sich die Nodes um wieder einen vollständigen
-        Informationsstand zu besitzen.
+        Sobald eine Verbindung wieder aufgebaut wurde synchronisieren sich die Nodes um wieder einen vollständigen Informationsstand zu besitzen. So kommen die Server auch mit Netzwerkpatitionierungen klar. Werden die Server getrennt sind die Client immernoch in der Lage Nachrichten an ihre jeweiligen Server zu schicken und sobald die Verbindung zwischen den Servern wieder aufgebaut werden konnte gleichen sich diese an.
         Sind keine Nachrichten zu senden, hat die Node keine Möglichkeit festzustellen,
         ob eine Verbindung noch existiert. Zu diesem Zweck existiert ein Heartbeat, der periodisch
         die Nachbarnodes anpingt und so prüft, ob die Verbindung noch existiert.
 \end{enumerate}
-Wie gerade beschrieben führen alle beteiligten stehts eine synchronisation durch wodurch diese immer den kompletten Informationsbestand besitzen.
+Wie gerade beschrieben führen alle beteiligten stets eine synchronisation durch wodurch diese immer den kompletten Informationsbestand besitzen. Die Replikationskontrolle wird nach der Write-All-Available Strategie umgesetzt. Ein Client schickt eine Nachricht an einen Server, der versucht alle zu ihm verbundenen Nodes aktuell zu halten indem er die Nachricht oder die Änderung an alle verfügbaren Nodes weiterleitet.
 
 Eine Veränderung des Datenbestandes muss dem entsprechend an alle anderen Nodes weiter gegeben werden.
-Dadurch sind alle Server gleichwertige Servern.
-
-
-
-
+Dadurch sind alle Server gleichwertige.

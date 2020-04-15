@@ -13,7 +13,7 @@ import vs.chat.server.filter.Filter;
 import vs.chat.server.listener.Listener;
 import vs.chat.server.node.NodeBroadcaster;
 import vs.chat.server.node.NodeConfig;
-import vs.chat.server.persistance.Persister;
+import vs.chat.server.persistence.Persister;
 import vs.chat.server.warehouse.Warehouse;
 
 public class ServerContext {
