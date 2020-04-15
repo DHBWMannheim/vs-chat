@@ -79,6 +79,7 @@ public class ClientApiImpl implements ClientApi {
             keyfile.save();
 
             System.out.println(this.userId);
+            this.generatePrivateKey();
         } catch (IOException | ClassNotFoundException e) {
             throw new LoginException();
         }
@@ -129,7 +130,6 @@ public class ClientApiImpl implements ClientApi {
     }
 
     public void exchangeKeys(String chatName, List<UUID> userIds, OnTimeout onTimeout) throws IOException, InterruptedException {
-        this.generatePrivateKey();
     	userIds.add(0, this.userId);
     	KeyExchangePacket keyEchangePacket = new KeyExchangePacket(
     		this.nextKey,
@@ -270,6 +270,7 @@ public class ClientApiImpl implements ClientApi {
 
 
                                 addKey(newChat.getId(), nextKey);
+                                generatePrivateKey();
                                 nextKey = g.modPow(privateKey, n);
 
                                 chats.add(newChat);
