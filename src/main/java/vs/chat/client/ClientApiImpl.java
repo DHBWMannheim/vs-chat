@@ -144,7 +144,7 @@ public class ClientApiImpl implements ClientApi {
         this.networkOut.flush();
         this.creatingChat = true;
 
-        Thread.sleep(5000);
+        Thread.sleep(10000);
 
         if (this.creatingChat) {
             this.creatingChat = false;
@@ -288,7 +288,7 @@ public class ClientApiImpl implements ClientApi {
                                 User u = (User) base.getBaseEntity();
                                 contacts.add(u);
                                 System.out.println("Added new User '" + u.getUsername() + "'");
-                                System.out.print(">");
+                                System.out.print("> ");
                             }
 
                         } else if (packet instanceof KeyExchangePacket) {
