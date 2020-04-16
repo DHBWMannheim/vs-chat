@@ -78,7 +78,6 @@ public class ClientApiImpl implements ClientApi {
             keyfile.load();
             keyfile.save();
 
-            System.out.println(this.userId);
             this.generatePrivateKey();
         } catch (IOException | ClassNotFoundException e) {
             throw new LoginException();

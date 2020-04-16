@@ -105,7 +105,6 @@ public class ConnectionHandler extends Thread {
 		try {
 			this.client.close();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
