@@ -97,6 +97,52 @@ Listener:
 Sollen hier andere Packete auch erkärt werden? Also Logout, GetMessageResponsePacket, NoOp, ...?
 
 \subsection{Client}
-//TODO
+API-Funktionen
+\begin{itemize}
+    \item Funktion - login\\
+    Bei der Funktion login werden er Benutzername und des Passwort des Benutzers entgegengenommen. Diese werden als
+    neues LoginPacket an den Server geschickt. Dort wird unter anderem überprüft, ob es sich um einen neuen Benutzer
+    handelt (Es wird ein neues angelegt) oder es ein bereits existierender Benutzer ist (Passwort wird überprüft).
+    An dieser Stelle wartet der Client auf ein LoginSyncPacket (Login war erfolgreich). Danach werden die
+    Attribute (userId, chats, contacts) abgespeichert. Für die Verschlüsselung wird auch noch die Keyfile geladen,
+    in der die Schlüssel der eigenen Chats gespeichert sind. Sollte es noch keine Keyfile geben, wird eine neue
+    erzeugt. Diese File ist wie die warehouse File aufgebaut (hier wird über die ChatId, die Schlüssel geladen).
+    Abschließend wird aus den beiden hardgecodeden public Keys noch ein private Key generiert, der später für den
+    Diffie Hellman Schlüsseltausch notwendig ist.
+    \lstinputlisting[linerange={58-85}, firstnumber=58]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \item Funktion -generatePrivateKey\\
+    Mit dieser Funktion wird ein 128 private Key aus den beiden public Keys n und g generiert. Dieser ist für die
+    Verschlüsselung wichtig.
+    \lstinputlisting[linerange={95-103}, firstnumber=95]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \item Funktion - exchangeKeys\\
+    \item Funktion - createChat\\
+    Für einen neuen Chats werden 2 Parameter benötigt: Name des Chats und Liste mit Usern. Um einen neuen Chat zu
+    erstellen, wird ein CreateChatPacket mit dem Chatnamen und einem Array der UserIds an den Server geschickt.
+    \lstinputlisting[linerange={154-161}, firstnumber=154]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \item Funktion - sendMessage\\
+    Hier wird die eigentliche Nachricht und eine ChatId entgegengenommen. Diese werden dann in ein MessagePacket an
+    den Server geschickt.
+    \lstinputlisting[linerange={163-169}, firstnumber=163]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \item Funktion - Verschlüsselung (encryptAES, decyptAES, setKey)
+    Für die symmetrische Verschlüsselung der Nachrichten wird der AES-Algorithmus benutzt. Hierfür wird vor jedem Senden
+    die Methode encryptAES und nach jeder empfangener Nachricht decryptAES aufgerufen.\\
+    Für die Verschlüsselung wird zunächst der Schlüssel in das richtige Format (SecretKeySpec), durch die Funktion
+    setKey gebracht. Anschließend wird eine Instanz der Klasse Cipher erzeugt und mit dem Verschlüsselungsmodus und
+    dem Key initalisiert. Abschließend wird der eigentlich Text verschlüsselt und in einem String zurückgegeben. \\
+    Die Entschlüsselung ist fast identisch zur Verschlüsselung. Hier wird die Instanz in dem Entschlüsselungsmodus
+    initialisiert.
+    \lstinputlisting[linerange={171-207}, firstnumber=171]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \item Funktion - Keyfile (addKey, loadKey, deleteKey)
+    Mit diesen Funktionen wird auf die Keyfile des Benutzers zugegriffen. Die Keyfile besteht aus PrivateKeyEntitys.
+    Der Schlüssel ist die chatId. \\
+    Wird ein neuer Key gespeichert, wird eine neue PrivateKeyEntity mit der chatId und dem Schlüssel in der keyfile
+    abgespeichert. addKey\\
+    Müssen Nachrichten angezeigt werden, muss der Schlüssel aus der Datei für die chatId ausgelesen werden. loadKey \\
+    Sollte ein Chat irgendwann gelöscht werden, kann der die PrivateKeyEntity über die chatID entfernt werden. deleteKey\\
+    \lstinputlisting[linerange={209-237}, firstnumber=209]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \item Funktion - exit
+    Bei dieser Methode wird ein LogoutPacket an den Server geschickt. Der User wird hier noch nicht ausgeloggt!!
+    \lstinputlisting[linerange={248-252}, firstnumber=248]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+\end{itemize}
 
 
