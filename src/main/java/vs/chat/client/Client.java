@@ -1,39 +1,30 @@
 package vs.chat.client;
 
 import java.io.*;
-import java.net.Socket;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
 import vs.chat.client.CMD.Cmd;
 import vs.chat.client.UI.ClientGUI;
-// import vs.chat.client.UI.Gui;
 
 public class Client {
 
-    private static int PORT = 9876;
-
     public static void main(String[] args) {
-        String hostname = "localhost";
+		List<String> nodes = new ArrayList<>();
 
-        // java blah.jar pddy.de,ermodo.ddns.net
-        if (args[0].length() > 0) {
-            var random = new Random().nextInt(10);
-            String[] nodes = args[0].split(",");
-            hostname = nodes[random % nodes.length];
-        }
+        for (String arg: args) {
+        	nodes.add(arg);
+		}
 
-        ObjectOutputStream objectOut;
-        Socket socket;
+        if (nodes.size() == 0) {
+        	nodes.add("localhost");
+		}
 
         try {
-            socket = new Socket(hostname, PORT);
-            objectOut = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream networkIn = new ObjectInputStream(socket.getInputStream());
-
             BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
             String userInput;
 
-            ClientApiImpl api = new ClientApiImpl(socket, objectOut, networkIn, userIn);
+            ClientApiImpl api = new ClientApiImpl(nodes, userIn);
 
             do {
                 System.out.print("Start with GUI [Y/n]? ");

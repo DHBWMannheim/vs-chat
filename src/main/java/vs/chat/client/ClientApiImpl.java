@@ -13,6 +13,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -28,6 +29,8 @@ public class ClientApiImpl implements ClientApi {
     private ObjectOutputStream networkOut;
     private ObjectInputStream networkIn;
     private BufferedReader userIn;
+    private List<String> nodes;
+    private int hostIndex;
 
     private UUID userId;
     private Set<Chat> chats;
@@ -42,13 +45,71 @@ public class ClientApiImpl implements ClientApi {
 
     private boolean creatingChat = false;
 
+    private String lastUsername;
+    private String lastPassword;
+
+    private static int PORT = 9876;
     private static int KEY_BYTE_LENGTH = 16;
 
-    ClientApiImpl(Socket socket, ObjectOutputStream networkOut, ObjectInputStream networkIn, BufferedReader userIn) {
-        this.networkOut = networkOut;
-        this.networkIn = networkIn;
-        this.socket = socket;
+    ClientApiImpl(List<String> nodes, BufferedReader userIn) {
+        this.nodes = nodes;
         this.userIn = userIn;
+
+        this.hostIndex = new Random().nextInt(nodes.size());
+        String hostname = nodes.get(this.hostIndex);
+
+        try {
+            this.connect(hostname);
+        } catch (ConnectException e) {
+            this.reconnect();
+        }
+    }
+
+    private void connect(String hostname) throws ConnectException {
+        try {
+            this.socket = new Socket(hostname, PORT);
+            this.networkOut = new ObjectOutputStream(this.socket.getOutputStream());
+            this.networkIn = new ObjectInputStream(this.socket.getInputStream());
+
+            System.out.println("Connected to " + hostname + "\n");
+        } catch (ConnectException e) {
+            throw new ConnectException();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void reconnect() {
+        System.out.println("\nLost connection to " + this.nodes.get(this.hostIndex));
+        while (true) {
+            int newHostIndex = (this.hostIndex + 1) % this.nodes.size();
+            String hostname = this.nodes.get(newHostIndex);
+            System.out.println("\nReconnecting to " + hostname + "...");
+
+            try {
+                this.connect(hostname);
+                break;
+            } catch (ConnectException e) {
+                try {
+                    System.out.println(hostname + " not available");
+                    Thread.sleep(5000);
+                } catch (InterruptedException i) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (this.lastUsername != null) {
+            try {
+                this.login(this.lastUsername, this.lastPassword);
+                System.out.println("Logged in as '" + this.lastUsername + "'");
+                System.out.print("> ");
+            } catch (LoginException e) {
+                e.printStackTrace();
+            }
+        }
+
+
     }
 
     public BufferedReader getUserIn() {
@@ -69,6 +130,9 @@ public class ClientApiImpl implements ClientApi {
             }
 
             LoginSyncPacket loginSyncPacket = (LoginSyncPacket)response;
+
+            this.lastUsername = username;
+            this.lastPassword = password;
 
             this.userId = loginSyncPacket.userId;
             this.chats = loginSyncPacket.chats;
@@ -356,6 +420,8 @@ public class ClientApiImpl implements ClientApi {
                         } else if (packet instanceof LogoutSuccessPacket) {
                             break;
                         }
+                    } catch (EOFException e) {
+                        reconnect();
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -368,6 +434,7 @@ public class ClientApiImpl implements ClientApi {
                 }
 
                 System.out.println("Logged out");
+
                 System.exit(0);
 
             }

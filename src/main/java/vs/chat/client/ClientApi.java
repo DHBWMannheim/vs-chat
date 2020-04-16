@@ -4,7 +4,6 @@ import vs.chat.client.exceptions.LoginException;
 import vs.chat.entities.Chat;
 import vs.chat.entities.User;
 
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.math.BigInteger;

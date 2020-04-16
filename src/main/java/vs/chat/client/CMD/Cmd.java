@@ -24,26 +24,15 @@ public class Cmd {
     }
 
     private void startCommandLineClient() {
+        this.login();
+        System.out.println();
         this.printHelp();
         while (true) {
             try {
                 System.out.print("> ");
                 String userInput = this.api.getUserIn().readLine();
 
-                if (userInput.equals("/login") && this.api.getUserId() != null) {
-                    System.out.println("Already logged in!");
-                    continue;
-                } else if (this.api.getUserId() == null) {
-                    if (!userInput.equals("/login") && !userInput.equals("/help") && !userInput.equals("/exit")) {
-                        System.out.println("You need to login! -> /login");
-                        continue;
-                    }
-                }
-
                 switch (userInput) {
-                    case "/login":
-                        this.login();
-                        break;
                     case "/chats":
                         this.listChats();
                         break;
