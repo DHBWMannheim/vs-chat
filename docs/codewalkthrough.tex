@@ -109,20 +109,26 @@ API-Funktionen
     erzeugt. Diese File ist wie die warehouse File aufgebaut (hier wird über die ChatId, die Schlüssel geladen).
     Abschließend wird aus den beiden hardgecodeden public Keys noch ein private Key generiert, der später für den
     Diffie Hellman Schlüsseltausch notwendig ist.
-    \lstinputlisting[linerange={58-85}, firstnumber=58]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={119-149}, firstnumber=58]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion -generatePrivateKey\\
     Mit dieser Funktion wird ein 128 private Key aus den beiden public Keys n und g generiert. Dieser ist für die
     Verschlüsselung wichtig.
-    \lstinputlisting[linerange={95-103}, firstnumber=95]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={159-167}, firstnumber=95]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - exchangeKeys\\
+    Um den Diffie-Hellman Schlüsseltausch zu starten muss die exchangeKeys Methode vom Client aufgerufen werden.
+    Dabei erstellt die Methode das erste KeyExchangePacket, welches mit den erforderlichen Informationen
+    ausgestattet wird. Nachdem das Packet gesendet wurde haben die Teilnehmer 10 Sekunden Zeit um den 
+    Schlüsseltausch durchzuführen, wenn dies innherhalb der angegeben Zeit nicht geschieht gehen wir von
+    einem Fehler aus und es wird die Error Handling Methode onTimeout aufgerufen.
+    \lstinputlisting[linerange={195-216}, firstnumber=154]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - createChat\\
     Für einen neuen Chats werden 2 Parameter benötigt: Name des Chats und Liste mit Usern. Um einen neuen Chat zu
     erstellen, wird ein CreateChatPacket mit dem Chatnamen und einem Array der UserIds an den Server geschickt.
-    \lstinputlisting[linerange={154-161}, firstnumber=154]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={218-225}, firstnumber=154]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - sendMessage\\
     Hier wird die eigentliche Nachricht und eine ChatId entgegengenommen. Diese werden dann in ein MessagePacket an
     den Server geschickt.
-    \lstinputlisting[linerange={163-169}, firstnumber=163]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={227-233}, firstnumber=163]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - Verschlüsselung (encryptAES, decyptAES, setKey) \\
     Für die symmetrische Verschlüsselung der Nachrichten wird der AES-Algorithmus benutzt. Hierfür wird vor jedem Senden
     die Methode encryptAES und nach jeder empfangener Nachricht decryptAES aufgerufen.\\
@@ -131,7 +137,7 @@ API-Funktionen
     dem Key initalisiert. Abschließend wird der eigentlich Text verschlüsselt und in einem String zurückgegeben. \\
     Die Entschlüsselung ist fast identisch zur Verschlüsselung. Hier wird die Instanz in dem Entschlüsselungsmodus
     initialisiert.
-    \lstinputlisting[linerange={171-207}, firstnumber=171]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={235-255}, firstnumber=171]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - Keyfile (addKey, loadKey, deleteKey) \\
     Mit diesen Funktionen wird auf die Keyfile des Benutzers zugegriffen. Die Keyfile besteht aus PrivateKeyEntitys.
     Der Schlüssel ist die chatId. \\
@@ -139,10 +145,10 @@ API-Funktionen
     abgespeichert. addKey\\
     Müssen Nachrichten angezeigt werden, muss der Schlüssel aus der Datei für die chatId ausgelesen werden. loadKey \\
     Sollte ein Chat irgendwann gelöscht werden, kann der die PrivateKeyEntity über die chatID entfernt werden. deleteKey\\
-    \lstinputlisting[linerange={209-237}, firstnumber=209]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={257-301}, firstnumber=209]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - exit \\
     Bei dieser Methode wird ein LogoutPacket an den Server geschickt. Der User wird hier noch nicht ausgeloggt!!
-    \lstinputlisting[linerange={248-252}, firstnumber=248]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={312-316}, firstnumber=248]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item PacketListener-Thread \\
     Dieser Thread läuft die gesamte Zeit im Hintergrund und nimmt alle (außer LoginSynPacket) Packete, die vom Server
     an den Client geschickt werden, auf und verarbeitet sie. \\
@@ -156,19 +162,20 @@ API-Funktionen
         \item Es hat sich ein neuer User angemeldet. Dieser User muss den Usern des Clients hinzugefügt werden, damit auch
         Chats mit diesem erstellt werden können. (Diffie Hellman funktioniert nur, wenn alle Benutzer online sind.)
     \end{enumerate}
-    \lstinputlisting[linerange={262-292}, firstnumber=262]{../src/main/java/vs/chat/client/ClientApiImpl.java}
-    Handelt es sich um ein KeyExchangePacket wird ... \\
-    // TODO
-    \lstinputlisting[linerange={294-339}, firstnumber=294]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={326-356}, firstnumber=262]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    Handelt es sich um ein KeyExchangePacket wird überprüft ob der Schlüsseltausch schon fertig ist,
+    falls ja erstellt der Initiator des Schlüsseltauschs den Chat, falls nicht werden die nächsten
+    Teilschlüssel berechnet und weitergeschickt \\
+    \lstinputlisting[linerange={358-403}, firstnumber=294]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     Wird ein GetMessagesResponsePacket erhalten, wurde an den Server zuvor die Anfrage gestellt, dass die Chat Historie
     geladen werden soll. Dieses Packet enthält alle Nachrichten, die in dem geladen Chat bereits geschrieben wurden.
     Dafür wird zunächst der passende Schlüssel aus der Keyfile geladen und danach alle Nachrichten entschlüsselt.
     Diese Nachrichten können dann im Chat angezeigt werden. \\
-    \lstinputlisting[linerange={341-355}, firstnumber=341]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={405-419}, firstnumber=341]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     Abschließend wird geprüft, ob es ein LogoutSuccessPacket ist. Dieses Packet wird vom Server geschickt, wenn der
     User die exit Methode aufgerufen hat und erfolgreich vom Server ausgeloggt wurde. Anschließend wird der Client
     heruntergefahren.\\
-    \lstinputlisting[linerange={356-358}, firstnumber=356]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={430-438}, firstnumber=356]{../src/main/java/vs/chat/client/ClientApiImpl.java}
 
 
 \end{itemize}

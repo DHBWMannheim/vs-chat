@@ -68,11 +68,15 @@ Aus den Anforderungen geht hervor, dass es mindestens zwei Server geben muss, di
 Chatsystems besitzen müssen. Bricht eine Node zusammen muss dementsprechend eine andere Node dessen Aufgabe übernehmen.
 
 \subsubsection{Client}
-//TODO Troy
-//TODO Fat Client
 
-Im Fehlerfall scheitert das Senden einer Nachricht an den Server. In diesem Fall versucht sich der Client mit
-einer anderen Node zu verbinden und sendet die Nachricht erneut.
+Nachdem der Client eingeloggt ist wartet er kontinuirlich auf neue Packete vom Server,
+wird beim warten ein Fehler geworfen bedeutet das, dass diese Node ausgefallen ist und
+versucht sich auf die nächste Node zu verbinden. Dabei können die Nodes über die 
+Programm Argumente eingegeben werden. Wenn sich der Client erfolgreich auf eine andere Node
+verbunden hat loggt er sich automatisch mit den bestehen Usernamen und Passwort ein, 
+sodass der User von dem Ausfall nichts mitbekommt. Falls keine von den angegebenen Nodes
+verfügbar ist probiert der Client nacheinander auf jede zu verbinden, bis eine davon wieder 
+Online ist.
 
 \subsubsection{Server}
 Serverseitig können verschiedene Fehler auftretten. Viele Fehler werden bereits durch das TCP-Protokoll verhindert (z.B. mehrfach Zustellung, fehlerhafte Übermittlung).
