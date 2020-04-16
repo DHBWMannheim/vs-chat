@@ -7,7 +7,6 @@ import vs.chat.entities.Message;
 import vs.chat.entities.User;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -381,7 +380,7 @@ public class ClientGUI {
         }
 
         private void onTimeout() {
-            JOptionPane.showMessageDialog(rootPanel, "Chat konnte nicht erstellt werden. Einer der Nutzer ist offline. Bitte versuchen Sie es später erneut!");
+            JOptionPane.showMessageDialog(rootPanel, "Chat konnte nicht erstellt werden");
             rootPanel.getContentPane().removeAll();
             rootPanel.getContentPane().add(displayRecentConversations());
             rootPanel.pack();
@@ -422,49 +421,36 @@ public class ClientGUI {
 
         return loginPanel;
     }
-
+    // Is called by the ClientAPI when a new message is received
     private void onMessage(Message message) {
-        try {
-            api.getChatMessages(currentChat.getId());
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (currentChat == null){
+            System.out.println("Sie haben eine neue Nachricht erhalten!");
+        }else {
+            try {
+                api.getChatMessages(currentChat.getId());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
-
+    // Is called by the ClientAPI when a new Chat is created
     private void onCreateChat(Chat chat) {
         rootPanel.getContentPane().removeAll();
         rootPanel.getContentPane().add(displayRecentConversations());
         rootPanel.pack();
         System.out.println("Sie wurden zu einem neuen Chat hinzugefügt");
     }
-
-    private void sendMessage(){
-        try {
-            api.sendMessage(messageInput.getText(), currentChat.getId());
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-
-        System.out.println("Nachricht gesendet!");
-        messageInput.selectAll();
-        messageInput.replaceSelection("");
-    }
-
+    // Is called by the ClientAPI and delivers a set of sorted Messages after api.getChatMessages() is called
     private void onGetMessageHistory(Set<Message> messages) {
         rootPanel.getContentPane().removeAll();
         rootPanel.getContentPane().add(header(currentChat), BorderLayout.NORTH);
 
-        // JPanel messagePanel = new JPanel(new GridLayout(0, 1));
         JPanel[] messagePanels = new JPanel[messages.size()];
         int i = 0;
 
         for (Message message : messages) {
             JPanel messageContentPanel = new JPanel();
             messageContentPanel.setLayout(new BorderLayout());
-
-            // Keylistener e.getKeyCode() == KeyEvent.VK_ENTER, in eingabe methode
-
 
             String unformattedMessage = message.getContent();
 
@@ -474,17 +460,17 @@ public class ClientGUI {
             String[] formattedMessage = new String[countLines];
 
             JPanel formattedMessagePanel = new JPanel();
-            formattedMessagePanel.setLayout(new BoxLayout(formattedMessagePanel,BoxLayout.Y_AXIS));
+            formattedMessagePanel.setLayout(new BoxLayout(formattedMessagePanel, BoxLayout.Y_AXIS));
 
             int panelHeight = 40 + countLines * 8;
 
 
-            for(int z = 0;z < countLines;z++){
-                if(unformattedMessage.length() - z*40< 40){
-                    formattedMessage[z] = unformattedMessage.substring((z*40)).strip();
+            for (int z = 0; z < countLines; z++) {
+                if (unformattedMessage.length() - z * 40 < 40) {
+                    formattedMessage[z] = unformattedMessage.substring((z * 40)).strip();
 
 
-                }else {
+                } else {
                     formattedMessage[z] = unformattedMessage.substring(((z * 40)), ((z * 40) + 40)).strip();
 
                 }
@@ -492,13 +478,13 @@ public class ClientGUI {
             }
 
 
-            if (message.getOrigin().equals(api.getUserId())){
+            if (message.getOrigin().equals(api.getUserId())) {
 
                 formattedMessagePanel.setBackground(new Color(158, 200, 145));
-                messageContentPanel.add(formattedMessagePanel,BorderLayout.EAST);
+                messageContentPanel.add(formattedMessagePanel, BorderLayout.EAST);
                 messageContentPanel.setBackground(new Color(158, 200, 145));
 
-            }else {
+            } else {
                 messageContentPanel.add(new JLabel(api.getUsernameFromId(message.getOrigin())), BorderLayout.NORTH);
                 panelHeight += 12;
                 formattedMessagePanel.setBackground(new Color(120, 120, 120));
@@ -509,10 +495,10 @@ public class ClientGUI {
 
 
             messageContentPanel.setBorder(BorderFactory.createEtchedBorder());
-            messageContentPanel.setPreferredSize(new Dimension(300,panelHeight));
+            messageContentPanel.setPreferredSize(new Dimension(300, panelHeight));
             messageContentPanel.setMinimumSize(new Dimension(300, panelHeight));
             messageContentPanel.setMaximumSize(new Dimension(400, panelHeight));
-            messageContentPanel.setSize(new Dimension(400,panelHeight));
+            messageContentPanel.setSize(new Dimension(400, panelHeight));
             messageContentPanel.revalidate();
 
 
@@ -522,10 +508,10 @@ public class ClientGUI {
         JPanel JChatBox = new JPanel();
         JChatBox.setLayout(new BoxLayout(JChatBox, BoxLayout.Y_AXIS));
 
-        Dimension defDim = new Dimension(300,600);
+        Dimension defDim = new Dimension(300, 600);
 
-        for(int j = 0;j < messagePanels.length;j++){
-            JChatBox.add(messagePanels[j]);
+        for (JPanel messagePanel : messagePanels) {
+            JChatBox.add(messagePanel);
         }
 
         JScrollPane JChatPane = new JScrollPane(JChatBox);
@@ -542,15 +528,24 @@ public class ClientGUI {
 
         JChatPane.setVerticalScrollBar(jScrollBar);
 
-        //JPanel helpPanel = new JPanel(new BorderLayout());
-        // helpPanel.setPreferredSize(new Dimension(300,300));
-        // helpPanel.add(new JScrollPane(messagePanel), BorderLayout.CENTER);
-
         rootPanel.add(JChatPane, BorderLayout.CENTER);
         rootPanel.getContentPane().add(footer(), BorderLayout.SOUTH);
         rootPanel.pack();
 
         jScrollBar.setValue(jScrollBar.getMaximum());
+    }
+
+    private void sendMessage() {
+        try {
+            api.sendMessage(messageInput.getText(), currentChat.getId());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+
+        System.out.println("Nachricht gesendet!");
+        messageInput.selectAll();
+        messageInput.replaceSelection("");
     }
 
     public JPanel displayRecentConversations() {
@@ -616,7 +611,7 @@ public class ClientGUI {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     sendMessage();
                 }
             }
@@ -652,18 +647,14 @@ public class ClientGUI {
     private JLabel getImageJLabel(String filename, int width, int height) {
         ImageIcon imageIcon = new ImageIcon(filename);
         Image image = imageIcon.getImage().getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
-        JLabel imageJLabel = new JLabel(new ImageIcon(image));
-        return imageJLabel;
+        return new JLabel(new ImageIcon(image));
     }
 
     private void startGui() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                rootPanel = rootPanel();
-                rootPanel.getContentPane().add(loginPanel());
-                rootPanel.pack();
-            }
+        SwingUtilities.invokeLater(() -> {
+            rootPanel = rootPanel();
+            rootPanel.getContentPane().add(loginPanel());
+            rootPanel.pack();
         });
 
     }
