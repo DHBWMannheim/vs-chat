@@ -141,12 +141,6 @@ public class ClientGUI {
 
             this.footerPanel = footerPanel;
             this.emojiPanel = new JPanel();
-
-            /*
-            emojiAppendFooterPanel = new JPanel(new BorderLayout());
-            emojiAppendFooterPanel.add(footerPanel, BorderLayout.SOUTH);
-            emojiAppendFooterPanel.add(emojiPanel, BorderLayout.NORTH);
-            */
             counter = 0;
         }
 
@@ -190,9 +184,6 @@ public class ClientGUI {
     }
 
     private class CreateChatMouseListener implements MouseListener {
-
-        User user;
-        List<UUID> users = new ArrayList<>();
         JPanel contactsPanel;
         JPanel header;
 
@@ -249,7 +240,6 @@ public class ClientGUI {
     }
 
     private class addUserToChatActionListener implements ActionListener {
-        User user;
         List<UUID> users;
         JTextField chatnameTextField;
         JFormattedTextField useramountTextField;
@@ -421,6 +411,7 @@ public class ClientGUI {
 
         return loginPanel;
     }
+
     // Is called by the ClientAPI when a new message is received
     private void onMessage(Message message) {
         if (currentChat == null){
@@ -433,6 +424,7 @@ public class ClientGUI {
             }
         }
     }
+
     // Is called by the ClientAPI when a new Chat is created
     private void onCreateChat(Chat chat) {
         rootPanel.getContentPane().removeAll();
@@ -440,6 +432,7 @@ public class ClientGUI {
         rootPanel.pack();
         System.out.println("Sie wurden zu einem neuen Chat hinzugefügt");
     }
+
     // Is called by the ClientAPI and delivers a set of sorted Messages after api.getChatMessages() is called
     private void onGetMessageHistory(Set<Message> messages) {
         rootPanel.getContentPane().removeAll();
@@ -627,9 +620,9 @@ public class ClientGUI {
 
     public JPanel renderEmojiPanel() {
         float fontsize = 32f;
-        JPanel emojiSelection = new JPanel(new GridLayout(2, 5));
+        JPanel emojiSelection = new JPanel(new GridLayout(0, 5));
         String[] unicodeemoji = {"\uD83D\uDE04", "\uD83D\uDE02", "\uD83D\uDE43", "\uD83D\uDE09", "\uD83D\uDE07", "\uD83D\uDE18", "\uD83D\uDE0B", "\uD83E\uDD14", "\uD83D\uDE0F", "\uD83D\uDE37"};
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= unicodeemoji.length; i++) {
             JLabel label = new JLabel(unicodeemoji[i - 1]);
             label.setHorizontalAlignment(JLabel.CENTER);
             label.setFont(label.getFont().deriveFont(fontsize));
