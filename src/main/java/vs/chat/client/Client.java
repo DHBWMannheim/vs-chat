@@ -2,6 +2,7 @@ package vs.chat.client;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Random;
 
 import vs.chat.client.CMD.Cmd;
 import vs.chat.client.UI.ClientGUI;
@@ -9,37 +10,45 @@ import vs.chat.client.UI.ClientGUI;
 
 public class Client {
 
-	private static int PORT = 9876;
+    private static int PORT = 9876;
 
-	public static void main(String[] args){
-		String hostname = "ermodo.ddns.net";
-		ObjectOutputStream objectOut;
-		Socket socket;
+    public static void main(String[] args) {
+        String hostname = "localhost";
 
-		try {
-			socket = new Socket(hostname, PORT);
-			objectOut = new ObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream networkIn = new ObjectInputStream(socket.getInputStream());
+        // java blah.jar pddy.de,ermodo.ddns.net
+        if (args[0].length() > 0) {
+            var random = new Random().nextInt(10);
+            String[] nodes = args[0].split(",");
+            hostname = nodes[random % nodes.length];
+        }
 
-			BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
-			String userInput;
+        ObjectOutputStream objectOut;
+        Socket socket;
 
-			ClientApiImpl api = new ClientApiImpl(socket, objectOut, networkIn, userIn);
+        try {
+            socket = new Socket(hostname, PORT);
+            objectOut = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream networkIn = new ObjectInputStream(socket.getInputStream());
 
-			do {
-				System.out.print("Start with GUI [Y/n]? ");
-				userInput = userIn.readLine();
-			} while (!(userInput.toLowerCase().equals("y") || userInput.toLowerCase().equals("n")));
+            BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
+            String userInput;
 
-			if (userInput.toLowerCase().equals("y")) {
-				new ClientGUI(api);
-			} else if (userInput.toLowerCase().equals("n")) {
-				new Cmd(api);
-			}
+            ClientApiImpl api = new ClientApiImpl(socket, objectOut, networkIn, userIn);
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+            do {
+                System.out.print("Start with GUI [Y/n]? ");
+                userInput = userIn.readLine();
+            } while (!(userInput.toLowerCase().equals("y") || userInput.toLowerCase().equals("n")));
+
+            if (userInput.toLowerCase().equals("y")) {
+                new ClientGUI(api);
+            } else if (userInput.toLowerCase().equals("n")) {
+                new Cmd(api);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
