@@ -67,7 +67,13 @@ public class ClientApiImpl implements ClientApi {
 
     private void connect(String hostname) throws ConnectException {
         try {
-            this.socket = new Socket(hostname, PORT);
+            var port = PORT;
+            if (hostname.contains(":")) {
+                var split = hostname.split(":");
+                hostname = split[0];
+                port = Integer.parseInt(split[1]);
+            }
+            this.socket = new Socket(hostname, port);
             this.networkOut = new ObjectOutputStream(this.socket.getOutputStream());
             this.networkIn = new ObjectInputStream(this.socket.getInputStream());
 
