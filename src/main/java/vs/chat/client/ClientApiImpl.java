@@ -15,6 +15,7 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -426,7 +427,7 @@ public class ClientApiImpl implements ClientApi {
                         } else if (packet instanceof LogoutSuccessPacket) {
                             break;
                         }
-                    } catch (EOFException e) {
+                    } catch (EOFException | SocketException e) {
                         reconnect();
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
