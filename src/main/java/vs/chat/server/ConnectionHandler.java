@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import vs.chat.packets.LogoutPacket;
 import vs.chat.packets.LogoutSuccessPacket;
+import vs.chat.packets.NoOpPacket;
 import vs.chat.packets.Packet;
 
 public class ConnectionHandler extends Thread {
@@ -42,11 +43,12 @@ public class ConnectionHandler extends Thread {
 	public void run() {
 		Thread.currentThread().setName("Connection Handler");
 		while (!this.context.isCloseRequested().get() && !closeRequested) {
-			System.out.println("Handling");
 			try {
 				var object = inputStream.readObject();
 				var packet = (Packet) object;
-				var canActivate = this.context.getFilters().stream().allMatch(f -> f.canActivate(packet, this.context, this));
+				System.out.println("Read Packet: " + packet.getClass().getSimpleName());
+				var canActivate = this.context.getFilters().stream()
+						.allMatch(f -> f.canActivate(packet, this.context, this));
 				if (canActivate) {
 					this.handlePacket(packet);
 					this.context.getFilters().stream().forEach(f -> f.postHandle(packet, this.context, this));
@@ -82,7 +84,8 @@ public class ConnectionHandler extends Thread {
 				e.printStackTrace();
 			}
 		}
-		this.context.getWarehouse().print();
+		if (!(packet instanceof NoOpPacket))
+			this.context.getWarehouse().print();
 	}
 
 	public synchronized void pushTo(final Packet packet) {
@@ -100,7 +103,7 @@ public class ConnectionHandler extends Thread {
 	}
 
 	private void close() {
-		System.out.println("Die Verbdindung zum Client " +getConnectedToUserId() + " wurde unterbrochen!");
+		System.out.println("Die Verbdindung zum Client " + getConnectedToUserId() + " wurde unterbrochen!");
 		this.context.getConnections().remove(this);
 		try {
 			this.client.close();
