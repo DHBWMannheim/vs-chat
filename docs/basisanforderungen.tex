@@ -9,21 +9,20 @@
 
 \author{Matthias Vonend}
 \subsection{Chatfunktionalität}
-Damit ein Chat ablaufen kann, muss zunächst eine Verbindung zu einem Server aufgebaut werden.
+Die Anwendung ist mit einem Thin Client aufgebaut. Damit ein Chat ablaufen kann, muss zunächst eine Verbindung zu einem Server aufgebaut werden.
 Dazu wählt der Client zunächst einen zufälligen Server aus und versucht sich zu verbinden.
-Wurde eine Verbindung erfolgreich aufgebaut, kann sich der Nutzer mit seinem Nutzername und seinem Password anmelden.
+Wurde eine Verbindung erfolgreich aufgebaut, kann sich der Nutzer mit seinem Nutzernamen und seinem Passwort anmelden.
 Sobald der Nutzer angemeldet ist, sendet der Server ihm alle benötigten Informationen inklusiver der verpassten
 Nachrichten. Jede Nachricht hat ein Datum, wann es erstmalig an einem Server eingetroffen ist.
 Anhand von diesem werden die Nachrichten sortiert, damit der Client die korrekte Reihenfolge darstellen kann.
 
 Möchte dieser eine Nachricht an einen weiteren Client senden, schickt er diese an seine verbundene Node und
-überlässt die Zustellung dieser. Da alle Nachrichten aus Persistenzgründen an alle Nodes verteilt werden müssen,
+überlässt die Zustellung dieser. Da alle Nachrichten aus Konsistenzgründen an alle Nodes verteilt werden müssen,
 brauchen die Nodes keine Information über die Clients anderer Nodes. Im Falle einer solchen Anforderung
 (z.\,B. Abfrage, ob ein anderer Nutzer aktiv ist) könnte ein Protokoll ähnlich zu Routing-Tabellen implementiert werden.
 Empfängt eine Node eine Nachricht, egal ob von einem Client oder von einer anderen Node,
-überprüft diese, ob die Nachricht für einen ihr bekannten Client bestimmt war und sendet diese gegebenenfalls an diesen.
+überprüft diese, ob die Nachricht für einem ihr bekannten Client bestimmt war und sendet diese gegebenenfalls an diesen.
 
-//TODO Nach einer erfolgreichen Anmeldung kann der Nutzer
 \author{Jan Grübener, Troy Keßler, Patrick Mischka, Michael Angermeier}
 \subsection{Clientfunktionalitäten}
 Nach einer erfolgreichen Anmeldung kann der Nutzer zwischen verschiedenen Funktionen auswählen.
@@ -44,7 +43,7 @@ Bei einem Aufruf dieser Funktion werden alle Chats, die für den Nutzer zugängl
 Dafür werden zunächst alle Chats durch die Methode getChats aus der API in einem Set aus Chats gespeichert.
 Je nachdem, ob Chats verfügbar sind, bekommt der Benutzer unterschiedliche Antworten.
 Sind keine Chats vorhanden, wird dies in einer Meldung angezeigt.
-Sind Chats vorhanden, werden sowohl die Chatnamen als auch der/die User/s in diesem Chats angezeigt.
+Sind Chats vorhanden, werden sowohl die Chatnamen als auch der/die User/s in diesem Chat angezeigt.
 \paragraph{Funktion: contacts}
 Bei dieser Funktionen werden alle Benutzer angezeigt, die gerade online sind. Nur mit diesen Benutzern kann ein neuer
 Chat erstellt werden, da sonst der Schlüsselaustausch nicht funktioniert.
@@ -52,7 +51,7 @@ Chat erstellt werden, da sonst der Schlüsselaustausch nicht funktioniert.
 Diese Funktion beginnt mit einer Aufforderung an den Benutzer, einen Chatnamen einzugeben.
 Danach wird die Anzahl der Teilnehmer in dem Chat abgefragt. Diese muss mindestens 1 betragen.
 Ist die Anzahl an Teilnehmern einmal gesetzt, müssen im nächsten Schritt alle Benutzernamen
-der Teilnehmer eingetraggen werden. Hierfür wird jeder einzelener Benutzername abgefragt und
+der Teilnehmer eingetragen werden. Hierfür wird jeder einzelne Benutzername abgefragt und
 im Falle eines invaliden Benutzernamens, wird der Benutzer durch eine Meldung darauf aufmerksam gemacht.
 Wurden alle 3 Attribute (Chatname, Teilnehmeranzahl, Username der Teilnehmer) erfolgreich eingegeben,
 wird ein neuer Chat erstellt.
@@ -65,40 +64,26 @@ Anschließend kann der Benutzer Nachrichten verschicken und empfangen.
 \author{Matthias Vonend, Aaron Schweig, Troy Keßler}
 \subsection{Fehlerbehandlung}
 Aus den Anforderungen geht hervor, dass es mindestens zwei Server geben muss, die sämtliche Informationen des
-Chatsystems besitzen müssen. Bricht eine Node zusammen muss dementsprechend eine andere Node dessen Aufgabe übernehmen.
+Chatsystems besitzen müssen. Bricht eine Node zusammen, muss eine andere Node dessen Aufgabe übernehmen.
 
 \subsubsection{Client}
-
-Nachdem der Client eingeloggt ist wartet er kontinuirlich auf neue Packete vom Server,
-wird beim warten ein Fehler geworfen bedeutet das, dass diese Node ausgefallen ist und
-versucht sich auf die nächste Node zu verbinden. Dabei können die Nodes über die 
-Programm Argumente eingegeben werden. Wenn sich der Client erfolgreich auf eine andere Node
-verbunden hat loggt er sich automatisch mit den bestehen Usernamen und Passwort ein, 
-sodass der User von dem Ausfall nichts mitbekommt. Falls keine von den angegebenen Nodes
-verfügbar ist probiert der Client nacheinander auf jede zu verbinden, bis eine davon wieder 
-Online ist.
+Nachdem der Client eingeloggt ist, wartet er kontinuierlich auf neue Pakete vom Server, wird beim Warten ein Fehler geworfen bedeutet das, dass diese Node ausgefallen ist. Nun versucht sich die Node wieder zu verbinden. Dabei können die Nodes über die Programmargumente eingegeben werden. Wenn sich der Client erfolgreich auf eine andere Node verbunden hat loggt er sich automatisch mit den bestehen Usernamen und Passwort ein, sodass der User von dem Ausfall nichts mitbekommt. Falls keine von den angegebenen Nodes verfügbar ist, probiert der Client nacheinander auf jede zu verbinden, bis eine davon wieder Online ist.
 
 \subsubsection{Server}
-Serverseitig können verschiedene Fehler auftretten. Viele Fehler werden bereits durch das TCP-Protokoll verhindert (z.B. mehrfach Zustellung, fehlerhafte Übermittlung).
-Dennoch können grundsätzlich die folgende Fehlerfälle eintretten:
+Serverseitig können verschiedene Fehler auftretten. Viele Fehler werden bereits durch das TCP-Protokoll verhindert (z.\,B. mehrfach Zustellung, fehlerhafte Übermittlung).
+Dennoch können grundsätzlich die folgenden Fehlerfälle eintreten:
 \begin{enumerate}
     \item Nachricht des Clients kann nicht korrekt empfangen/gesendet werden\\
-        In diesem Fall muss der Server davon ausgehen, dass die Verbindung zusammengebrochen ist und er beendet
-        seine Verbindung. Der Server verlässt sich darauf, dass der Client erneut eine Verbindung aufbaut.
-        Alle für den Client relevanten Nachrichten werden dann zu diesem übertragen und der Client muss
-        neue Informationen zurück übertragen
+        In diesem Fall muss der Server davon ausgehen, dass die Verbindung zusammengebrochen ist und er beendet seine Verbindung. Der Server verlässt sich darauf, dass der Client erneut eine Verbindung aufbaut.
+    Alle für den Client relevanten Nachrichten werden dann zu diesem übertragen und der Client muss neue Informationen zurück übertragen.
     \item Nachrichten einer Nachbarnode können nicht korrekt empfangen/gesendet werden\\
-        Die Server sind als Peer-to-Peer Server aufgebaut. Demnach müssen ähnlich zur Clientverbindung der Server davon ausgehen dass die Verbindung zusammengebrochen ist.
-        Allerdings ist der Server hier selbst dafür zuständig sich erneut zu verbinden. Sämtliche Nachrichten,
-        die an eine Node gesendet werden müssen werden in einer Queue aufbewahrt und nacheinander gesendet.
-        Scheitert die Verbindung, so bleibt die Queue unverändert und wird nach einem erneuten Verbinden
-        weiter abgearbeitet. Es wird solange versucht zu verbinden, bis eine Verbindung zustande gekommen ist.
-        Sobald eine Verbindung wieder aufgebaut wurde synchronisieren sich die Nodes um wieder einen vollständigen Informationsstand zu besitzen. So kommen die Server auch mit Netzwerkpatitionierungen klar. Werden die Server getrennt sind die Client immernoch in der Lage Nachrichten an ihre jeweiligen Server zu schicken und sobald die Verbindung zwischen den Servern wieder aufgebaut werden konnte gleichen sich diese an.
-        Sind keine Nachrichten zu senden, hat die Node keine Möglichkeit festzustellen,
-        ob eine Verbindung noch existiert. Zu diesem Zweck existiert ein Heartbeat, der periodisch
-        die Nachbarnodes anpingt und so prüft, ob die Verbindung noch existiert.
+        Die Server sind als Peer-to-Peer Server aufgebaut. Demnach muss der Server ähnlich zur Clientverbindung davon ausgehen, dass die Verbindung zusammengebrochen ist.
+        Allerdings ist der Server hier selbst dafür zuständig sich erneut zu verbinden. Sämtliche Nachrichten, die an eine Node gesendet werden müssen, werden in einer Queue aufbewahrt und nacheinander gesendet.
+        Scheitert die Verbindung, so bleibt die Queue unverändert und wird nach einem erneuten Verbinden weiter abgearbeitet. Es wird solange versucht zu verbinden, bis eine Verbindung zustande gekommen ist.
+        Sobald eine Verbindung wieder aufgebaut wurde synchronisieren sich die Nodes, um wieder einen vollständigen Informationsstand zu besitzen. So kommen die Server auch mit Netzwerkpartitionierungen klar. Werden die Server getrennt sind die Clients immer noch in der Lage Nachrichten an ihre jeweiligen Server zu schicken und sobald die Verbindung zwischen den Servern wieder aufgebaut werden konnte gleichen sich diese an.
+        Sind keine Nachrichten zu senden, hat die Node keine Möglichkeit festzustellen, ob eine Verbindung noch existiert. Zu diesem Zweck existiert ein Heartbeat, der periodisch die Nachbarnodes anpingt und so prüft, ob die Verbindung noch existiert.
 \end{enumerate}
-Wie gerade beschrieben führen alle beteiligten stets eine synchronisation durch wodurch diese immer den kompletten Informationsbestand besitzen. Die Replikationskontrolle wird nach der Write-All-Available Strategie umgesetzt. Ein Client schickt eine Nachricht an einen Server, der versucht alle zu ihm verbundenen Nodes aktuell zu halten indem er die Nachricht oder die Änderung an alle verfügbaren Nodes weiterleitet.
+Wie gerade beschrieben führen alle Beteiligten stets eine Synchronisation, wodurch diese immer den kompletten Informationsbestand besitzen. Die Replikationskontrolle wird nach der Write-All-Available Strategie umgesetzt. Ein Client schickt eine Nachricht an einen Server. Der Server versucht alle zu ihm verbundenen Nodes aktuell zu halten indem er die Nachricht oder die Änderung an alle verfügbaren Nodes weiterleitet.
 
-Eine Veränderung des Datenbestandes muss dem entsprechend an alle anderen Nodes weiter gegeben werden.
+Eine Veränderung des Datenbestandes muss dem entsprechend an alle anderen Nodes weitergegeben werden.
 Dadurch sind alle Server gleichwertige.
