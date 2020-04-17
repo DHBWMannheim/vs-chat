@@ -11,13 +11,14 @@ Java wandelt den Unicode automatisch in das zugehörige Emoji um, sodass keine I
 
 Auf Serverseite mussten hierfür keine Veränderungen vorgenommen werden.
 
-\author{Matthias Vonend, Troy Keßler}
-\subsection{Mehrere Chatverläufe pro Nutzer}
-//TODO
-
 \author{Matthias Vonend, Aaron Schweig, Troy Keßler}
 \subsection{Gruppenchats}
 Gruppenchats stellen nur eine Erweiterung der bestehenden Chatimplementierung dar. Statt das ein Chat nur die beiden Teilnehmer besitzt, besitzt es nur beliebig viele Nutzer. Wird eine Nachricht empfangen werden nun alle am chatbeteiligten Nutzer durchlaufen und die Nachricht wird an alle der Node bekannten Clients weitergeleitet. Außerdem wird wie bereits erwähnt die Nachricht aus Konsistenzgründen weiter gebroadcastet.
+
+\author{Matthias Vonend, Troy Keßler}
+\subsection{Mehrere Chatverläufe pro Nutzer}
+Mehrere Chatverläufe sind ähnlich zu den Gruppenchats eine Erweiterung der bestehenden Chatimplementierung. Nun ist es möglich mehrere Chats zu erstellen und zwischen diesen zu wechseln.
+//TODO @Troy kannst du hier beschreiben wie das im Client ist (also openChat)
 
 \author{Matthias Vonend}
 \subsection{Persistentes Speichern der Chatverläufe}\label{persistance}
