@@ -103,7 +103,7 @@ public class ConnectionHandler extends Thread {
 	}
 
 	private void close() {
-		System.out.println("Die Verbdindung zum Client " + getConnectedToUserId() + " wurde unterbrochen!");
+		System.out.println("Die Verbindung zum Client " + getConnectedToUserId() + " wurde unterbrochen!");
 		this.context.getConnections().remove(this);
 		try {
 			this.client.close();

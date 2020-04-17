@@ -198,7 +198,7 @@ public class ClientGUI {
             JPanel newChatPanel = new JPanel(new GridLayout(0, 2));
             JLabel chatNameLabel = new JLabel("Chatname: ");
             JTextField chatNameField = new JTextField("");
-            JLabel numberOfUsers = new JLabel("Number of useres to add: ");
+            JLabel numberOfUsers = new JLabel("Number of users to add: ");
             JFormattedTextField numberOfUserField = new JFormattedTextField(NumberFormat.getNumberInstance());
             JButton okButton = new JButton("ok!");
             okButton.addActionListener(new addUserToChatActionListener(chatNameField, numberOfUserField, header, contactsPanel));
