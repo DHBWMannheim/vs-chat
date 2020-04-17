@@ -78,7 +78,7 @@ public class ClientApiImpl implements ClientApi {
             this.networkOut = new ObjectOutputStream(this.socket.getOutputStream());
             this.networkIn = new ObjectInputStream(this.socket.getInputStream());
 
-            System.out.println("Connected to " + hostname + "\n");
+            System.out.println("Connected to " + hostname + ":" + port + "\n");
         } catch (ConnectException e) {
             throw new ConnectException();
         } catch (IOException e) {
