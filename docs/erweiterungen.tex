@@ -3,20 +3,10 @@
 \author{Jan Grübener, Patrick Mischka}
 \subsection{Grafische Oberfläche bei den Nutzern}
 Wählt der Nutzer nach dem Starten des Clients die Variante mit Grafischer Benutzeroberfläche starten, ruft der Client die Methode startGui() auf. Hierbei wird ein JFrame erzeugt, auf dem im Laufe der Zeit unterschiedliche JPanels hinzugefügt und entfernt werden. Je nachdem an welchem Punkt der Nutzer sich gerade befindet werden die entsprechenden Methoden wie loginPanel() oder displayRecentConversations() für die jeweilige Funktionalität aufgerufen. \\
-
-//TODO: Erklären: Wie bekommt die GUI neue Chatnachrichten (eigener "Listener" Thread) - passt das so? \\
-Bei der Instanziierung des GUI-Objekts wird ebenfalls ein damit referenziertes 
-API-Objekt instanziiert. Dieses API-Objekt beinhaltet die Methode 
-"startPacketListener". Diese Methode wird bei erfolgreichem login in der GUI 
-aufgerufen. Die startPacketListener Methode startet einen Thread, der durchgehend 
-einkommende Pakete annimmt, sie überprüft und entsprechende Methodenreferenzen in dem 
-GUI-Objekt aufruft. Neue Chats, einkommende Nachrichten und neue Nutzer werden so 
-in die GUI übernommen.\\
-
-//TODO (Wenn noch Platz vorhanden): startGui() erklären wie Daten aus Entites gelesen wird
+Bei der Instanziierung des GUI-Objekts wird ebenfalls ein damit referenziertes API-Objekt instanziiert. Dieses API-Objekt beinhaltet die Methode "startPacketListener". Diese Methode wird bei erfolgreichem login in der GUI aufgerufen. Die startPacketListener Methode startet einen Thread, der durchgehend einkommende Pakete annimmt, sie überprüft und entsprechende Methodenreferenzen in dem GUI-Objekt aufruft. Neue Chats, einkommende Nachrichten und neue Nutzer werden so in die GUI übernommen.\\
 \author{Jan Grübener, Patrick Mischka}
 \subsection{Verwendung von Emojis}
-Java wandelt den Unicode automatisch in das zugehörige Emoji um, sodass keine Icons für die Emojiauswahl oder weitere Anpassungen im Frontend nötig waren. Bei der Auswahl eines Emojis wird ein Objekt der Klasse EmojiMouseListener instanziiert, welches den entsprechenden Unicode Wert an die JTextArea anhängt. So ist es jederzeit möglich die Anzahl der Emojis zu erhöhen oder Emojis zu tauschen, indem das Gridlayout, welches die Methode renderEmojiPanel() liefert, angepasst wird.
+Java wandelt den Unicode automatisch in das zugehörige Emoji um, sodass keine Icons für die Emojiauswahl oder weitere Anpassungen im Frontend nötig waren. Bei der Auswahl eines Emojis wird ein Objekt der Klasse EmojiMouseListener instanziiert, welches den entsprechenden Unicode Wert an die JTextArea anhängt. So ist es jederzeit möglich die Anzahl der Emojis zu erhöhen oder Emojis zu tauschen. Die Darstellung der Emojis unterscheidet sich leicht ja nach ausgewählter Schriftart oder Betriebssystem. 
 
 Auf Serverseite mussten hierfür keine Veränderungen vorgenommen werden.
 

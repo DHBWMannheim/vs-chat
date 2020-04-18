@@ -169,8 +169,12 @@ API-Funktionen
     User die exit Methode aufgerufen hat und erfolgreich vom Server ausgeloggt wurde. Anschließend wird der Client
     heruntergefahren.\\
     \lstinputlisting[linerange={430-438}, firstnumber=356]{../src/main/java/vs/chat/client/ClientApiImpl.java}
-
-
+Verwendung von Emojis: \\\\
+	Wie bereits in der Doku erwähnt nutzen wir für die Darstellung von Emojis Unicode.
+	\lstinputlisting[linerange={621-631}, firstnumber = 621]{../src/main/java/vs/chat/client/UI/ClientGUI.java}
+	Die im String Array unicodeemoji erhaltenen Unicode Zeichen werden jeweils in einem JLabel hinzugefügt und auf ein Panel gesetzt. Jedes JLabel bekommt den selben Mouselistener zugewiesen, der als Übergabeparameter das entsprechende Unicodezeichen erhält. Im EmojiMouselistener wird mit der Funktion append() die JTextArea um das jeweils übergebene Unicodezeichen erweitert.
+	\lstinputlisting[linerange={89-109}, firstnumber = 89]{../src/main/java/vs/chat/client/UI/ClientGUI.java}
+	Durch das Erweitern oder Ändern des unicodeemoji Arrays können die Emoticons getauscht oder beliebig erweitert werden. Weiter Anpassungen sind nicht nötig.
 \end{itemize}
 
 
