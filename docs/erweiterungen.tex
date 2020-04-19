@@ -2,27 +2,25 @@
 
 \author{Jan Grübener, Patrick Mischka}
 \subsection{Grafische Benutzeroberfläche}
-// TODO: Das hier ist doch Codewalkthrough?\\
-Wählt der Benutzer nach dem Starten des Clients die Variante mit Grafischer Benutzeroberfläche, 
-ruft der Client die Methode \textit{startGui()} auf. Hierbei wird ein JFrame erzeugt, auf dem im Laufe der Zeit unterschiedliche JPanels
-hinzugefügt und entfernt werden. Je nachdem an welchem Punkt der Nutzer sich gerade befindet werden die entsprechenden 
-Methoden wie \textit{loginPanel()} oder \textit{displayRecentConversations()} für die jeweilige Funktionalität aufgerufen.
-Bei der Instanziierung des GUI-Objekts wird ebenfalls ein damit referenziertes API-Objekt instanziiert. 
-Dieses API-Objekt beinhaltet die Methode "startPacketListener". Diese Methode wird bei erfolgreichem login in der GUI aufgerufen. 
-Die startPacketListener Methode startet einen Thread, der durchgehend einkommende Pakete annimmt, 
-sie überprüft und entsprechende Methodenreferenzen in dem GUI-Objekt aufruft. 
-Neue Chats, einkommende Nachrichten und neue Nutzer werden so in die GUI übernommen.
+
+Bei dem Start eines Clients kann der Nutzer zwischen einem Commandline-Interface oder einer GUI wählen.
+In der GUI wird der Nutzer aufgefordert sich mittels Nutzernamen und Passwort zu identifizieren. Wenn dies erfolgreich war wird dem Nutzer eine Übersicht seiner Chats angezeigt.
+Am oberen Seitenbeginn ist der eigene Nutzername angezeigt, daneben ist ein Plus-Symbol, mit dem neue Chats erzeugt werden können. 
+Hierbei gibt der Nutzer den neuen Chatnamen ein, als auch die Anzahl der zusätzlichen Chatteilnehmer. Folgend müssen die konkreten Chatteilnehmer genannt werden. 
+Damit ein neuer Chat erstellt werden kann, müssen alle beteiligten Nutzer eingeloggt sein, damit der Schlüsselaustausch für die Verschlüsselung stattfinden kann.
+Ist das erfüllt, wird der Chat erstellt und der Nutzer gelangt wieder auf die Chatübersicht. Wenn mindestens einer der Nutzer nicht eingeloggt ist, wird dies dem Nutzer angezeigt. Er kann dann entweder erneut versuchen den Chat zu erstellen oder navigiert mithilfe des Pfeil-Icons zurück in die Chatübersicht.
+Durch Anklicken eines Chats in der Chatübersicht, wird der konkrete Chat geöffnet. Hierbei werden alle Nachrichten des Chats angezeigt. Am unteren Ende der Seite ist ein Texteingabefeld, mit dem der Nutzer auch Nachrichten in den Chat schreiben kann. Diese werden entweder durch eine Enter-Eingabe oder das Anklicken des Flugzeug-Icons verschickt. Nachrichten werden mit dem Nutzernamen des Erstellers für andere Nutzer angezeigt. 
+Neben dem Chatnamen ist ein Pfeil-Icons, mithilfew dessen der Chat wieder geschlossen werden kann und sich wieder die Chat-Übersicht öffnet.
 
 \author{Jan Grübener, Patrick Mischka}
 \subsection{Verwendung von Emojis}
-// TODO Brah!! \\
-Java wandelt den Unicode automatisch in das zugehörige Emoji um, sodass keine Icons für die Emojiauswahl 
-oder weitere Anpassungen im Frontend nötig waren. Bei der Auswahl eines Emojis wird ein Objekt der Klasse EmojiMouseListener 
-instanziiert, welches den entsprechenden Unicode Wert an die JTextArea anhängt. 
-So ist es jederzeit möglich die Anzahl der Emojis zu erhöhen oder Emojis zu tauschen. 
-Die Darstellung der Emojis unterscheidet sich leicht ja nach ausgewählter Schriftart oder Betriebssystem. 
 
-Auf Serverseite mussten hierfür keine Veränderungen vorgenommen werden.
+Bei der Verwendung von Emojis haben wir auf Unicode-Zeichen zurückgegriffen. 
+Wir wollten die Nutzung von Icons als Bilddateien und den damit verbundenen Netzwerkverkehr und benötigten Speicherplatz so weit wie möglich vermeiden.
+Neben dem Texteingabefeld eines Chat ist ein Icon, das beim Anklicken eine Übersicht über die verwendbaren Emojis öffnet und diese bei erneutem klicken auch wieder schließt. 
+Die Emojis in der Übersicht können angeklickt werden, damit sie in Form eines Unicode-Zeichens an die aktuelle Stelle im Texteingabefeld übernommen werden.
+\\ \\
+Über die Implementierung wird im Codewalkthrough eingegangen.
 
 //TODO wie ist eigentlich unsere Impl
 \author{Matthias Vonend, Aaron Schweig, Troy Keßler}
