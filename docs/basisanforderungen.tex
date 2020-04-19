@@ -12,62 +12,82 @@
 Die Anwendung ist mit einem Thin Client aufgebaut. Damit ein Chat ablaufen kann, muss zunächst eine Verbindung zu einem Server aufgebaut werden.
 Dazu wählt der Client zunächst einen zufälligen Server aus und versucht sich zu verbinden.
 Wurde eine Verbindung erfolgreich aufgebaut, kann sich der Nutzer mit seinem Nutzernamen und seinem Passwort anmelden.
-Sobald der Nutzer angemeldet ist, sendet der Server ihm alle benötigten Informationen inklusiver der verpassten
-Nachrichten. Jede Nachricht hat ein Datum, wann es erstmalig an einem Server eingetroffen ist.
-Anhand von diesem werden die Nachrichten sortiert, damit der Client die korrekte Reihenfolge darstellen kann.
+Sobald der Nutzer angemeldet ist, sendet der Server ihm alle benötigten Informationen inklusive der verpassten
+Nachrichten zu. Der Server bergibt jeder eintreffenden Nachricht einen Timestamp, um zu dokumentieren, wann sie erstmalig eingetroffen ist.
+Anhand des Timestamps werden die Nachrichten sortiert, damit der Client die korrekte Reihenfolge der Nachrichten darstellen kann.
 
-Möchte dieser eine Nachricht an einen weiteren Client senden, schickt er diese an seine verbundene Node und
-überlässt die Zustellung dieser. Da alle Nachrichten aus Konsistenzgründen an alle Nodes verteilt werden müssen,
+Wenn ein Client eine Nachricht versenden möchte, wird das Nachrichtenpaket an die Node gesendet, mit der er verbunden ist.
+Die Node kümmert sich im Hintergrund darum, die Nachricht an den Zielclient zuzustellen. 
+Da alle Nachrichten aus Konsistenzgründen an alle Nodes verteilt werden müssen,
 brauchen die Nodes keine Information über die Clients anderer Nodes. Im Falle einer solchen Anforderung
-(z.\,B. Abfrage, ob ein anderer Nutzer aktiv ist) könnte ein Protokoll ähnlich zu Routing-Tabellen implementiert werden.
+(z.\,B. Abfrage, ob ein anderer Nutzer aktiv ist) könnte ein Protokoll ähnlich zu Routing-Tabellen implementiert werden, um die zusätzliche Funktionalität bereitzustellen.
 Empfängt eine Node eine Nachricht, egal ob von einem Client oder von einer anderen Node,
-überprüft diese, ob die Nachricht für einem ihr bekannten Client bestimmt war und sendet diese gegebenenfalls an diesen.
+wird überprüft, ob die Nachricht für einen ihr bekannten Client bestimmt war. Wird ein Client gefunden, sendet die Node die Nachricht an den Zielclient.
 
 \author{Jan Grübener, Troy Keßler, Patrick Mischka, Michael Angermeier}
 \subsection{Clientfunktionalitäten}
-Nach einer erfolgreichen Anmeldung kann der Nutzer zwischen verschiedenen Funktionen auswählen.
-\begin{enumerate}
-    \item help
-    \item chats
-    \item contacts
-    \item createchat
-    \item openchat
-    \item exit
-\end{enumerate}
-\paragraph{Funktion: help}
-Diese Funktion ist nur im Commandline-Client implementiert und gibt dem Nutzer einen Überblick
-über alle möglichen Funktionen, die er aufrufen kann. Alle Funktionen sind in ein paar Worten beschrieben,
-sodass der Benutzer gleich weiß, was diese Funktion genau macht.
-\paragraph{Funktion: chats}
+Nach einer erfolgreichen Anmeldung kann der Nutzer zwischen verschiedenen Funktionen auswählen:
+% \begin{itemize}
+%     \item /help
+%     \item /chats
+%     \item /contacts
+%     \item /createchat
+%     \item /openchat
+%     \item /exit
+% \end{itemize}
+
+\subsubsection*{/help:}
+Diese Funktion gibt dem Nutzer einen Überblick über alle möglichen Funktionen, die er aufrufen kann.
+Alle Funktionen sind kurz beschrieben, sodass der Nutzer einen Überblick über die Funktionen erhält.
+
+\subsubsection*{/chats:}
 Bei einem Aufruf dieser Funktion werden alle Chats, die für den Nutzer zugänglich sind, angezeigt.
-Dafür werden zunächst alle Chats durch die Methode getChats aus der API in einem Set aus Chats gespeichert.
-Je nachdem, ob Chats verfügbar sind, bekommt der Benutzer unterschiedliche Antworten.
-Sind keine Chats vorhanden, wird dies in einer Meldung angezeigt.
-Sind Chats vorhanden, werden sowohl die Chatnamen als auch der/die User/s in diesem Chat angezeigt.
-\paragraph{Funktion: contacts}
-Bei dieser Funktionen werden alle Benutzer angezeigt, die gerade online sind. Nur mit diesen Benutzern kann ein neuer
-Chat erstellt werden, da sonst der Schlüsselaustausch nicht funktioniert.
-\paragraph{Funktion: createchat}
-Diese Funktion beginnt mit einer Aufforderung an den Benutzer, einen Chatnamen einzugeben.
-Danach wird die Anzahl der Teilnehmer in dem Chat abgefragt. Diese muss mindestens 1 betragen.
-Ist die Anzahl an Teilnehmern einmal gesetzt, müssen im nächsten Schritt alle Benutzernamen
-der Teilnehmer eingetragen werden. Hierfür wird jeder einzelne Benutzername abgefragt und
-im Falle eines invaliden Benutzernamens, wird der Benutzer durch eine Meldung darauf aufmerksam gemacht.
-Wurden alle 3 Attribute (Chatname, Teilnehmeranzahl, Username der Teilnehmer) erfolgreich eingegeben,
+%Dafür werden zunächst alle Chats durch die Methode getChats aus der API in einem Set aus Chats gespeichert.
+Wenn Chats für den Nutzer verfügbar sind, werden diese in einer Übersicht mit Chatname und teilnehmenden Nutzen dargestellt.
+Sind noch keine Chats vorhanden, wird darauf hingewiesen.
+
+\subsubsection*{/contacts:}
+Wird \textit{/contacts} aufgerufen, werden alle registrierten Nutzer angezeigt.
+
+\subsubsection*{/createchat:}
+Diese Funktion beginnt mit einer Aufforderung an den Nutzer, einen Chatnamen einzugeben.
+Danach wird die Anzahl der Teilnehmer für den Chat erfragt, wobei mindestens ein Teilnehmer im Chat enthalten sein muss.
+Im nächsten Schritt müssen alle Nutzernamen der Teilnehmer eingetragen werden. 
+Jeder Nutzername wird auf seine Gültigkeit geprüft. Ist er ungültig, so wird eine Information darüber ausgegeben (//TODO Määh). 
+%Hierfür wird jeder einzelne Nutzername überprüft und
+% im Falle eines ungültigen Nutzernamens, wird der Nutzer durch eine Meldung darauf aufmerksam gemacht.
+Wurden alle drei Attribute (Chatname, Teilnehmeranzahl, Nutzername der Teilnehmer) erfolgreich eingegeben,
 wird ein neuer Chat erstellt.
-\paragraph{Funktion: openchat}
-Auch hier muss der Benutzer zuerst den Chatnamen eingeben. Ist dieser vorhanden, wird der Chat geöffnet, ansonsten
-bekommt der Benutzer wieder eine Meldung. Am Anfang eines Chats wird immer darauf hingewiesen, wie der Chat
+
+\subsubsection*{/openchat:}
+Will der Nutzer einen Chat öffnen, so muss er zuerst den Chatnamen eingeben. Ist der Chat vorhanden, so wird er geöffnet.
+Kann der Chat nicht geöffnet werden, so wird eine Meldung für den Nutzer ausgegeben.
+Am Anfang eines Chats wird immer darauf hingewiesen, wie der Chat
 verlassen werden kann. Danach werden alle Nachrichten, die in diesem Chat bereits geschrieben wurden, geladen.
-Anschließend kann der Benutzer Nachrichten verschicken und empfangen.
+Anschließend kann der Nutzer Nachrichten versenden und empfangen.
+
+\subsubsection*{/exit:}
+Mithilfe dieser Funktion wird der Nutzer abgemeldet und Client beendet.
+\clearpage
 
 \author{Matthias Vonend, Aaron Schweig, Troy Keßler}
 \subsection{Fehlerbehandlung}
-Aus den Anforderungen geht hervor, dass es mindestens zwei Server geben muss, die sämtliche Informationen des
-Chatsystems besitzen müssen. Bricht eine Node zusammen, muss eine andere Node dessen Aufgabe übernehmen.
+Um Fehler und Datenverluste zu vermeiden, ist in dem Chatsystem sichergestellt, dass immer mindestens zwei Server (Nodes) \textbf{alle}
+Informationen besitzen. So kann während eines Nodeausfalls gewährleistet werden, dass eine Andere alle Aufgaben übernehmen kann.
 
+%Aus den Anforderungen geht hervor, dass es mindestens zwei Server geben muss, die sämtliche Informationen des
+%Chatsystems besitzen müssen. Bricht eine Node zusammen, muss eine andere Node dessen Aufgabe übernehmen.
 \subsubsection{Client}
-Nachdem der Client eingeloggt ist, wartet er kontinuierlich auf neue Pakete vom Server, wird beim Warten ein Fehler geworfen bedeutet das, dass diese Node ausgefallen ist. Nun versucht sich die Node wieder zu verbinden. Dabei können die Nodes über die Programmargumente eingegeben werden. Wenn sich der Client erfolgreich auf eine andere Node verbunden hat loggt er sich automatisch mit den bestehen Usernamen und Passwort ein, sodass der User von dem Ausfall nichts mitbekommt. Falls keine von den angegebenen Nodes verfügbar ist, probiert der Client nacheinander auf jede zu verbinden, bis eine davon wieder Online ist.
+Nachdem der Client eingeloggt ist, wartet er kontinuierlich auf neue Pakete vom Server. 
+
+
+
+Wird beim Warten ein Fehler geworfen 
+bedeutet das, dass diese Node ausgefallen ist. Nun versucht sich die Node wieder zu verbinden. 
+Dabei können die Nodes über die Programmargumente eingegeben werden. Wenn sich der Client erfolgreich auf eine andere Node 
+verbunden hat loggt er sich automatisch mit den bestehen Usernamen und Passwort ein, sodass der User von dem Ausfall nichts 
+mitbekommt. Falls keine von den angegebenen Nodes verfügbar ist, probiert der Client nacheinander auf jede zu verbinden, 
+bis eine davon wieder Online ist.
 
 \subsubsection{Server}
 Serverseitig können verschiedene Fehler auftretten. Viele Fehler werden bereits durch das TCP-Protokoll verhindert (z.\,B. mehrfach Zustellung, fehlerhafte Übermittlung).

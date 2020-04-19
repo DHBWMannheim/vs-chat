@@ -97,7 +97,7 @@ Listener:
 API-Funktionen
 \begin{itemize}
     \item Funktion - login\\
-    Bei der Funktion login werden er Benutzername und das Passwort des Benutzers entgegengenommen. Diese werden als neues LoginPacket an den Server geschickt. Dort wird unter anderem überprüft, ob es sich um einen neuen Benutzer handelt (Es wird ein neues angelegt) oder es ein bereits existierender Benutzer ist (Passwort wird überprüft). An dieser Stelle wartet der Client auf ein LoginSyncPacket (Login war erfolgreich). Danach werden die Attribute (userId, chats, contacts) abgespeichert. Für die Verschlüsselung wird auch noch die Keyfile geladen, in der die Schlüssel der eigenen Chats gespeichert sind. Sollte es noch keine Keyfile geben, wird eine neue erzeugt. Diese Datei ist ähnlich wie die Warehouse-Datei aufgebaut (hier wird über die ChatId, die Schlüssel geladen). Abschließend wird aus den beiden hardgecodeden public Keys noch ein private Key generiert, der später für den    Diffie Hellman Schlüsseltausch notwendig ist.
+    Bei der Funktion login werden er Benutzername und das Passwort des Benutzers entgegengenommen. Diese werden als neues LoginPacket an den Server geschickt. Dort wird unter anderem überprüft, ob es sich um einen neuen Nutzer handelt (Es wird ein neues angelegt) oder es ein bereits existierender Nutzer ist (Passwort wird überprüft). An dieser Stelle wartet der Client auf ein LoginSyncPacket (Login war erfolgreich). Danach werden die Attribute (userId, chats, contacts) abgespeichert. Für die Verschlüsselung wird auch noch die Keyfile geladen, in der die Schlüssel der eigenen Chats gespeichert sind. Sollte es noch keine Keyfile geben, wird eine neue erzeugt. Diese Datei ist ähnlich wie die Warehouse-Datei aufgebaut (hier wird über die ChatId, die Schlüssel geladen). Abschließend wird aus den beiden hardgecodeden public Keys noch ein private Key generiert, der später für den    Diffie Hellman Schlüsseltausch notwendig ist.
     \lstinputlisting[linerange={119-149}, firstnumber=58]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion -generatePrivateKey\\
     Mit dieser Funktion wird ein 128 private Key aus den beiden public Keys n und g generiert. Der private Key wird für die Verschlüsselung verwendet.
@@ -153,7 +153,7 @@ API-Funktionen
         \item Es wurde eine Nachricht an den User geschrieben. Hier wird der Schlüssel aus der Keyfile geladen und die
         Nachricht damit entschlüsselt.
         \item Es hat sich ein neuer User angemeldet. Dieser User muss den Usern des Clients hinzugefügt werden, damit auch
-        Chats mit diesem erstellt werden können. (Diffie Hellman funktioniert nur, wenn alle Benutzer online sind.)
+        Chats mit diesem erstellt werden können. (Diffie Hellman funktioniert nur, wenn alle Nutzer online sind.)
     \end{enumerate}
     \lstinputlisting[linerange={326-356}, firstnumber=262]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     Handelt es sich um ein KeyExchangePacket, wird überprüft, ob der Schlüsseltausch schon fertig ist,
