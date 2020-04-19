@@ -57,8 +57,8 @@ Dieser Schlüssel wird im Client mit der korrespondieren Chat-Id gespeichert, so
 auch nach einem Neustart des Clients wieder gelesen werden können. Dies ist notwendig, da auf dem Server nur die verschlüsselten
 Nachrichten gespeichert sind und sonst keinerlei Möglichkeit bestehen würde, diese wiederherzustellen. 
 
-Die öffentlich bekannte Primzahl, sowie die Generatorprimzahl wurden dabei für jeden Client festgeschrieben.
-Nach jedem Login und nach Erstellen eines Chats generiert der Client einen neuen 128bit Schlüssel und löscht den alten, um die Sicherheit zu erhöhen.
+Die öffentlichen Schlüssel wurden dabei für jeden Client festgeschrieben, da das Serverseitige verteilen der öffentlichen Schlüssel für uns ein unnötiger Mehraufwand wäre.
+Nach jedem Login und nach dem Erstellen eines Chats generiert der Client einen neuen 128bit Schlüssel und löscht den alten, um die Sicherheit zu erhöhen und um wieder neue Chat Schlüssel generieren zu können.
 Um auch Gruppenchats ermöglichen zu können musste der Diffie-Hellman-Key-Exchange entsprechend erweitert werden.
 Dabei gibt es in Gruppen im Gegensatz zu zwei Teilnehmern mehrere Runden.
 Ein Schlüsselaustausch mit drei Teilnehmern kann aus \hyperref[DHKE]{dieser Abbildung} entnommen werden.
@@ -100,7 +100,7 @@ $$ 6 = (3 * (3 - 1)) - 0 $$
 % prüfen, ob der Schlüsselaustausch vollständig durchgeführt wurde.
 
 
-Für alle anderen Clients gilt eine leicht abgeänderte Endbedingung. // TODO Welche, Brah?
+Für alle anderen Clients gilt eine ähnliche Endbedingung: $$ currentRequests - 1 = (targetRequests - userIndex) $$
 
 Da nun alle Chatteilnehmer den gleichen Schlüssel besitzen und der Chat erstellt ist, können Nachrichten mit 
 einem symmetrischen Verfahren sicher versendet werden. Hierfür wird die AES-Verschlüsselung verwendet.
