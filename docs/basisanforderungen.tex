@@ -102,22 +102,20 @@ Netzwerktopologien realisiert werden. Die ausfallsicherste Variante stellt dabei
 Diese ermöglicht es, auch bei einem Ausfall mehrerer Nodes, alle Nachrichten mit allen bekannten Nachbarnodes zu synchronisieren. Netzwerkpartitionierungen sind damit
 deutlich schwerer zu erreichen und auch mehrerer Nodeausfälle können mithilfe der Mesh-Topologie kompensiert werden. Ebenfalls wird durch die Wahl der
 Write-All-Available Replikationsstrategie sichergestellt, dass alle bekannten Nachbarnodes komplett synchronisiert sind.
-
-
-Demnach muss der Server ähnlich zur Clientverbindung davon ausgehen, 
-dass die Verbindung zusammengebrochen ist.
-Allerdings ist der Server hier selbst dafür zuständig sich erneut zu verbinden. Sämtliche Nachrichten, 
-die an eine Node gesendet werden müssen, werden in einer Queue aufbewahrt und nacheinander gesendet.
-Scheitert die Verbindung, so bleibt die Queue unverändert und wird nach einem erneuten Verbinden weiter abgearbeitet.
-Es wird solange versucht zu verbinden, bis eine Verbindung zustande gekommen ist. 
-Sobald eine Verbindung wieder aufgebaut wurde synchronisieren sich die Nodes, um wieder einen vollständigen Informationsstand zu besitzen.
-So kommen die Server auch mit Netzwerkpartitionierungen klar. Werden die Server getrennt sind die Clients immer 
-noch in der Lage Nachrichten an ihre jeweiligen Server zu schicken und sobald die Verbindung zwischen den Servern wieder aufgebaut werden 
-konnte gleichen sich diese an.
+\\
+Tritt ein Fehler in der Verbindung zwischen verschiedenen Nodes auf, so muss die Node ähnlich wie bei einem Fehler im Client davon ausgehen, 
+dass die Verbindung zusammengebrochen ist. Allerdings sind die Nodes hier selbst für eine Fehlerbehandlung zuständig und versucht eine neue
+Verbindung aufzubauen. Um sicherzustellen, dass keine konkurrienden Schreibzugriffe auf den OutputStream stattfinden,
+werden Nachrichten in einer Queue aufbewahrt bevor sie an andere Nodes übertragen werden.
+\\
+Werden die Nodes getrennt sind die Clients immer noch in der Lage Nachrichten an ihre jeweiligen Nodes zu schicken.
+Sobald eine Verbindung wieder aufgebaut wurde, synchronisieren sich die Nodes, um einen vollständigen Informationsstand wiederherzustellen.
 Sind keine Nachrichten zu senden, hat die Node keine Möglichkeit festzustellen, ob eine Verbindung noch existiert. 
 Zu diesem Zweck existiert ein Heartbeat, der periodisch die Nachbarnodes anpingt und so prüft, ob die Verbindung noch existiert.
+Jede Node prüft dabei, 
+ob sie alle Informationen des empfangenen Warehouses bereits besitzt und fügt geg. neue Informationen hinzu. 
+Sofern die Node neue Informationen erhalten hat, broadcastet diese ihren neuen Stand an alle benachbarten Nodes,
+um diese auch auf den neuesten Stand zu bringen.
 
-Wie gerade beschrieben führen alle Beteiligten stets eine Synchronisation, wodurch diese immer den kompletten Informationsbestand besitzen. Ein Client schickt eine Nachricht an einen Server. Der Server versucht alle zu ihm verbundenen Nodes aktuell zu halten indem er die Nachricht oder die Änderung an alle verfügbaren Nodes weiterleitet.
 
-Eine Veränderung des Datenbestandes muss dem entsprechend an alle anderen Nodes weitergegeben werden.
-Dadurch sind alle Server gleichwertige.
+
