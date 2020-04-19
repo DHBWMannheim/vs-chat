@@ -7,7 +7,8 @@ Einstiegspunkt des Servers ist der Serverbootstrapper. Dieser erstellt einen neu
 Der Server erstellt die Listener, die die zu empfangenen Pakete behandeln werden. Anschließend werden die Filter erstellt, die bestimmen, ob ein Paket gehandelt oder ignoriert werden soll (z.\,B. bei rekursiven Broadcasts).
 \lstinputlisting[linerange={64-80}, firstnumber=64]{../src/main/java/vs/chat/server/Server.java}
 
-Die Listener und die Filter werden in einen ServerContext gepackt, der allen Threads geteilt wird.
+Die Listener und die Filter werden in einen ServerContext gepackt, der mit allen Threads geteilt wird.
+\clearpage
 
 \begin{figure}[h]
     \centering
@@ -16,9 +17,12 @@ Die Listener und die Filter werden in einen ServerContext gepackt, der allen Thr
     \caption{Server-Context Aufbau}
 \end{figure}
 
+
 Sobald der ServerContext instanziiert wird, wird das Warehouse geladen. 
 Zunächst wird versucht die Safe-Datei zu laden. Scheitert das Laden, wird das Warehouse leer instanziiert.
+
 \lstinputlisting[linerange={53-64}, firstnumber=53]{../src/main/java/vs/chat/server/warehouse/Warehouse.java}
+
 
 Das Warehouse hält sämtliche Daten, die persistiert werden müssen (z.\,B. Messages, Chats, Users). Der ServerContext erstellt außerdem den Persister. Der Persister ist ein Thread, der in regelmäßigen Abständen das Warehouse speichert.
 \lstinputlisting[linerange={17-31}, firstnumber=17]{../src/main/java/vs/chat/server/persistence/Persister.java}
@@ -30,17 +34,17 @@ Außerdem wird der Broadcaster erstellt, der die Verbindungen zu anderen Nodes h
 \lstinputlisting[linerange={14-27}, firstnumber=14]{../src/main/java/vs/chat/server/node/NodeBroadcaster.java}
 
 
-Weitere Variablen sind isCloseRequested, die die "endlos" Schleifen aller Threads steuert und connections, welche alle Connections zu Clients, die direkt zu dieser Node verbunden sind, hält.
+Weitere Variablen sind \textit{isCloseRequested}, die die 'endlos' Schleifen aller Threads steuert und \textit{connections}, welche alle Verbindungen zu Clients, die direkt zu dieser Node verbunden sind, hält.
 
-Der Nodebroadcaster erstellt bei Instanziierung je node einen eigenen Thread, der sich um das Senden und das neu verbinden kümmert.
-Nachrichten, die an eine Node gesendet werden soll werden sollen werden vom Broadcaster in die Queue geschrieben und die NodeConnection wird durch einen Semaphor aufgeweckt. 
-Die NodeConnection versucht eine Nachricht zu senden. Scheitert das Senden wird von einer Verbindungstrennung ausgegangen und die Verbindung wird neu verbunden.
+Der Nodebroadcaster erstellt bei Instanziierung je Node einen eigenen Thread, der sich um das Senden und das neu Verbinden kümmert.
+Nachrichten, die an eine Node gesendet werden sollen werden sollen werden vom Broadcaster in die Queue geschrieben und die NodeConnection wird durch einen Semaphor aufgeweckt. 
+Die NodeConnection versucht eine Nachricht zu senden. Scheitert das Senden wird von einer Verbindungstrennung ausgegangen und die Verbindung wird neu aufgebaut.
 
 \lstinputlisting[linerange={37-50}, firstnumber=37]{../src/main/java/vs/chat/server/node/NodeConnection.java}
 Zusätzlich besitzt die NodeConnection jeweils einen HeartBeat-Thread. Dieser Thread sendet regelmäßig einen Ping, um zu testen, ob die Verbindung noch steht.
 \lstinputlisting[linerange={16-25}, firstnumber=16]{../src/main/java/vs/chat/server/node/NodeHeartBeatThread.java}
 
-Nachdem nun alle initialisierungs Vorgänge abgeschlossen sind, kann der ServerSocket erstellt werden und Clients akzeptiert werden.
+Nachdem nun alle Initialisierungsvorgänge abgeschlossen sind, kann der ServerSocket erstellt und Clients akzeptiert werden.
 Der Hauptserver-Thread ist dabei nur zuständig neue Verbindungen entgegenzunehmen. Für jede Verbindung wird ein ConnectionHandler-Thread erstellt, der sämtliche Nachrichten des Clients verarbeitet.
 \lstinputlisting[linerange={41-60}, firstnumber=41]{../src/main/java/vs/chat/server/Server.java}
 
@@ -97,29 +101,30 @@ Listener:
 API-Funktionen
 \begin{itemize}
     \item Funktion - login\\
-    Bei der Funktion login werden er Benutzername und das Passwort des Benutzers entgegengenommen. Diese werden als neues LoginPacket an den Server geschickt. Dort wird unter anderem überprüft, ob es sich um einen neuen Nutzer handelt (Es wird ein neues angelegt) oder es ein bereits existierender Nutzer ist (Passwort wird überprüft). An dieser Stelle wartet der Client auf ein LoginSyncPacket (Login war erfolgreich). Danach werden die Attribute (userId, chats, contacts) abgespeichert. Für die Verschlüsselung wird auch noch die Keyfile geladen, in der die Schlüssel der eigenen Chats gespeichert sind. Sollte es noch keine Keyfile geben, wird eine neue erzeugt. Diese Datei ist ähnlich wie die Warehouse-Datei aufgebaut (hier wird über die ChatId, die Schlüssel geladen). Abschließend wird aus den beiden hardgecodeden public Keys noch ein private Key generiert, der später für den    Diffie Hellman Schlüsseltausch notwendig ist.
+    Bei der Funktion login werden der Benutzername und das Passwort des Benutzers entgegengenommen. Diese werden als neues LoginPacket an den Server geschickt. Dort wird unter anderem überprüft, ob es sich um einen neuen Nutzer handelt (es wird ein Neuer angelegt) oder es ein bereits existierender Nutzer ist (Passwort wird überprüft). An dieser Stelle wartet der Client auf ein LoginSyncPacket (Login war erfolgreich). Danach werden die Attribute (userId, chats, contacts) abgespeichert. Für die Verschlüsselung wird auch noch die Keyfile geladen, in der die Schlüssel der eigenen Chats gespeichert sind. Sollte es noch keine Keyfile geben, wird eine neue erzeugt. Diese Datei ist ähnlich wie die Warehouse-Datei aufgebaut (hier wird über die Chat-Id, die Schlüssel geladen). Abschließend wird aus den beiden festgeschriebenen, öffentliche Primzahlen noch ein Schlüssel generiert, der später für den Diffie-Hellman-Key-Exchange notwendig ist.
     \lstinputlisting[linerange={119-149}, firstnumber=58]{../src/main/java/vs/chat/client/ClientApiImpl.java}
-    \item Funktion -generatePrivateKey\\
-    Mit dieser Funktion wird ein 128 private Key aus den beiden public Keys n und g generiert. Der private Key wird für die Verschlüsselung verwendet.
+    \item Funktion - generatePrivateKey\\
+    Mit dieser Funktion wird ein 128 Schlüssel aus den beiden öffentlichen Primzahlen n und g generiert. Der Schlüssel wird für die Verschlüsselung verwendet.
     \lstinputlisting[linerange={159-167}, firstnumber=95]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - exchangeKeys\\
-    Um den Diffie-Hellman Schlüsseltausch zu starten muss die exchangeKeys Methode vom Client aufgerufen werden.
+    Um den Diffie-Hellman-Key-Exchange zu starten muss die \textit{exchangeKeys} Methode vom Client aufgerufen werden.
     Dabei erstellt die Methode das erste KeyExchangePacket, welches mit den erforderlichen Informationen
-    ausgestattet wird. Nachdem das Paket gesendet wurde, haben die Teilnehmer 10 Sekunden Zeit, um den Schlüsseltausch durchzuführen. Wenn dies innerhalb der angegebenen Zeit nicht geschieht gehen wir von einem Fehler ausgegangen und es wird die Error Handling Methode onTimeout aufgerufen.
+    ausgestattet wird. Nachdem das Paket gesendet wurde, haben die Teilnehmer zehn Sekunden Zeit, um den Schlüsseltausch durchzuführen.
+    Wenn dies innerhalb der angegebenen Zeit nicht geschieht, wird von einem Fehler ausgegangen und die Error-Handling-Methode \textit{onTimeout} aufgerufen.
     \lstinputlisting[linerange={195-216}, firstnumber=154]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - createChat\\
-    Für einen neuen Chat werden 2 Parameter benötigt: Name des Chats und Liste mit Usern. Um einen neuen Chat zu
-    erstellen, wird ein CreateChatPacket mit dem Chatnamen und einem Array der UserIds an den Server geschickt.
+    Für einen neuen Chat werden zwei Parameter benötigt: Der Name des Chats und eine Liste mit Usern. Um einen neuen Chat zu
+    erstellen, wird ein CreateChatPacket mit dem Chatnamen und einem Array der User-Ids an den Server geschickt.
     \lstinputlisting[linerange={218-225}, firstnumber=154]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - sendMessage\\
-    Hier wird die eigentliche Nachricht und eine ChatId entgegengenommen. Diese werden dann in ein MessagePacket an
+    Hier wird die eigentliche Nachricht und eine Chat-Id entgegengenommen. Diese werden dann in ein MessagePacket an
     den Server geschickt.
     \lstinputlisting[linerange={227-233}, firstnumber=163]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - Verschlüsselung (encryptAES, decyptAES, setKey) \\
     Für die symmetrische Verschlüsselung der Nachrichten wird der AES-Algorithmus benutzt. Hierfür wird vor jedem Senden
-    die Methode encryptAES und nach jeder empfangener Nachricht decryptAES aufgerufen.\\
+    die Methode \textit{encryptAES} und nach jeder empfangener Nachricht \textit{decryptAES} aufgerufen.\\
     Für die Verschlüsselung wird zunächst der Schlüssel in das richtige Format (SecretKeySpec), durch die Funktion
-    setKey gebracht. Anschließend wird eine Instanz der Klasse Cipher erzeugt und mit dem Verschlüsselungsmodus und
+    \textit{setKey} gebracht. Anschließend wird eine Instanz der Klasse Cipher erzeugt und mit dem Verschlüsselungsmodus und
     dem Key initialisiert. Abschließend wird der eigentlich Text verschlüsselt und in einem String zurückgegeben. \\
     Die Entschlüsselung ist fast identisch zur Verschlüsselung. Hier wird die Instanz in dem Entschlüsselungsmodus
     initialisiert.
@@ -131,7 +136,7 @@ API-Funktionen
     Wird ein neuer Key gespeichert, wird eine neue PrivateKeyEntity mit der chatId und dem Schlüssel in der keyfile
     abgespeichert.
     
-    addKey\\
+    addKey\\ //TODO warum hier nochmal addKey? Brah
     Müssen Nachrichten angezeigt werden, muss der Schlüssel aus der Datei für die chatId ausgelesen werden.
     
     loadKey \\
