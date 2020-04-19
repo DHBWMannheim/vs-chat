@@ -8,7 +8,7 @@
 \end{figure}
 
 \author{Matthias Vonend}
-\subsection{Chatfunktionalität}
+\subsection{Chatfunktionalität}\label{Chatfunktionalitaet}
 Die Anwendung ist mit einem Thin Client aufgebaut. Damit ein Chat ablaufen kann, muss zunächst eine Verbindung zu einem Server aufgebaut werden.
 Dazu wählt der Client zunächst einen zufälligen Server aus und versucht sich zu verbinden.
 Wurde eine Verbindung erfolgreich aufgebaut, kann sich der Nutzer mit seinem Nutzernamen und seinem Passwort anmelden.
@@ -78,32 +78,46 @@ Informationen besitzen. So kann während eines Nodeausfalls gewährleistet werde
 %Aus den Anforderungen geht hervor, dass es mindestens zwei Server geben muss, die sämtliche Informationen des
 %Chatsystems besitzen müssen. Bricht eine Node zusammen, muss eine andere Node dessen Aufgabe übernehmen.
 \subsubsection{Client}
-Nachdem der Client eingeloggt ist, wartet er kontinuierlich auf neue Pakete vom Server. 
+Nachdem der Client eingeloggt ist, wartet er kontinuierlich auf neue Pakete vom Server. Stürzt eine Node ab, oder verliert der Client
+die Netzwerkverbindung, so versucht er sich neu zu verbinden. Dabei wird eine neue, zufällige Node ausgewählt.
+Kann der Client erfolgreich eine neue Verbindung aufbauen, meldet sich der Client mit den bestehenden Zugangsdaten an der Node an.
+Ist diese nicht verfügbar, so wird so lange eine neue Node ausgewählt, bis eine Verbindung zustande kommt.
+Im Regelfall findet der beschriebene Reconnect-Vorgang im Hintergrund statt.
 
-
-
-Wird beim Warten ein Fehler geworfen 
-bedeutet das, dass diese Node ausgefallen ist. Nun versucht sich die Node wieder zu verbinden. 
-Dabei können die Nodes über die Programmargumente eingegeben werden. Wenn sich der Client erfolgreich auf eine andere Node 
-verbunden hat loggt er sich automatisch mit den bestehen Usernamen und Passwort ein, sodass der User von dem Ausfall nichts 
-mitbekommt. Falls keine von den angegebenen Nodes verfügbar ist, probiert der Client nacheinander auf jede zu verbinden, 
-bis eine davon wieder Online ist.
+//TODO * (zus. in der Erweiterung: Teilnehmer ist nicht online)
 
 \subsubsection{Server}
-Serverseitig können verschiedene Fehler auftretten. Viele Fehler werden bereits durch das TCP-Protokoll verhindert (z.\,B. mehrfach Zustellung, fehlerhafte Übermittlung).
-Dennoch können grundsätzlich die folgenden Fehlerfälle eintreten:
-\begin{enumerate}
-    \item Nachricht des Clients kann nicht korrekt empfangen/gesendet werden\\
-        In diesem Fall muss der Server davon ausgehen, dass die Verbindung zusammengebrochen ist und er beendet seine Verbindung. Der Server verlässt sich darauf, dass der Client erneut eine Verbindung aufbaut.
-    Alle für den Client relevanten Nachrichten werden dann zu diesem übertragen und der Client muss neue Informationen zurück übertragen.
-    \item Nachrichten einer Nachbarnode können nicht korrekt empfangen/gesendet werden\\
-        Die Server sind als Peer-to-Peer Server aufgebaut. Demnach muss der Server ähnlich zur Clientverbindung davon ausgehen, dass die Verbindung zusammengebrochen ist.
-        Allerdings ist der Server hier selbst dafür zuständig sich erneut zu verbinden. Sämtliche Nachrichten, die an eine Node gesendet werden müssen, werden in einer Queue aufbewahrt und nacheinander gesendet.
-        Scheitert die Verbindung, so bleibt die Queue unverändert und wird nach einem erneuten Verbinden weiter abgearbeitet. Es wird solange versucht zu verbinden, bis eine Verbindung zustande gekommen ist.
-        Sobald eine Verbindung wieder aufgebaut wurde synchronisieren sich die Nodes, um wieder einen vollständigen Informationsstand zu besitzen. So kommen die Server auch mit Netzwerkpartitionierungen klar. Werden die Server getrennt sind die Clients immer noch in der Lage Nachrichten an ihre jeweiligen Server zu schicken und sobald die Verbindung zwischen den Servern wieder aufgebaut werden konnte gleichen sich diese an.
-        Sind keine Nachrichten zu senden, hat die Node keine Möglichkeit festzustellen, ob eine Verbindung noch existiert. Zu diesem Zweck existiert ein Heartbeat, der periodisch die Nachbarnodes anpingt und so prüft, ob die Verbindung noch existiert.
-\end{enumerate}
-Wie gerade beschrieben führen alle Beteiligten stets eine Synchronisation, wodurch diese immer den kompletten Informationsbestand besitzen. Die Replikationskontrolle wird nach der Write-All-Available Strategie umgesetzt. Ein Client schickt eine Nachricht an einen Server. Der Server versucht alle zu ihm verbundenen Nodes aktuell zu halten indem er die Nachricht oder die Änderung an alle verfügbaren Nodes weiterleitet.
+Serverseitig können verschiedene Fehler auftreten. Viele Fehler werden bereits durch das TCP-Protokoll und Java selbst verhindert 
+(z.\,B. Mehrfachzustellung, fehlerhafte Übermittlung, \dots). Dennoch können grundsätzlich die folgenden Fehlerfälle eintreten:
+
+\subsubsection*{Nachricht des Clients wird nicht korrekt gesendet/empfangen}
+In diesem Fall muss der Server davon ausgehen, dass die Verbindung zusammengebrochen ist. Diese wird im Anschluss vom Server beendet
+und wie bereits oben beschrieben versucht der Client erneut eine Verbindung aufzubauen.
+Ist eine neue Verbindung wiederhergestellt, werden alle für den Client relevanten Nachrichten zu diesem übertragen 
+und der Client muss fehlende Informationen erneut an den Server übertragen.
+
+\subsubsection*{Nachrichten einer Nachbarnode werden nicht korrekt empfangen/gesendet}
+Wie bereits im Kapitel \ref{Chatfunktionalitaet} beschrieben, tauschen Nodes alle Nachrichten untereinander aus. Innerhalb des Chatsystems können mehrere
+Netzwerktopologien realisiert werden. Die ausfallsicherste Variante stellt dabei eine Mesh-Struktur dar. 
+Diese ermöglicht es, auch bei einem Ausfall mehrerer Nodes, alle Nachrichten mit allen bekannten Nachbarnodes zu synchronisieren. Netzwerkpartitionierungen sind damit
+deutlich schwerer zu erreichen und auch mehrerer Nodeausfälle können mithilfe der Mesh-Topologie kompensiert werden. Ebenfalls wird durch die Wahl der
+Write-All-Available Replikationsstrategie sichergestellt, dass alle bekannten Nachbarnodes komplett synchronisiert sind.
+
+
+Demnach muss der Server ähnlich zur Clientverbindung davon ausgehen, 
+dass die Verbindung zusammengebrochen ist.
+Allerdings ist der Server hier selbst dafür zuständig sich erneut zu verbinden. Sämtliche Nachrichten, 
+die an eine Node gesendet werden müssen, werden in einer Queue aufbewahrt und nacheinander gesendet.
+Scheitert die Verbindung, so bleibt die Queue unverändert und wird nach einem erneuten Verbinden weiter abgearbeitet.
+Es wird solange versucht zu verbinden, bis eine Verbindung zustande gekommen ist. 
+Sobald eine Verbindung wieder aufgebaut wurde synchronisieren sich die Nodes, um wieder einen vollständigen Informationsstand zu besitzen.
+So kommen die Server auch mit Netzwerkpartitionierungen klar. Werden die Server getrennt sind die Clients immer 
+noch in der Lage Nachrichten an ihre jeweiligen Server zu schicken und sobald die Verbindung zwischen den Servern wieder aufgebaut werden 
+konnte gleichen sich diese an.
+Sind keine Nachrichten zu senden, hat die Node keine Möglichkeit festzustellen, ob eine Verbindung noch existiert. 
+Zu diesem Zweck existiert ein Heartbeat, der periodisch die Nachbarnodes anpingt und so prüft, ob die Verbindung noch existiert.
+
+Wie gerade beschrieben führen alle Beteiligten stets eine Synchronisation, wodurch diese immer den kompletten Informationsbestand besitzen. Ein Client schickt eine Nachricht an einen Server. Der Server versucht alle zu ihm verbundenen Nodes aktuell zu halten indem er die Nachricht oder die Änderung an alle verfügbaren Nodes weiterleitet.
 
 Eine Veränderung des Datenbestandes muss dem entsprechend an alle anderen Nodes weitergegeben werden.
 Dadurch sind alle Server gleichwertige.
