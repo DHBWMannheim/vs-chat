@@ -19,21 +19,21 @@ Bei der Verwendung von Emojis haben wir auf Unicode-Zeichen zurückgegriffen.
 Wir wollten die Nutzung von Icons als Bilddateien und den damit verbundenen Netzwerkverkehr und benötigten Speicherplatz so weit wie möglich vermeiden.
 Neben dem Texteingabefeld eines Chat ist ein Icon, das beim Anklicken eine Übersicht über die verwendbaren Emojis öffnet und diese bei erneutem klicken auch wieder schließt. 
 Die Emojis in der Übersicht können angeklickt werden, damit sie in Form eines Unicode-Zeichens an die aktuelle Stelle im Texteingabefeld übernommen werden.
-\\ \\
-Über die Implementierung wird im Codewalkthrough eingegangen.
 
-//TODO wie ist eigentlich unsere Impl
+Auf die Implementierung wird im Codewalkthrough eingegangen.
+
 \author{Matthias Vonend, Aaron Schweig, Troy Keßler}
-\subsection{Gruppenchats}
-Die bestehende Chatimplementierung ermöglicht Gruppenchats ohne weitere Anpassungen. Konversationen zwischen zwei Nutzern stellen einen Gruppenchat mit lediglich zwei Teilnehmern dar.
-Wird eine Nachricht empfangen, werden diese an alle am Chat beteiligten Nutzer gesendet.
+\subsection{Gruppenchats \& Mehrere Chatverläufe pro Nutzer}
+Die Chatimplementierung innerhalb des Systems ist so aufgebaut, dass einige der Erweiterungen keine Codeänderungen erfordern.
+Ein Chat besteht aus einer Liste von Nutzern. Direkte Chats bedeuten somit nur, dass die Anzahl der Chatbeteiligten bei zwei liegt.
+Durch diese Form der Implementierung ist es möglich \textbf{Gruppenchats} einfach darzustellen. Die Liste der Chatteilnehmer kann theoretisch
+beliebeig lang werden. Serverseitig wird dann nur eine längere Liste durchlaufen, wenn es darum geht, die Nachrichten zu verteilen.
+So stellen Gruppenchats eigentlich die natürliche Version dar und Chats zwischen zwei Nutzern sind nichts anderes, als ein Sonderfall eines Gruppenchats.
 
-\author{Matthias Vonend, Troy Keßler}
-\subsection{Mehrere Chatverläufe pro Nutzer}
-Mehrere Chatverläufe sind eine Erweiterung der bestehenden Chatimplementierung. Nun ist es möglich mehrere Chats zu erstellen und zwischen diesen zu wechseln.
-Im Client können die Chats eines Nutzers mit dem Befehl \textit{/chats} angezeigt werden. 
-Mit dem Befehl \textit{/openchat} kann er dann diese Chats öffenund gelangt dabei in die Chatansicht wo er sowohl Nachrichten empfangen als auch senden kann.
-Mit dem Befehl \textit{/quit} kann er die Chatansicht wieder verlassen und einen anderen Chat öffnen.
+Möchte nun ein Nutzer \textbf{mehrere Chats} führen, so ist das, dank der bestehenden Chatimplementierung ohne Probleme möglich. Es kann abgefragt werden, in welchem Chat
+die entsprechende Nutze-Id hinterlegt ist. Es kann also sein, dass eine Nutzer-Id sowohl in \textit{Chat A} als auch in \textit{Chat B} als Teilnehmer hinterlegt ist.
+Innerhalb des Clients können dann die Chats für den aktuellen Nutzer geladen werden und es können auch verschiedene Chats geöffnet und verwendet werden.
+
 
 \author{Matthias Vonend}
 \subsection{Persistentes Speichern der Chatverläufe}\label{persistance}
