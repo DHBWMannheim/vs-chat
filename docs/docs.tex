@@ -94,19 +94,10 @@
 \newtheorem{definition}{Definition}
 \setcounter{section}{-1}
 \title{Dokumentation}
+
 \author{
-    Matthias Vonend
-    \and
-    Jan Grübener
-    \and
-    Patrick Mischka
-    \and
-    Michael Angermeier
-    \and
-    Troy Keßler
-    \and
-    Aaron Schweig
-}
+\begin{tabular}{ccc} Matthias Vonend &  Patrick Mischka & Michael Angermeier
+  \\ Jan Grübener &  Aaron Schweig & Troy Keßler \end{tabular} }
 
 \begin{document}
 
@@ -124,7 +115,7 @@
 
     \author{}
     \section{Quick Start Guide}
-    Zunächst sollte sichergestellt werden, dass als Java-Version 11 eingestellt ist. Das Projekt kann als Maven-Projekt importiert werden.
+    Das Projekt kann als Maven-Projekt importiert werden. Zunächst sollte sichergestellt werden, dass als Java-Version 11 eingestellt ist.
     Danach kann die erste Node gestartet werden. Dafür muss eine Instanz der Klasse Server-Bootstrapper erzeugt werden
     und wenn es erwünscht ist, ein anderer Port (standardmäßig 9876) eingestellt werden. Außerdem können mit der Klasse \textit{NodeConfig} weitere Nodes angegeben werden, zu dehnen eine Verbindung gehalten werden soll.
     Wurde mindestens eine Node erfolgreich hochgefahren, können beliebig viele Clients gestartet werden. Bei der Klasse Client
