@@ -51,7 +51,7 @@ Der Hauptserver-Thread ist dabei nur zuständig neue Verbindungen entgegenzunehm
 Nachrichten zwischen Servern und Clients werden als Pakete ausgetauscht. Der Handler versucht dabei ein Paket vom Client zu lesen. Die Filter prüfen nun, ob das Paket gehandelt werden darf (und nach dem Verarbeiten dessen werden diese aktualisiert).
 \lstinputlisting[linerange={47-53}, firstnumber=47]{../src/main/java/vs/chat/server/ConnectionHandler.java}
 Anschließend werden die passenden Listener gesucht und diese mit dem Paket aufgerufen.
-\lstinputlisting[linerange={61-86}, firstnumber=61]{../src/main/java/vs/chat/server/ConnectionHandler.java}
+\lstinputlisting[linerange={63-89}, firstnumber=63]{../src/main/java/vs/chat/server/ConnectionHandler.java}
 
 
 
@@ -102,24 +102,24 @@ API-Funktionen
 \begin{itemize}
     \item Funktion - login\\
     Bei der Funktion login werden der Benutzername und das Passwort des Benutzers entgegengenommen. Diese werden als neues LoginPacket an den Server geschickt. Dort wird unter anderem überprüft, ob es sich um einen neuen Nutzer handelt (es wird ein Neuer angelegt) oder es ein bereits existierender Nutzer ist (Passwort wird überprüft). An dieser Stelle wartet der Client auf ein LoginSyncPacket (Login war erfolgreich). Danach werden die Attribute (userId, chats, contacts) abgespeichert. Für die Verschlüsselung wird auch noch die Keyfile geladen, in der die Schlüssel der eigenen Chats gespeichert sind. Sollte es noch keine Keyfile geben, wird eine neue erzeugt. Diese Datei ist ähnlich wie die Warehouse-Datei aufgebaut (hier wird über die Chat-Id, die Schlüssel geladen). Abschließend wird aus den beiden festgeschriebenen, öffentliche Primzahlen noch ein Schlüssel generiert, der später für den Diffie-Hellman-Key-Exchange notwendig ist.
-    \lstinputlisting[linerange={119-149}, firstnumber=119]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={126-156}, firstnumber=126]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - generatePrivateKey\\
     Mit dieser Funktion wird ein 128 Schlüssel aus den beiden öffentlichen Primzahlen n und g generiert. Der Schlüssel wird für die Verschlüsselung verwendet.
-    \lstinputlisting[linerange={159-167}, firstnumber=159]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={166-174}, firstnumber=166]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - exchangeKeys\\
     Um den Diffie-Hellman-Key-Exchange zu starten muss die \textit{exchangeKeys} Methode vom Client aufgerufen werden.
     Dabei erstellt die Methode das erste KeyExchangePacket, welches mit den erforderlichen Informationen
     ausgestattet wird. Nachdem das Paket gesendet wurde, haben die Teilnehmer zehn Sekunden Zeit, um den Schlüsseltausch durchzuführen.
     Wenn dies innerhalb der angegebenen Zeit nicht geschieht, wird von einem Fehler ausgegangen und die Error-Handling-Methode \textit{onTimeout} aufgerufen.
-    \lstinputlisting[linerange={195-216}, firstnumber=195]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={202-223}, firstnumber=202]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - createChat\\
     Für einen neuen Chat werden zwei Parameter benötigt: Der Name des Chats und eine Liste mit Usern. Um einen neuen Chat zu
     erstellen, wird ein CreateChatPacket mit dem Chatnamen und einem Array der User-Ids an den Server geschickt.
-    \lstinputlisting[linerange={218-225}, firstnumber=218]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={225-232}, firstnumber=225]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - sendMessage\\
     Hier wird die eigentliche Nachricht und eine Chat-Id entgegengenommen. Diese werden dann in ein MessagePacket an
     den Server geschickt.
-    \lstinputlisting[linerange={227-233}, firstnumber=227]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={234-240}, firstnumber=234]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - Verschlüsselung (encryptAES, decyptAES, setKey) \\
     Für die symmetrische Verschlüsselung der Nachrichten wird der AES-Algorithmus benutzt. Hierfür wird vor jedem Senden
     die Methode \textit{encryptAES} und nach jeder empfangener Nachricht \textit{decryptAES} aufgerufen.\\
@@ -142,8 +142,6 @@ API-Funktionen
     deleteKey \\
     Sollte ein Chat irgendwann gelöscht werden, kann der die PrivateKeyEntity über die chatID entfernt werden. 
     
-    deleteKey\\
-    //TODO hier fehlt noch text + das listing ist verschoben
     \lstinputlisting[linerange={257-301}, firstnumber=257]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - exit \\
     Bei dieser Methode wird ein LogoutPacket an den Server geschickt. Der User wird hier noch nicht ausgeloggt!

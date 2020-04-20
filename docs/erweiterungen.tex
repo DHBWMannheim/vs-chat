@@ -10,7 +10,7 @@ Hierbei gibt der Nutzer den neuen Chatnamen ein, als auch die Anzahl der zusätz
 Damit ein neuer Chat erstellt werden kann, müssen alle beteiligten Nutzer eingeloggt sein, damit der Schlüsselaustausch für die Verschlüsselung stattfinden kann.
 Ist das erfüllt, wird der Chat erstellt und der Nutzer gelangt wieder auf die Chatübersicht. Wenn mindestens einer der Nutzer nicht eingeloggt ist, wird dies dem Nutzer angezeigt. Er kann dann entweder erneut versuchen den Chat zu erstellen oder navigiert mithilfe des Pfeil-Icons zurück in die Chatübersicht.
 Durch Anklicken eines Chats in der Chatübersicht, wird der konkrete Chat geöffnet. Hierbei werden alle Nachrichten des Chats angezeigt. Am unteren Ende der Seite ist ein Texteingabefeld, mit dem der Nutzer auch Nachrichten in den Chat schreiben kann. Diese werden entweder durch eine Enter-Eingabe oder das Anklicken des Flugzeug-Icons verschickt. Nachrichten werden mit dem Nutzernamen des Erstellers für andere Nutzer angezeigt. 
-Neben dem Chatnamen ist ein Pfeil-Icons, mithilfew dessen der Chat wieder geschlossen werden kann und sich wieder die Chat-Übersicht öffnet.
+Neben dem Chatnamen ist ein Pfeil-Icons, mithilfe dessen der Chat wieder geschlossen werden kann und sich wieder die Chat-Übersicht öffnet.
 
 \author{Jan Grübener, Patrick Mischka}
 \subsection{Verwendung von Emojis}
@@ -57,8 +57,8 @@ Dieser Schlüssel wird im Client mit der korrespondieren Chat-Id gespeichert, so
 auch nach einem Neustart des Clients wieder gelesen werden können. Dies ist notwendig, da auf dem Server nur die verschlüsselten
 Nachrichten gespeichert sind und sonst keinerlei Möglichkeit bestehen würde, diese wiederherzustellen. 
 
-Die öffentlichen Schlüssel wurden dabei für jeden Client festgeschrieben, da das Serverseitige verteilen der öffentlichen Schlüssel für uns ein unnötiger Mehraufwand wäre.
-Nach jedem Login und nach dem Erstellen eines Chats generiert der Client einen neuen 128bit Schlüssel und löscht den alten, um die Sicherheit zu erhöhen und um wieder neue Chat Schlüssel generieren zu können.
+Die öffentlich bekannte Primzahl, sowie die Generatorprimzahl wurden dabei für jeden Client festgeschrieben.
+Nach jedem Login und dem Erstellen eines Chats generiert der Client einen neuen 128bit Schlüssel und löscht den Alten, um die Sicherheit zu erhöhen.
 Um auch Gruppenchats ermöglichen zu können musste der Diffie-Hellman-Key-Exchange entsprechend erweitert werden.
 Dabei gibt es in Gruppen im Gegensatz zu zwei Teilnehmern mehrere Runden.
 Ein Schlüsselaustausch mit drei Teilnehmern kann aus \hyperref[DHKE]{dieser Abbildung} entnommen werden.
@@ -101,7 +101,7 @@ $$ 6 = (3 * (3 - 1)) - 0 $$
 
 
 Für alle anderen Clients gilt eine ähnliche Endbedingung: $$ currentRequests - 1 = (targetRequests - userIndex) $$
-
+Damit der Schlüsselaustausch abgeschlossen werden kann müssen alle Teilnehmer während der Chaterstellung online sein. Ist dies nicht der Fall wird darauf hingewiesen.
 Da nun alle Chatteilnehmer den gleichen Schlüssel besitzen und der Chat erstellt ist, können Nachrichten mit 
 einem symmetrischen Verfahren sicher versendet werden. Hierfür wird die AES-Verschlüsselung verwendet.
 

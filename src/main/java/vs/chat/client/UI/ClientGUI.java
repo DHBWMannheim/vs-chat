@@ -240,7 +240,6 @@ public class ClientGUI {
     }
 
     private class addUserToChatActionListener implements ActionListener {
-        List<UUID> users;
         JTextField chatnameTextField;
         JFormattedTextField useramountTextField;
         JPanel header;
@@ -254,7 +253,6 @@ public class ClientGUI {
             this.useramountTextField = useramountTextField;
             this.header = header;
             this.contactsPanel = contactsPanel;
-            users = new ArrayList<>();
         }
 
         @Override

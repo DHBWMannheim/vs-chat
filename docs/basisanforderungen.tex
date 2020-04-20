@@ -13,7 +13,7 @@ Die Anwendung ist mit einem Thin Client aufgebaut. Damit ein Chat ablaufen kann,
 Dazu wählt der Client zunächst einen zufälligen Server aus und versucht sich zu verbinden.
 Wurde eine Verbindung erfolgreich aufgebaut, kann sich der Nutzer mit seinem Nutzernamen und seinem Passwort anmelden.
 Sobald der Nutzer angemeldet ist, sendet der Server ihm alle benötigten Informationen inklusive der verpassten
-Nachrichten zu. Der Server bergibt jeder eintreffenden Nachricht einen Timestamp, um zu dokumentieren, wann sie erstmalig eingetroffen ist.
+Nachrichten zu. Der Server vergibt jeder eintreffenden Nachricht einen Timestamp, um zu dokumentieren, wann sie erstmalig eingetroffen ist.
 Anhand des Timestamps werden die Nachrichten sortiert, damit der Client die korrekte Reihenfolge der Nachrichten darstellen kann.
 
 Wenn ein Client eine Nachricht versenden möchte, wird das Nachrichtenpaket an die Node gesendet, mit der er verbunden ist.
@@ -68,7 +68,6 @@ Anschließend kann der Nutzer Nachrichten versenden und empfangen.
 
 \subsubsection*{/exit:}
 Mithilfe dieser Funktion wird der Nutzer abgemeldet und Client beendet.
-\clearpage
 
 \author{Matthias Vonend, Aaron Schweig, Troy Keßler}
 \subsection{Fehlerbehandlung}
@@ -83,8 +82,6 @@ die Netzwerkverbindung, so versucht er sich neu zu verbinden. Dabei wird eine ne
 Kann der Client erfolgreich eine neue Verbindung aufbauen, meldet sich der Client mit den bestehenden Zugangsdaten an der Node an.
 Ist diese nicht verfügbar, so wird so lange eine neue Node ausgewählt, bis eine Verbindung zustande kommt.
 Im Regelfall findet der beschriebene Reconnect-Vorgang im Hintergrund statt.
-
-//TODO * (zus. in der Erweiterung: Teilnehmer ist nicht online)
 
 \subsubsection{Server}
 Serverseitig können verschiedene Fehler auftreten. Viele Fehler werden bereits durch das TCP-Protokoll und Java selbst verhindert 
@@ -105,7 +102,7 @@ Write-All-Available Replikationsstrategie sichergestellt, dass alle bekannten Na
 \\
 Tritt ein Fehler in der Verbindung zwischen verschiedenen Nodes auf, so muss die Node ähnlich wie bei einem Fehler im Client davon ausgehen, 
 dass die Verbindung zusammengebrochen ist. Allerdings sind die Nodes hier selbst für eine Fehlerbehandlung zuständig und versucht eine neue
-Verbindung aufzubauen. Um sicherzustellen, dass keine konkurrienden Schreibzugriffe auf den OutputStream stattfinden,
+Verbindung aufzubauen. Um sicherzustellen, dass keine konkurrierenden Schreibzugriffe auf den OutputStream stattfinden,
 werden Nachrichten in einer Queue aufbewahrt bevor sie an andere Nodes übertragen werden.
 \\
 Werden die Nodes getrennt sind die Clients immer noch in der Lage Nachrichten an ihre jeweiligen Nodes zu schicken.

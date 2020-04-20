@@ -124,12 +124,12 @@
 
     \author{}
     \section{Quick Start Guide}
-    Zunächst sollte sichergestellt werden, dass als Java-Version 11 eingestellt ist.
+    Zunächst sollte sichergestellt werden, dass als Java-Version 11 eingestellt ist. Das Projekt kann als Maven-Projekt importiert werden.
     Danach kann die erste Node gestartet werden. Dafür muss eine Instanz der Klasse Server-Bootstrapper erzeugt werden
-    und wenn es erwünscht ist, ein anderer Port (standardmäßig 9876) eingestellt werden.
+    und wenn es erwünscht ist, ein anderer Port (standardmäßig 9876) eingestellt werden. Außerdem können mit der Klasse \textit{NodeConfig} weitere Nodes angegeben werden, zu dehnen eine Verbindung gehalten werden soll.
     Wurde mindestens eine Node erfolgreich hochgefahren, können beliebig viele Clients gestartet werden. Bei der Klasse Client
     können noch Programmargumente in der Form \textit{java xy.jar node1.net:1234 node2.de:9877} mitgegeben werden. Stehen in den Programmargumenten die Adressen der Nodes, werden
-    diese ausgewählt, ansonsten wird standardmäßig der Localhost ausgewählt.
+    diese ausgewählt, oder es wird standardmäßig \textit{localhost} ausgewählt.
     Sind 2 Clients online, kann ein Chat erstellt werden.
     \author{}
     \section{Basisanforderungen}
