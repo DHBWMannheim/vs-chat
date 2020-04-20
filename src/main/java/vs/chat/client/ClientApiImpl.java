@@ -248,7 +248,6 @@ public class ClientApiImpl implements ClientApi {
             e.printStackTrace();
         }
         return null;
-
     }
 
     public String decryptAES(String key, String ciffre) {
@@ -260,7 +259,6 @@ public class ClientApiImpl implements ClientApi {
             e.printStackTrace();
         }
         return null;
-        
     }
 
     //Formatting key to SerectKeySpec
