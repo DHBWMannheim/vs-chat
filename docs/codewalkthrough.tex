@@ -55,7 +55,7 @@ Anschließend werden die passenden Listener gesucht und diese mit dem Paket aufg
 
 
 
-Filter:
+\subsubsection*{Filter:}
 \begin{itemize}
     \item PacketIdFilter\\
         Der PacketId-Filter testet, ob ein Paket mit der Id bereits gesehen wurde. Nur wenn die Id neu ist darf das Packet gehandelt werden, um rekursive Broadcasts zu vermeiden. Bereits gesehene Pakete werden im Warehouse mitgespeichert. Im seltenen Fall, dass die Node genau zwischen den Listenern und dem Aktualisieren der Filter abstürzt kann es vorkommen, dass die gespeicherten Paket-ids nicht konsistent zum Nutzdatenbestand sind. Hier könnte ein Transaktionsprotokoll implementiert werden. Da aber die Wahrscheinlichkeit dieses Fehlers äußerst gering ist wird hier darauf verzichtet.
@@ -64,11 +64,11 @@ Filter:
 
 
 
-Listener:
+\subsubsection*{Listener:}
 \begin{itemize}
     \item BaseEntityBroadcastListener\\
         Der Listener behandelt BaseEntityBroadcastPackete, die ausgestrahlt werden, sobald ein neuer Nutzer, ein neuer Chat oder eine neue Nachricht erstellt wird. Die empfangene Entität wird in das Warehouse aufgenommen und weiter gesendet, falls es dieser Node neu war.
-        \lstinputlisting[linerange={22-28}, firstnumber=22]{../src/main/java/vs/chat/server/listener/BaseEntityBroadcastListener.java}
+        \lstinputlisting[breaklines=true,linerange={22-28}, firstnumber=22]{../src/main/java/vs/chat/server/listener/BaseEntityBroadcastListener.java}
         Nachdem ein Chat erstellt wurde müssen die Clients, die an diesem Chat teilnehmen informiert werden. Da jede Node nur die direkt zu ihr verbundenen Clients kennt, muss jede Node prüfen ob sie einen teilnehmenden Client kennt und diesen informieren. Ähnliches gilt für neue Nutzer.
         \lstinputlisting[linerange={33-50}, firstnumber=33]{../src/main/java/vs/chat/server/listener/BaseEntityBroadcastListener.java}
     \item CreateChatListener\\
@@ -98,7 +98,7 @@ Listener:
 \end{itemize}
 
 \subsection{Client}
-API-Funktionen
+\subsubsection*{API-Funktionen}
 \begin{itemize}
     \item Funktion - login\\
     Bei der Funktion login werden der Benutzername und das Passwort des Benutzers entgegengenommen. Diese werden als neues LoginPacket an den Server geschickt. Dort wird unter anderem überprüft, ob es sich um einen neuen Nutzer handelt (es wird ein Neuer angelegt) oder es ein bereits existierender Nutzer ist (Passwort wird überprüft). An dieser Stelle wartet der Client auf ein LoginSyncPacket (Login war erfolgreich). Danach werden die Attribute (userId, chats, contacts) abgespeichert. Für die Verschlüsselung wird auch noch die Keyfile geladen, in der die Schlüssel der eigenen Chats gespeichert sind. Sollte es noch keine Keyfile geben, wird eine neue erzeugt. Diese Datei ist ähnlich wie die Warehouse-Datei aufgebaut (hier wird über die Chat-Id, die Schlüssel geladen). Abschließend wird aus den beiden festgeschriebenen, öffentliche Primzahlen noch ein Schlüssel generiert, der später für den Diffie-Hellman-Key-Exchange notwendig ist.
@@ -172,7 +172,7 @@ API-Funktionen
     User die exit Methode aufgerufen hat und erfolgreich vom Server ausgeloggt wurde. Anschließend wird der Client
     heruntergefahren.\\
     \lstinputlisting[linerange={427-429}, firstnumber=427]{../src/main/java/vs/chat/client/ClientApiImpl.java}
-Verwendung von Emojis: \\\\
+    \subsubsection*{Verwendung von Emojis:}
 	Wie bereits in der Doku erwähnt nutzen wir für die Darstellung von Emojis Unicode.
 	\lstinputlisting[linerange={619-636}, firstnumber = 619]{../src/main/java/vs/chat/client/UI/ClientGUI.java}
 	Die im String Array unicodeemoji erhaltenen Unicode Zeichen werden jeweils in einem JLabel hinzugefügt und auf ein Panel gesetzt. Jedes JLabel bekommt den selben Mouselistener zugewiesen, der als Übergabeparameter das entsprechende Unicodezeichen erhält. Im EmojiMouselistener wird mit der Funktion append() die JTextArea um das jeweils übergebene Unicodezeichen erweitert.
