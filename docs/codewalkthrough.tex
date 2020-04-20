@@ -128,7 +128,7 @@ API-Funktionen
     dem Key initialisiert. Abschließend wird der eigentlich Text verschlüsselt und in einem String zurückgegeben. \\
     Die Entschlüsselung ist fast identisch zur Verschlüsselung. Hier wird die Instanz in dem Entschlüsselungsmodus
     initialisiert.
-    \lstinputlisting[linerange={235-255}, firstnumber=235]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={242-278}, firstnumber=242]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - Keyfile (addKey, loadKey, deleteKey) \
     addKey\\
     Mit diesen Funktionen wird auf die Keyfile des Benutzers zugegriffen. Die Keyfile besteht aus PrivateKeyEntitys.
@@ -142,10 +142,10 @@ API-Funktionen
     deleteKey \\
     Sollte ein Chat irgendwann gelöscht werden, kann der die PrivateKeyEntity über die chatID entfernt werden. 
     
-    \lstinputlisting[linerange={257-301}, firstnumber=257]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={280-317}, firstnumber=280]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item Funktion - exit \\
     Bei dieser Methode wird ein LogoutPacket an den Server geschickt. Der User wird hier noch nicht ausgeloggt!
-    \lstinputlisting[linerange={312-316}, firstnumber=312]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={319-323}, firstnumber=319]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     \item PacketListener-Thread \\
     Dieser Thread läuft die gesamte Zeit im Hintergrund und nimmt alle (außer LoginSynPacket) Packete, die vom Server
     an den Client geschickt werden, auf und verarbeitet sie.
@@ -158,25 +158,25 @@ API-Funktionen
         \item Es hat sich ein neuer User angemeldet. Dieser User muss den Usern des Clients hinzugefügt werden, damit auch
         Chats mit diesem erstellt werden können. (Diffie Hellman funktioniert nur, wenn alle Nutzer online sind.)
     \end{enumerate}
-    \lstinputlisting[linerange={326-356}, firstnumber=326]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={326-356}, firstnumber=326]{../src/main/java/vs/chat/client/ClientApiImpl.java}//TODO
     Handelt es sich um ein KeyExchangePacket, wird überprüft, ob der Schlüsseltausch schon fertig ist,
     falls ja erstellt der Initiator des Schlüsseltauschs den Chat, falls nicht werden die nächsten
     Teilschlüssel berechnet und weitergeschickt.\\
-    \lstinputlisting[linerange={358-403}, firstnumber=358]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={358-403}, firstnumber=358]{../src/main/java/vs/chat/client/ClientApiImpl.java}//TODO
     Wird ein GetMessagesResponsePacket erhalten, wurde an den Server zuvor die Anfrage gestellt, dass die Chat Historie
     geladen werden soll. Dieses Packet enthält alle Nachrichten, die in dem geladenen Chat bereits geschrieben wurden.
     Dafür wird zunächst der passende Schlüssel aus der Keyfile geladen und danach alle Nachrichten entschlüsselt.
     Diese Nachrichten können dann im Chat angezeigt werden.\\
-    \lstinputlisting[linerange={405-419}, firstnumber=405]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={405-419}, firstnumber=405]{../src/main/java/vs/chat/client/ClientApiImpl.java}//TODO
     Abschließend wird geprüft, ob es ein LogoutSuccessPacket ist. Dieses Paket wird vom Server geschickt, wenn der
     User die exit Methode aufgerufen hat und erfolgreich vom Server ausgeloggt wurde. Anschließend wird der Client
     heruntergefahren.\\
-    \lstinputlisting[linerange={430-438}, firstnumber=430]{../src/main/java/vs/chat/client/ClientApiImpl.java}
+    \lstinputlisting[linerange={430-438}, firstnumber=430]{../src/main/java/vs/chat/client/ClientApiImpl.java}//TODO
 Verwendung von Emojis: \\\\
 	Wie bereits in der Doku erwähnt nutzen wir für die Darstellung von Emojis Unicode.
-	\lstinputlisting[linerange={621-631}, firstnumber = 621]{../src/main/java/vs/chat/client/UI/ClientGUI.java}
+	\lstinputlisting[linerange={621-631}, firstnumber = 621]{../src/main/java/vs/chat/client/UI/ClientGUI.java}//TODO
 	Die im String Array unicodeemoji erhaltenen Unicode Zeichen werden jeweils in einem JLabel hinzugefügt und auf ein Panel gesetzt. Jedes JLabel bekommt den selben Mouselistener zugewiesen, der als Übergabeparameter das entsprechende Unicodezeichen erhält. Im EmojiMouselistener wird mit der Funktion append() die JTextArea um das jeweils übergebene Unicodezeichen erweitert.
-	\lstinputlisting[linerange={89-109}, firstnumber = 89]{../src/main/java/vs/chat/client/UI/ClientGUI.java}
+	\lstinputlisting[linerange={89-109}, firstnumber = 89]{../src/main/java/vs/chat/client/UI/ClientGUI.java}//TODO
 	Durch das Erweitern oder Ändern des unicodeemoji Arrays können die Emoticons getauscht oder beliebig erweitert werden. Weiter Anpassungen sind nicht nötig.
 \end{itemize}
 
