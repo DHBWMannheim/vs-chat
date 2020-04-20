@@ -156,7 +156,7 @@ API-Funktionen
         \item Es wurde eine Nachricht an den User geschrieben. Hier wird der Schlüssel aus der Keyfile geladen und die
         Nachricht damit entschlüsselt.
         \item Es hat sich ein neuer User angemeldet. Dieser User muss den Usern des Clients hinzugefügt werden, damit auch
-        Chats mit diesem erstellt werden können. (Diffie Hellman funktioniert nur, wenn alle Nutzer online sind.)
+        Chats mit diesem erstellt werden können. (Diffie-Hellman funktioniert nur, wenn alle Nutzer online sind.)
     \end{enumerate}
     \lstinputlisting[linerange={337-365}, firstnumber=326]{../src/main/java/vs/chat/client/ClientApiImpl.java}
     Handelt es sich um ein KeyExchangePacket, wird überprüft, ob der Schlüsseltausch schon fertig ist,
